@@ -8,10 +8,10 @@ await import("./src/env.mjs");
 const config = {
   reactStrictMode: true,
   typescript: {
-    ignoreBuildErrors: process.env.NODE_ENV === "production" ? true : false,
+    // ignoreBuildErrors: process.env.NODE_ENV === "production" ? true : false,
   },
   eslint: {
-    ignoreDuringBuilds: process.env.NODE_ENV === "production" ? true : false,
+    ignoreDuringBuilds: true,
   },
 };
 
