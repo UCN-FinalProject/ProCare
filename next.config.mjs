@@ -5,6 +5,14 @@
 await import("./src/env.mjs");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: process.env.NODE_ENV === "production" ? true : false,
+  },
+  eslint: {
+    ignoreDuringBuilds: process.env.NODE_ENV === "production" ? true : false,
+  },
+};
 
 export default config;
