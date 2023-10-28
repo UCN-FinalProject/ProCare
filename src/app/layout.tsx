@@ -3,6 +3,7 @@ import "~/styles/globals.css";
 import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { ThemeProvider } from "~/providers/ThemeProvider";
 
 export const metadata = {
   title: "Create T3 App",
@@ -18,7 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <TRPCReactProvider headers={headers()}>{children}</TRPCReactProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <TRPCReactProvider headers={headers()}>{children}</TRPCReactProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
