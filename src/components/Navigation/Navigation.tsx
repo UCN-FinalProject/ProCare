@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import {
-  ArrowLeft,
-  BarChart3,
-  Edit3,
-  Globe,
-  Layout,
+  PersonStanding,
   LayoutDashboard,
-  Megaphone,
   Menu,
-  Newspaper,
+  Stethoscope,
   Settings,
+  Activity,
+  Syringe,
+  Heart,
+  Shield,
+  User,
 } from "lucide-react";
 import {
   useParams,
@@ -19,9 +19,8 @@ import {
   useSelectedLayoutSegments,
 } from "next/navigation";
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
-import { FileCode, Github } from "lucide-react";
 import { cn } from "~/lib/utils";
+import Logo from "./Logo";
 
 export default function Nav({ children }: { children: ReactNode }) {
   const segments = useSelectedLayoutSegments();
@@ -90,31 +89,43 @@ export default function Nav({ children }: { children: ReactNode }) {
         name: "Patients",
         href: "/patients",
         isActive: segments[0] === "patients",
-        icon: <Globe width={18} />,
+        icon: <PersonStanding width={18} />,
       },
       {
         name: "Doctors",
         href: "/doctors",
         isActive: segments[0] === "doctors",
-        icon: <Settings width={18} />,
+        icon: <Stethoscope width={18} />,
       },
       {
         name: "Healthcare providers",
         href: "/healthcare-providers",
         isActive: segments[0] === "healthcare-providers",
-        icon: <Settings width={18} />,
+        icon: <Heart width={18} />,
+      },
+      {
+        name: "Insurance providers",
+        href: "/insurance-providers",
+        isActive: segments[0] === "insurance-providers",
+        icon: <Shield width={18} />,
       },
       {
         name: "Procedures",
         href: "/procedures",
         isActive: segments[0] === "procedures",
-        icon: <Settings width={18} />,
+        icon: <Syringe width={18} />,
       },
       {
         name: "Diagnoses",
         href: "/diagnoses",
         isActive: segments[0] === "diagnoses",
-        icon: <Settings width={18} />,
+        icon: <Activity width={18} />,
+      },
+      {
+        name: "Users",
+        href: "/users",
+        isActive: segments[0] === "users",
+        icon: <User width={18} />,
       },
       {
         name: "Settings",
@@ -154,38 +165,11 @@ export default function Nav({ children }: { children: ReactNode }) {
       >
         <div className="grid gap-2">
           <div className="flex items-center space-x-2 rounded-lg px-2 py-1.5">
-            <a
-              href="https://vercel.com/templates/next.js/platforms-starter-kit"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg p-1.5 hover:bg-stone-200 dark:hover:bg-stone-700"
-            >
-              <svg
-                width="26"
-                viewBox="0 0 76 65"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-black dark:text-white"
-              >
-                <path
-                  d="M37.5274 0L75.0548 65H0L37.5274 0Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </a>
-            <div className="h-6 rotate-[30deg] border-l border-stone-400 dark:border-stone-500" />
             <Link
               href="/"
               className="rounded-lg p-2 hover:bg-stone-200 dark:hover:bg-stone-700"
             >
-              {/* TODO: add logo */}
-              {/* <Image
-                src="/logo.png"
-                width={24}
-                height={24}
-                alt="Logo"
-                className="dark:scale-110 dark:rounded-full dark:border dark:border-stone-400"
-              /> */}
+              <Logo />
             </Link>
           </div>
           <div className="grid gap-1">

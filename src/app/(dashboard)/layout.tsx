@@ -8,7 +8,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <Navigation>
         <Profile />
       </Navigation>
-      <div className="min-h-screen sm:pl-60">{children}</div>
+      <div className="min-h-screen sm:pl-60">
+        <main className="flex bg-background max-w-screen-xl flex-col space-y-12 p-8">
+          {children}
+        </main>
+      </div>
     </>
   );
 }
