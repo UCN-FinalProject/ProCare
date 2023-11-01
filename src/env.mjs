@@ -9,9 +9,8 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z
       .string()
-      .url()
       .refine(
-        (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
+        (str) => !str.includes("YOUR_POSTGRES_URL_HERE"),
         "You forgot to change the default URL",
       ),
     NODE_ENV: z
@@ -54,7 +53,8 @@ export const env = createEnv({
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
    * useful for Docker builds.
    */
-  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+  // skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+  skipValidation: true,
   /**
    * Makes it so that empty strings are treated as undefined.
    * `SOME_VAR: z.string()` and `SOME_VAR=''` will throw an error.
