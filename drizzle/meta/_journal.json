@@ -8,6 +8,13 @@
       "when": 1698864773736,
       "tag": "0000_uneven_grim_reaper",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1698877441360,
+      "tag": "0001_open_karma",
+      "breakpoints": true
     }
   ]
 }
