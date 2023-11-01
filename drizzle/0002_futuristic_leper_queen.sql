@@ -1,0 +1,1 @@
+ALTER TABLE "tennant_bank_details" RENAME COLUMN "bank_account_id" TO "swift";

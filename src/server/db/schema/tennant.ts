@@ -69,7 +69,7 @@ export const tennantBankDetails = pgTable("tennant_bank_details", {
     .notNull()
     .references(() => tennant.id),
   bankName: varchar("bank_name").notNull(),
-  SWIFT: varchar("bank_account_id").notNull(),
+  SWIFT: varchar("swift").notNull(),
   IBAN: varchar("iban").notNull(),
 });
 export const tennantBankDetailsRelations = relations(
