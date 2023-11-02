@@ -35,7 +35,6 @@ export default {
     if (!res.tennant_bank_details)
       throw new Error("Tennant bank details not found");
     if (!res.tennant_vat) throw new Error("Tennant VAT not found");
-    console.log("res", res);
     return {
       ...res.tennant,
       headDoctor: res.head_doctor,
