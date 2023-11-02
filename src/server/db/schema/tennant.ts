@@ -14,11 +14,17 @@ export const tennant = pgTable("tennant", {
   regionalAuthority: varchar("regional_authority").notNull(),
 });
 export const tennantRelations = relations(tennant, ({ one }) => ({
-  tennantVATRelations: one(tennantVAT),
-  tennantBankDetailsRelations: one(tennantBankDetails),
-  healthCareProviderRelations: one(healthCareProvider),
-  headDoctorRelations: one(headDoctor),
+  tennantVAT: one(tennantVAT),
+  tennantBankDetails: one(tennantBankDetails),
+  healthCareProvider: one(healthCareProvider),
+  headDoctor: one(headDoctor),
 }));
+export type Tennant = typeof tennant.$inferSelect & {
+  headDoctor: typeof headDoctor.$inferSelect;
+  healthCareProvider: typeof healthCareProvider.$inferSelect;
+  tennantBankDetails: typeof tennantBankDetails.$inferSelect;
+  tennantVAT: typeof tennantVAT.$inferSelect;
+};
 
 export const headDoctor = pgTable("head_doctor", {
   id: serial("id").primaryKey(),
