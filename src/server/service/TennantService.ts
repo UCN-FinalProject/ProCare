@@ -8,7 +8,7 @@ import {
   tennantBankDetails,
   tennantVAT,
 } from "../db/export";
-import { TennantInput } from "./validation";
+import { TennantInput } from "./validation/TennantValidation";
 
 export default {
   async getTennant(): Promise<Tennant> {
