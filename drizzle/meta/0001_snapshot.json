@@ -1,0 +1,271 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "id": "c4af83c5-a369-4cc9-b903-bda491005d68",
+  "prevId": "1eebcaf3-ea69-47c9-ad2d-31394552121f",
+  "tables": {
+    "head_doctor": {
+      "name": "head_doctor",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tennant_id": {
+          "name": "tennant_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "head_doctor": {
+          "name": "head_doctor",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "head_doctor_id": {
+          "name": "head_doctor_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "head_doctor_tennant_id_tennant_id_fk": {
+          "name": "head_doctor_tennant_id_tennant_id_fk",
+          "tableFrom": "head_doctor",
+          "tableTo": "tennant",
+          "columnsFrom": [
+            "tennant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "health_care_provider": {
+      "name": "health_care_provider",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tennant_id": {
+          "name": "tennant_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address1": {
+          "name": "address1",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address2": {
+          "name": "address2",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "city": {
+          "name": "city",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "zip": {
+          "name": "zip",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "health_care_provider_tennant_id_tennant_id_fk": {
+          "name": "health_care_provider_tennant_id_tennant_id_fk",
+          "tableFrom": "health_care_provider",
+          "tableTo": "tennant",
+          "columnsFrom": [
+            "tennant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "tennant": {
+      "name": "tennant",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "basis": {
+          "name": "basis",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "regional_authority": {
+          "name": "regional_authority",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "tennant_bank_details": {
+      "name": "tennant_bank_details",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tennant_id": {
+          "name": "tennant_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bank_name": {
+          "name": "bank_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bank_account_id": {
+          "name": "bank_account_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iban": {
+          "name": "iban",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tennant_bank_details_tennant_id_tennant_id_fk": {
+          "name": "tennant_bank_details_tennant_id_tennant_id_fk",
+          "tableFrom": "tennant_bank_details",
+          "tableTo": "tennant",
+          "columnsFrom": [
+            "tennant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "tennant_vat": {
+      "name": "tennant_vat",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tennant_id": {
+          "name": "tennant_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vat1": {
+          "name": "vat1",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vat2": {
+          "name": "vat2",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vat3": {
+          "name": "vat3",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tennant_vat_tennant_id_tennant_id_fk": {
+          "name": "tennant_vat_tennant_id_tennant_id_fk",
+          "tableFrom": "tennant_vat",
+          "tableTo": "tennant",
+          "columnsFrom": [
+            "tennant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}

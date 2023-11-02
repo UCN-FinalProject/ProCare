@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "db:generate_migration": "drizzle-kit generate:pg",
     "db:push": "dotenv drizzle-kit push:pg",
     "db:studio": "dotenv drizzle-kit studio",
     "dev": "next dev",
