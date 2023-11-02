@@ -1,35 +1,48 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import {
-  Tennant,
+  type Tennant,
   headDoctor,
   healthCareProvider,
   tennant,
   tennantBankDetails,
   tennantVAT,
 } from "../db/export";
-import { TennantInput } from "./validation";
+import { type TennantInput } from "./validation";
 
 export default {
   async getTennant(): Promise<Tennant> {
-    const res = await db.query.tennant.findFirst({
-      with: {
-        headDoctor: true,
-        healthCareProvider: true,
-        tennantBankDetails: true,
-        tennantVAT: true,
-      },
-    });
-    if (res) {
-      if (!res.headDoctor) throw new Error("HeadDoctor not found");
-      if (!res.healthCareProvider)
-        throw new Error("Healthcare provider not found");
-      if (!res.tennantBankDetails)
-        throw new Error("Tennant bank details not found");
-      if (!res.tennantVAT) throw new Error("tennantVAT not found");
-      return res as Tennant;
-    }
-    throw new Error("Tennant not found");
+    const res = (
+      await db
+        .select()
+        .from(tennant)
+        .leftJoin(headDoctor, eq(headDoctor.tennantID, tennant.id))
+        .leftJoin(
+          healthCareProvider,
+          eq(healthCareProvider.tennantID, tennant.id),
+        )
+        .leftJoin(
+          tennantBankDetails,
+          eq(tennantBankDetails.tennantID, tennant.id),
+        )
+        .leftJoin(tennantVAT, eq(tennantVAT.tennantID, tennant.id))
+        .limit(1)
+    )[0];
+    if (!res) throw new Error("Tennant not found");
+    if (!res.head_doctor) throw new Error("Head doctor not found");
+    if (!res.health_care_provider)
+      throw new Error("Health care provider not found");
+    if (!res.tennant_bank_details)
+      throw new Error("Tennant bank details not found");
+    if (!res.tennant_vat) throw new Error("Tennant VAT not found");
+    console.log("res", res);
+    return {
+      ...res.tennant,
+      headDoctor: res.head_doctor,
+      healthCareProvider: res.health_care_provider,
+      tennantBankDetails: res.tennant_bank_details,
+      tennantVAT: res.tennant_vat,
+    };
   },
 
   async updateTennant(input: { tennant: TennantInput }): Promise<Tennant> {
@@ -93,8 +106,8 @@ export default {
   },
 
   async createTennant(input: { tennant: TennantInput }): Promise<Tennant> {
-    const currentTennant = await db.select().from(tennant);
-    if (currentTennant) throw new Error("Tennant already exists");
+    const currentTennant = await db.select().from(tennant).limit(1);
+    if (currentTennant.length > 0) throw new Error("Tennant already exists");
 
     // TRANSACTION
     await db.transaction(async () => {
@@ -104,14 +117,13 @@ export default {
         name: input.tennant.name,
         regionalAuthority: input.tennant.regionalAuthority,
       });
-      const createdTennant = (await db.select().from(tennant))[0];
-      if (!createdTennant) throw new Error("Tennant not found");
-      console.log("createdTennant", createdTennant);
+      const createdTennant = (await db.select().from(tennant).limit(1))[0];
+      if (!createdTennant) throw new Error("Error creating tennant");
       // create headDoctor
       await db.insert(headDoctor).values({
         headDoctor: input.tennant.headDoctor.headDoctor,
         headDoctorID: input.tennant.headDoctor.headDoctorID,
-        tennantID: createdTennant?.id,
+        tennantID: createdTennant.id,
       });
       // create healthCareProvider
       await db.insert(healthCareProvider).values({
@@ -120,21 +132,21 @@ export default {
         address2: input.tennant.healthCareProvider.address2,
         city: input.tennant.healthCareProvider.city,
         zip: input.tennant.healthCareProvider.zip,
-        tennantID: createdTennant?.id,
+        tennantID: createdTennant.id,
       });
       // create tennantVAT
       await db.insert(tennantVAT).values({
         VAT1: input.tennant.tennantVAT.VAT1,
         VAT2: input.tennant.tennantVAT.VAT2,
         VAT3: input.tennant.tennantVAT.VAT3,
-        tennantID: createdTennant?.id,
+        tennantID: createdTennant.id,
       });
       // create tennantBankDetails
       await db.insert(tennantBankDetails).values({
         bankName: input.tennant.tennantBankDetails.bankName,
         IBAN: input.tennant.tennantBankDetails.IBAN,
         SWIFT: input.tennant.tennantBankDetails.SWIFT,
-        tennantID: createdTennant?.id,
+        tennantID: createdTennant.id,
       });
     });
     return await this.getTennant();
