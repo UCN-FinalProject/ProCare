@@ -4,9 +4,11 @@ import {
     varchar,
     date,
     boolean,
+    serial,
   } from "drizzle-orm/pg-core";
 
   export const external_healthcare_provider = pgTable("external_healthcare_provider", {
+    id: serial("ID").primaryKey(),
     name: varchar("name").notNull(),
     healthcare_provider_code: varchar("name").notNull(),
     vat_number: varchar("vat_number").notNull(),
