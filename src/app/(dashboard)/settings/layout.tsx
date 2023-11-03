@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             Tennant
           </TabsTrigger>
           <TabsTrigger
-            value="user"
+            value="account"
             onClick={() => {
               setActiveTab("account");
               router.push("/settings/account");

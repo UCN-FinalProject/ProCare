@@ -9,7 +9,7 @@ export default function PageHeader(props: Props) {
   return (
     <h1
       className={cn(
-        "scroll-m-20 text-4xl font-bold tracking-tight",
+        "scroll-m-20 text-4xl font-bold tracking-tight w-fit",
         props.className,
       )}
     >
