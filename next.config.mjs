@@ -8,10 +8,14 @@ await import("./src/env.mjs");
 const config = {
   reactStrictMode: true,
   typescript: {
-    // ignoreBuildErrors: process.env.NODE_ENV === "production" ? true : false,
+    ...(process.env.NODE_ENV === "production" && {
+      ignoreBuildErrors: true,
+    }),
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ...(process.env.NODE_ENV === "production" && {
+      ignoreDuringBuilds: true,
+    }),
   },
   images: {
     remotePatterns: [
