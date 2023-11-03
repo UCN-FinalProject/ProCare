@@ -8,7 +8,7 @@ import {
   tennantBankDetails,
   tennantVAT,
 } from "../db/export";
-import { type TennantInput } from "./validation";
+import { type TennantInput } from "./validation/TennantValidation";
 
 export default {
   async getTennant(): Promise<Tennant> {
@@ -37,10 +37,12 @@ export default {
     if (!res.tennant_vat) throw new Error("Tennant VAT not found");
     return {
       ...res.tennant,
-      headDoctor: res.head_doctor,
-      healthCareProvider: res.health_care_provider,
-      tennantBankDetails: res.tennant_bank_details,
-      tennantVAT: res.tennant_vat,
+      ...{
+        headDoctor: res.head_doctor,
+        healthCareProvider: res.health_care_provider,
+        tennantBankDetails: res.tennant_bank_details,
+        tennantVAT: res.tennant_vat,
+      },
     };
   },
 
@@ -50,7 +52,7 @@ export default {
     if (!currentTennant) throw new Error("Tennant not found");
 
     // TRANSACTION
-    await db.transaction(async () => {
+    await db.transaction(async (tx) => {
       // update tennant
       await db
         .update(tennant)
@@ -59,7 +61,11 @@ export default {
           name: input.tennant.name,
           regionalAuthority: input.tennant.regionalAuthority,
         })
-        .where(eq(tennant.id, currentTennant.id));
+        .where(eq(tennant.id, currentTennant.id))
+        .catch((err: unknown) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
       // update headDoctor
       await db
         .update(headDoctor)
@@ -67,7 +73,11 @@ export default {
           headDoctor: input.tennant.headDoctor.headDoctor,
           headDoctorID: input.tennant.headDoctor.headDoctorID,
         })
-        .where(eq(headDoctor.id, currentTennant.headDoctor.id));
+        .where(eq(headDoctor.id, currentTennant.headDoctor.id))
+        .catch((err: unknown) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
       // update healthCareProvider
       await db
         .update(healthCareProvider)
@@ -78,7 +88,11 @@ export default {
           city: input.tennant.healthCareProvider.city,
           zip: input.tennant.healthCareProvider.zip,
         })
-        .where(eq(healthCareProvider.id, currentTennant.healthCareProvider.id));
+        .where(eq(healthCareProvider.id, currentTennant.healthCareProvider.id))
+        .catch((err: unknown) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
       // update tennantVAT
       await db
         .update(tennantVAT)
@@ -87,7 +101,11 @@ export default {
           VAT2: input.tennant.tennantVAT.VAT2,
           VAT3: input.tennant.tennantVAT.VAT3,
         })
-        .where(eq(tennantVAT.id, currentTennant.tennantVAT.id));
+        .where(eq(tennantVAT.id, currentTennant.tennantVAT.id))
+        .catch((err: unknown) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
       // update tennantBankDetails
       await db
         .update(tennantBankDetails)
@@ -96,7 +114,11 @@ export default {
           IBAN: input.tennant.tennantBankDetails.IBAN,
           SWIFT: input.tennant.tennantBankDetails.SWIFT,
         })
-        .where(eq(tennantBankDetails.id, currentTennant.tennantBankDetails.id));
+        .where(eq(tennantBankDetails.id, currentTennant.tennantBankDetails.id))
+        .catch((err: unknown) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
     });
 
     const res = await this.getTennant();
@@ -109,45 +131,75 @@ export default {
     if (currentTennant.length > 0) throw new Error("Tennant already exists");
 
     // TRANSACTION
-    await db.transaction(async () => {
+    await db.transaction(async (tx) => {
       // create tennant
-      await db.insert(tennant).values({
-        basis: input.tennant.basis,
-        name: input.tennant.name,
-        regionalAuthority: input.tennant.regionalAuthority,
-      });
+      await db
+        .insert(tennant)
+        .values({
+          basis: input.tennant.basis,
+          name: input.tennant.name,
+          regionalAuthority: input.tennant.regionalAuthority,
+        })
+        .catch((err: unknown) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
       const createdTennant = (await db.select().from(tennant).limit(1))[0];
       if (!createdTennant) throw new Error("Error creating tennant");
       // create headDoctor
-      await db.insert(headDoctor).values({
-        headDoctor: input.tennant.headDoctor.headDoctor,
-        headDoctorID: input.tennant.headDoctor.headDoctorID,
-        tennantID: createdTennant.id,
-      });
+      await db
+        .insert(headDoctor)
+        .values({
+          headDoctor: input.tennant.headDoctor.headDoctor,
+          headDoctorID: input.tennant.headDoctor.headDoctorID,
+          tennantID: createdTennant.id,
+        })
+        .catch((err: unknown) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
       // create healthCareProvider
-      await db.insert(healthCareProvider).values({
-        name: input.tennant.healthCareProvider.name,
-        address1: input.tennant.healthCareProvider.address1,
-        address2: input.tennant.healthCareProvider.address2,
-        city: input.tennant.healthCareProvider.city,
-        zip: input.tennant.healthCareProvider.zip,
-        tennantID: createdTennant.id,
-      });
+      await db
+        .insert(healthCareProvider)
+        .values({
+          name: input.tennant.healthCareProvider.name,
+          address1: input.tennant.healthCareProvider.address1,
+          address2: input.tennant.healthCareProvider.address2,
+          city: input.tennant.healthCareProvider.city,
+          zip: input.tennant.healthCareProvider.zip,
+          tennantID: createdTennant.id,
+        })
+        .catch((err: unknown) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
       // create tennantVAT
-      await db.insert(tennantVAT).values({
-        VAT1: input.tennant.tennantVAT.VAT1,
-        VAT2: input.tennant.tennantVAT.VAT2,
-        VAT3: input.tennant.tennantVAT.VAT3,
-        tennantID: createdTennant.id,
-      });
+      await db
+        .insert(tennantVAT)
+        .values({
+          VAT1: input.tennant.tennantVAT.VAT1,
+          VAT2: input.tennant.tennantVAT.VAT2,
+          VAT3: input.tennant.tennantVAT.VAT3,
+          tennantID: createdTennant.id,
+        })
+        .catch((err: unknown) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
       // create tennantBankDetails
-      await db.insert(tennantBankDetails).values({
-        bankName: input.tennant.tennantBankDetails.bankName,
-        IBAN: input.tennant.tennantBankDetails.IBAN,
-        SWIFT: input.tennant.tennantBankDetails.SWIFT,
-        tennantID: createdTennant.id,
-      });
+      await db
+        .insert(tennantBankDetails)
+        .values({
+          bankName: input.tennant.tennantBankDetails.bankName,
+          IBAN: input.tennant.tennantBankDetails.IBAN,
+          SWIFT: input.tennant.tennantBankDetails.SWIFT,
+          tennantID: createdTennant.id,
+        })
+        .catch((err: unknown) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
     });
     return await this.getTennant();
   },
-};
+} as const;

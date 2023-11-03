@@ -1,7 +1,7 @@
 import TennantService from "~/server/service/TennantService";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import { tennantInput } from "~/server/service/validation";
+import { tennantInput } from "~/server/service/validation/TennantValidation";
 
 export const tennantRouter = createTRPCRouter({
   // GET
