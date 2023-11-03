@@ -1,6 +1,6 @@
 "use client";
 import { useSelectedLayoutSegments, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 type Tabs = "tennant" | "account";
@@ -8,6 +8,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const segments = useSelectedLayoutSegments();
   const [activeTab, setActiveTab] = useState<Tabs>(segments[0] as Tabs);
   const router = useRouter();
+
+  useEffect(() => {
+    setActiveTab(segments[0] as Tabs);
+  }, [segments]);
 
   //   TODO: return this only if user has admin role
   return (
