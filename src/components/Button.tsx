@@ -11,7 +11,7 @@ export default function ButtonReusable({ isLoading, ...props }: Props) {
   return (
     <Button {...props} className={cn(props.className)}>
       {isLoading && (
-        <Loader className="animate-spin-slow mr-1.5 w-4 text-slate-300" />
+        <Loader className="animate-spin-slow mr-1.5 w-4 text-muted-foreground" />
       )}
       {props.children}
     </Button>
