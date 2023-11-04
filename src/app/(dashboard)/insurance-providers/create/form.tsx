@@ -1,6 +1,5 @@
 "use client";
 
-// TODO: disable fields and hide button for non admin users
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -17,16 +16,17 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { type HealthInsurance } from "~/server/db/export";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
 import { revalidateHealthProviderPath } from "../serverAction";
+import { useState } from "react";
+import Link from "next/link";
 
 const formSchema = z.object({
-  insuranceID: z.number().min(1, {
+  insuranceID: z.string().min(1, {
     message: "Insurance ID cannot be empty.",
   }),
-  registeredID: z.number().min(1, {
+  registeredID: z.string().min(1, {
     message: "Registered ID cannot be empty.",
   }),
   name: z.string().min(1, {
@@ -56,43 +56,37 @@ const formSchema = z.object({
   healthInsuranceVAT3: z.string().optional(),
 });
 
-export default function UpdateInsuranceProviderForm({
-  data,
-}: {
-  data: HealthInsurance;
-}) {
+export default function CreateInsuranceProviderForm() {
+  const [insuranceID, setInsuranceID] = useState<number | null>(null);
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      insuranceID: Number(data.insuranceID),
-      registeredID: Number(data.registeredID),
-      name: data.name,
-      pricePerCredit: data.pricePerCredit,
-      healthInsuranceAddress1: data.healthInsuranceAddress.address1,
-      healthInsuranceAddress2:
-        data.healthInsuranceAddress.address2 ?? undefined,
-      healthInsuranceCity: data.healthInsuranceAddress.city,
-      healthInsuranceZip: data.healthInsuranceAddress.zip,
-      healthInsurancePhone:
-        data.healthInsuranceAddress.phoneNumber ?? undefined,
-      healthInsuranceEmail: data.healthInsuranceAddress.email ?? undefined,
-      healthInsuranceVAT1: data.healthInsuranceVAT.vat1,
-      healthInsuranceVAT2: data.healthInsuranceVAT.vat2,
-      healthInsuranceVAT3: data.healthInsuranceVAT.vat3 ?? undefined,
+      insuranceID: undefined,
+      registeredID: undefined,
+      name: "",
+      pricePerCredit: "",
+      healthInsuranceAddress1: "",
+      healthInsuranceAddress2: undefined,
+      healthInsuranceCity: "",
+      healthInsuranceZip: "",
+      healthInsurancePhone: undefined,
+      healthInsuranceEmail: undefined,
+      healthInsuranceVAT1: "",
+      healthInsuranceVAT2: "",
+      healthInsuranceVAT3: undefined,
     },
   });
 
-  const updateHealthInsurance =
-    api.healthInsurance.updateHealthInsurance.useMutation();
+  const createHealthInsurance =
+    api.healthInsurance.createHealthInsurance.useMutation();
   function onSubmit(values: z.infer<typeof formSchema>) {
-    updateHealthInsurance.mutate(
+    createHealthInsurance.mutate(
       {
-        id: data.id,
-        insuranceID: values.insuranceID,
-        registeredID: values.registeredID,
+        insuranceID: Number(values.insuranceID),
+        registeredID: Number(values.registeredID),
         name: values.name,
-        pricePerCredit: Number(values.pricePerCredit),
+        pricePerCredit: values.pricePerCredit,
         address: {
           address1: values.healthInsuranceAddress1,
           address2: values.healthInsuranceAddress2,
@@ -108,10 +102,10 @@ export default function UpdateInsuranceProviderForm({
         },
       },
       {
-        onSuccess: () => {
-          toast.success("Health insurance updated");
-          async () => await revalidateHealthProviderPath(data.id);
-          window.location.reload();
+        onSuccess: (res) => {
+          setInsuranceID(res.id);
+          toast.success("Health insurance created");
+          async () => await revalidateHealthProviderPath(undefined);
         },
         onError: (err) => toast.error(err.message),
       },
@@ -315,13 +309,18 @@ export default function UpdateInsuranceProviderForm({
           )}
         />
 
-        <Button
-          type="submit"
-          className="sticky bottom-5 left-0"
-          isLoading={updateHealthInsurance.isLoading}
-        >
-          Submit
-        </Button>
+        <div className="flex gap-1">
+          <Button type="submit" isLoading={createHealthInsurance.isLoading}>
+            Submit
+          </Button>
+          {createHealthInsurance.isSuccess && (
+            <Button variant="outline">
+              <Link href={"/insurance-providers/" + insuranceID}>
+                View health insurance
+              </Link>
+            </Button>
+          )}
+        </div>
       </form>
     </Form>
   );

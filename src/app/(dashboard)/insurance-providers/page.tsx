@@ -17,6 +17,7 @@ export default async function page() {
     <div className="flex flex-col gap-4 overflow-hidden">
       <div className="flex justify-between">
         <PageHeader>Insurance providers</PageHeader>
+        {/* TODO: Hide button if user is not admin */}
         <Button>
           <Link
             href="/insurance-providers/create"
