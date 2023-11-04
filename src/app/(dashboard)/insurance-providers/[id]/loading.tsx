@@ -1,14 +1,35 @@
 "use client";
-import PageHeader from "~/components/Headers/PageHeader";
+import { Separator } from "~/components/ui/separator";
+import FormFieldLoader from "~/components/Loaders/FormFieldLoader";
 import { useParams } from "next/navigation";
+import ID from "~/components/ID";
 import { Skeleton } from "~/components/ui/skeleton";
 
 export default function Loading() {
   const { id } = useParams();
   return (
-    <div className="flex flex-col gap-4">
-      <PageHeader>Insurance provider {String(id)}</PageHeader>
-      <Skeleton className="h-5" />
+    <div className="space-y-[22px] lg:max-w-lg">
+      <div className="flex gap-2 items-center">
+        <ID className="text-3xl text-slate-400">{id}</ID>
+        <Skeleton className="w-[300px] h-7" />
+      </div>
+      <FormFieldLoader hasDescription />
+      <FormFieldLoader hasDescription />
+      <FormFieldLoader />
+      <FormFieldLoader />
+
+      <Separator />
+
+      <FormFieldLoader />
+      <FormFieldLoader />
+
+      <Separator />
+
+      <FormFieldLoader />
+      <FormFieldLoader />
+      <FormFieldLoader />
+      <FormFieldLoader />
+      <FormFieldLoader />
     </div>
   );
 }
