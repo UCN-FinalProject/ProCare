@@ -57,7 +57,6 @@ const formSchema = z.object({
 });
 
 export default function TennantForm({ data }: { data: HealthInsurance }) {
-  console.log(data);
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

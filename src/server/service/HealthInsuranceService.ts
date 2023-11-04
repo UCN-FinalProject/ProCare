@@ -21,7 +21,6 @@ export default {
       },
       where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
     });
-    console.log(res);
     if (!res) throw new Error("Health insurance not found");
     if (!res.healthInsuranceAddress)
       throw new Error("Health insurance address not found");
