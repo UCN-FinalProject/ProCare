@@ -29,6 +29,11 @@ export const HealthInsuranceRelations = relations(
   }),
 );
 
+export type HealthInsurance = typeof healthInsurance.$inferSelect & {
+  healthInsuranceAddress: typeof healthInsuranceAddress.$inferSelect;
+  healthInsuranceVAT: typeof healthInsuranceVAT.$inferSelect;
+};
+
 // healthinsurance address table & relations
 export const healthInsuranceAddress = pgTable("health_insurance_address", {
   id: serial("id").primaryKey(),
