@@ -16,7 +16,7 @@ export default function TableDemo({ data }: { data: HealthInsurance[] }) {
     <div className="rounded-md border">
       <Table>
         <TableHeader>
-          <TableRow className="bg-slate-50">
+          <TableRow className="bg-slate-50 dark:bg-slate-800">
             <TableHead className="w-[100px]">ID</TableHead>
             <TableHead>Registered ID</TableHead>
             <TableHead>Name</TableHead>
