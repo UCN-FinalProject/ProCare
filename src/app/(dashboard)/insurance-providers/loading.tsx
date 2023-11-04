@@ -25,23 +25,38 @@ export default function Loading() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell className="w-fit">
-                <Skeleton className="h-4 w-20" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4 w-20" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4 w-[47px]" />
-              </TableCell>
-              <TableCell align="right">
-                <Skeleton className="h-4 w-20" />
-              </TableCell>
-            </TableRow>
+            <RowLoading />
+            <RowLoading />
+            <RowLoading />
+            <RowLoading />
+            <RowLoading />
+            <RowLoading />
+            <RowLoading />
+            <RowLoading />
+            <RowLoading />
+            <RowLoading />
           </TableBody>
         </Table>
       </div>
     </div>
+  );
+}
+
+function RowLoading() {
+  return (
+    <TableRow>
+      <TableCell className="w-fit">
+        <Skeleton className="h-4 w-20" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-20" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-[47px]" />
+      </TableCell>
+      <TableCell align="right">
+        <Skeleton className="h-4 w-20" />
+      </TableCell>
+    </TableRow>
   );
 }
