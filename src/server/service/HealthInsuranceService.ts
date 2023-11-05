@@ -34,15 +34,18 @@ export default {
       limit: input.limit,
       offset: input.offset,
       where: (healthInsurance, { eq }) =>
-        input.isActive
+        input.isActive !== undefined
           ? eq(healthInsurance.isActive, input.isActive)
           : undefined,
       orderBy: [asc(healthInsurance.id)],
     });
-    const total = await db
-      .select({ id: healthInsurance.id })
-      .from(healthInsurance);
-    if (!res) throw new Error("Health insurances not found");
+    const total = await db.query.healthInsurance.findMany({
+      columns: { id: true },
+      where: (healthInsurance, { eq }) =>
+        input.isActive !== undefined
+          ? eq(healthInsurance.isActive, input.isActive)
+          : undefined,
+    });
     return {
       result: res,
       limit: input.limit,

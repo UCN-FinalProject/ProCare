@@ -4,13 +4,19 @@ import {
   type GetManyHealthCareProvidersInput,
   type CreateHealthCareProviderInput,
   type UpdateHealthCareProviderInput,
+  type SetStatusHealthCareProviderInput,
+  type AddDoctorInput,
+  type RemoveDoctorInput,
 } from "./validation/HealthCareProviderValidation";
-import { externalhHealthcareProvider } from "../db/export";
-import { eq } from "drizzle-orm";
+import {
+  externalHealthcareProvider,
+  healthcareProviderDoctors,
+} from "../db/export";
+import { asc, eq } from "drizzle-orm";
 
 export default {
   async getByID(id: number) {
-    const res = await db.query.externalhHealthcareProvider.findFirst({
+    const res = await db.query.externalHealthcareProvider.findFirst({
       where: (healthCareProvider, { eq }) => eq(healthCareProvider.id, id),
     });
     if (!res)
@@ -22,12 +28,19 @@ export default {
   },
 
   async getMany(input: GetManyHealthCareProvidersInput) {
-    const res = await db.query.externalhHealthcareProvider.findMany({
+    const res = await db.query.externalHealthcareProvider.findMany({
       limit: input.limit,
       offset: input.offset,
       where: (healthCareProvider, { eq }) =>
-        !!!input.isActive
-          ? eq(healthCareProvider.isActive, input.isActive!)
+        input.isActive !== undefined
+          ? eq(healthCareProvider.isActive, input.isActive)
+          : undefined,
+    });
+    const total = await db.query.externalHealthcareProvider.findMany({
+      columns: { id: true },
+      where: (healthCareProvider, { eq }) =>
+        input.isActive !== undefined
+          ? eq(healthCareProvider.isActive, input.isActive)
           : undefined,
     });
     if (!res)
@@ -35,13 +48,18 @@ export default {
         code: "NOT_FOUND",
         message: "Healthcare providers not found",
       });
-    return res;
+    return {
+      result: res,
+      offset: input.offset,
+      limit: input.limit,
+      total: total.length,
+    };
   },
 
   async create(input: CreateHealthCareProviderInput) {
     const transaction = await db.transaction(async (tx) => {
       const insert = await db
-        .insert(externalhHealthcareProvider)
+        .insert(externalHealthcareProvider)
         .values({
           name: input.name,
           healthcareProviderCode: input.healthcareProviderCode,
@@ -53,7 +71,7 @@ export default {
           note: input.note,
           isActive: true,
         })
-        .returning({ id: externalhHealthcareProvider.id })
+        .returning({ id: externalHealthcareProvider.id })
         .catch((error) => {
           throw new TRPCError({
             code: "BAD_REQUEST",
@@ -67,7 +85,7 @@ export default {
           message: "Health insurance could not created",
         });
 
-      return await tx.query.externalhHealthcareProvider.findFirst({
+      return await tx.query.externalHealthcareProvider.findFirst({
         where: (healthCareProvider, { eq }) =>
           eq(healthCareProvider.id, insert.at(0)!.id!),
       });
@@ -83,7 +101,7 @@ export default {
   async update(input: UpdateHealthCareProviderInput) {
     const transaction = await db.transaction(async (tx) => {
       await tx
-        .update(externalhHealthcareProvider)
+        .update(externalHealthcareProvider)
         .set({
           name: input.name,
           healthcareProviderCode: input.healthcareProviderCode,
@@ -94,14 +112,14 @@ export default {
           zip: input.zip,
           note: input.note,
         })
-        .where(eq(externalhHealthcareProvider.id, input.id))
+        .where(eq(externalHealthcareProvider.id, input.id))
         .catch((error) => {
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: error instanceof Error ? error.message : String(error),
           });
         });
-      return await tx.query.externalhHealthcareProvider.findFirst({
+      return await tx.query.externalHealthcareProvider.findFirst({
         where: (healthCareProvider, { eq }) =>
           eq(healthCareProvider.id, input.id),
       });
@@ -114,57 +132,106 @@ export default {
     });
   },
 
-  // Set active
-  async setActive(id: number) {
+  async setStatus(input: SetStatusHealthCareProviderInput) {
     const transaction = await db.transaction(async (tx) => {
       await tx
-        .update(externalhHealthcareProvider)
+        .update(externalHealthcareProvider)
         .set({
-          isActive: true,
+          isActive: input.isActive,
         })
-        .where(eq(externalhHealthcareProvider.id, id))
+        .where(eq(externalHealthcareProvider.id, input.id))
         .catch((error) => {
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: error instanceof Error ? error.message : String(error),
           });
         });
-      return await tx.query.externalhHealthcareProvider.findFirst({
-        where: (healthCareProvider, { eq }) => eq(healthCareProvider.id, id),
+      return await tx.query.externalHealthcareProvider.findFirst({
+        where: (healthCareProvider, { eq }) =>
+          eq(healthCareProvider.id, input.id),
       });
     });
 
     if (transaction) return transaction;
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: "Healthcare could not be updated",
+      message: "Healthcare provider could not be updated",
     });
   },
 
-  // Set inactive
-  async setInactive(id: number) {
+  // TODO: test and improve return structure
+  async getDoctors(healthCareProviderID: number) {
+    const res = await db.query.healthcareProviderDoctors.findMany({
+      where: (healthCareProviderDoctor, { eq }) =>
+        eq(healthCareProviderDoctor.healthcareProviderID, healthCareProviderID),
+      orderBy: [asc(healthcareProviderDoctors.id)],
+      with: {
+        doctors: true,
+      },
+    });
+    if (res) return res;
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Doctors not found",
+    });
+  },
+
+  async addDoctor(input: AddDoctorInput) {
     const transaction = await db.transaction(async (tx) => {
+      const checkIfAlreadyAdded =
+        await tx.query.healthcareProviderDoctors.findFirst({
+          where: (healthcareProviderDoctors, { eq }) =>
+            eq(
+              healthcareProviderDoctors.healthcareProviderID,
+              input.healthcareProviderID,
+            ) && eq(healthcareProviderDoctors.doctorID, input.doctorID),
+        });
+      if (checkIfAlreadyAdded)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Doctor already added",
+        });
+
       await tx
-        .update(externalhHealthcareProvider)
-        .set({
-          isActive: false,
+        .insert(healthcareProviderDoctors)
+        .values({
+          healthcareProviderID: input.healthcareProviderID,
+          doctorID: input.doctorID,
         })
-        .where(eq(externalhHealthcareProvider.id, id))
         .catch((error) => {
           throw new TRPCError({
-            code: "BAD_REQUEST",
+            code: "INTERNAL_SERVER_ERROR",
             message: error instanceof Error ? error.message : String(error),
           });
         });
-      return await tx.query.externalhHealthcareProvider.findFirst({
-        where: (healthCareProvider, { eq }) => eq(healthCareProvider.id, id),
-      });
+      return "Doctor added" as const;
     });
 
     if (transaction) return transaction;
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: "Healthcare could not be updated",
+      message: "Doctor could not be added",
     });
+  },
+
+  async removeDoctor(input: RemoveDoctorInput) {
+    const transaction = await db.transaction(async (tx) => {
+      await tx
+        .delete(healthcareProviderDoctors)
+        .where(
+          eq(
+            healthcareProviderDoctors.healthcareProviderID,
+            input.healthcareProviderID,
+          ) && eq(healthcareProviderDoctors.doctorID, input.doctorID),
+        )
+        .catch((error) => {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error instanceof Error ? error.message : String(error),
+          });
+        });
+      return "Doctor removed" as const;
+    });
+    if (transaction) return transaction;
   },
 } as const;
