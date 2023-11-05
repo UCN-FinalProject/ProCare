@@ -13,7 +13,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
-import { revalidateHealthProviderPath } from "../../revalidate";
+import { revalidatePathClient } from "~/app/revalidate";
 type Variant = "active" | "inactive";
 
 export default function HealthInsuranceAlert({
@@ -34,8 +34,7 @@ export default function HealthInsuranceAlert({
           // eslint-disable-next-line
           onSuccess: async () => {
             toast.success("Health insurance provider disabled");
-            await revalidateHealthProviderPath();
-            window.location.reload();
+            await revalidatePathClient().then(() => window.location.reload());
           },
           onError: (err) => toast.error(err.message),
         },
@@ -47,8 +46,7 @@ export default function HealthInsuranceAlert({
           // eslint-disable-next-line
           onSuccess: async () => {
             toast.success("Health insurance provider enabled");
-            await revalidateHealthProviderPath();
-            window.location.reload();
+            await revalidatePathClient().then(() => window.location.reload());
           },
           onError: (err) => toast.error(err.message),
         },

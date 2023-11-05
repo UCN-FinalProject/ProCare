@@ -18,7 +18,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidateHealthProviderPath } from "../revalidate";
+import { revalidatePathClient } from "~/app/revalidate";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -105,7 +105,7 @@ export default function CreateInsuranceProviderForm() {
         onSuccess: async (res) => {
           setInsuranceID(res.id);
           toast.success("Health insurance created");
-          await revalidateHealthProviderPath();
+          await revalidatePathClient();
         },
         onError: (err) => toast.error(err.message),
       },

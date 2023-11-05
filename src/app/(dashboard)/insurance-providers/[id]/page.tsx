@@ -9,7 +9,6 @@ import HealthInsuranceAlert from "./components/HealthInsuranceAlert";
 
 export default async function page({ params }: { params: { id: string } }) {
   const id = Number(params.id);
-  await new Promise((resolve) => setTimeout(resolve, 1000));
   const healthInsuranceProvider =
     await api.healthInsurance.getHealthInsuranceByID
       .query({ id })

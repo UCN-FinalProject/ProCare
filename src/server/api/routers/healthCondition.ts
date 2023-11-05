@@ -9,7 +9,7 @@ import {
 import { parseErrorMessage } from "~/lib/parseError";
 
 export const healthConditionRouter = createTRPCRouter({
-  get: publicProcedure
+  getByID: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       try {

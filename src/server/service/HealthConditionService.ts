@@ -26,7 +26,17 @@ export default {
       offset: input.offset,
       orderBy: [asc(healthCondition.id)],
     });
-    if (res) return res;
+    const total = await db
+      .select({ id: healthCondition.id })
+      .from(healthCondition);
+
+    if (res)
+      return {
+        result: res,
+        offset: input.offset,
+        limit: input.limit,
+        total: total.length,
+      };
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "Health conditions not found",
