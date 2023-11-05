@@ -94,8 +94,8 @@ export default function TennantForm({ tennant }: { tennant: Tennant }) {
   });
 
   const updateTennant = api.tennant.updateTenant.useMutation();
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    updateTennant.mutate(
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await updateTennant.mutateAsync(
       {
         name: values.name,
         basis: values.basis,

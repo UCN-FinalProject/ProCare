@@ -10,7 +10,7 @@ import {
   type GetHealthInsurancesInput,
   type UpdateHealthInsuranceInput,
 } from "./validation/HealthInsurance";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 export default {
   async getHealthInsuranceByID(id: number) {
@@ -31,12 +31,13 @@ export default {
 
   async getHealthInsurances(input: GetHealthInsurancesInput) {
     const res = await db.query.healthInsurance.findMany({
-      with: {
-        healthInsuranceAddress: true,
-        healthInsuranceVAT: true,
-      },
       limit: input.limit,
       offset: input.offset,
+      where: (healthInsurance, { eq }) =>
+        input.isActive
+          ? eq(healthInsurance.isActive, input.isActive)
+          : undefined,
+      orderBy: [asc(healthInsurance.id)],
     });
     const total = await db
       .select({ id: healthInsurance.id })
@@ -63,6 +64,7 @@ export default {
           registeredID: input.healthInsurance.registeredID,
           name: input.healthInsurance.name,
           pricePerCredit: input.healthInsurance.pricePerCredit,
+          isActive: true,
         })
         .returning({ id: healthInsurance.id })
         .catch((err) => {
@@ -221,6 +223,96 @@ export default {
             healthInsuranceVAT: true,
           },
           where: (healthInsurance, { eq }) => eq(healthInsurance.id, input.id),
+        })
+        .catch((err) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
+    });
+    if (transaction) return transaction;
+    else
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Health insurance could not updated",
+      });
+  },
+
+  // POST (set active)
+  async setActiveHealthInsurance(id: number) {
+    const initialHealthInsurance = await db.query.healthInsurance.findFirst({
+      where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
+    });
+    if (!initialHealthInsurance)
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Health insurance not found",
+      });
+
+    const transaction = await db.transaction(async (tx) => {
+      await tx
+        .update(healthInsurance)
+        .set({
+          isActive: true,
+        })
+        .where(eq(healthInsurance.id, initialHealthInsurance.id))
+        .catch((err) => {
+          tx.rollback();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: String(err),
+          });
+        });
+
+      return await tx.query.healthInsurance
+        .findFirst({
+          with: {
+            healthInsuranceAddress: true,
+            healthInsuranceVAT: true,
+          },
+          where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
+        })
+        .catch((err) => {
+          tx.rollback();
+          throw new Error(String(err));
+        });
+    });
+    if (transaction) return transaction;
+    else
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Health insurance could not updated",
+      });
+  },
+
+  // POST (set inactive)
+  async setInactiveHealthInsurance(id: number) {
+    const initialHealthInsurance = await db.query.healthInsurance.findFirst({
+      where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
+    });
+    if (!initialHealthInsurance)
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Health insurance not found",
+      });
+
+    const transaction = await db.transaction(async (tx) => {
+      await tx
+        .update(healthInsurance)
+        .set({
+          isActive: false,
+        })
+        .where(eq(healthInsurance.id, initialHealthInsurance.id))
+        .catch((err) => {
+          tx.rollback();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: String(err),
+          });
+        });
+
+      return await tx.query.healthInsurance
+        .findFirst({
+          where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
         })
         .catch((err) => {
           tx.rollback();

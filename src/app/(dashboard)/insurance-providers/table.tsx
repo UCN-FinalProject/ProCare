@@ -6,12 +6,13 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { type HealthInsurance } from "~/server/db/export";
+import { type HealthInsuranceList } from "~/server/db/export";
 import ID from "~/components/ID";
 import CopyToClipboard from "~/components/util/CopyToClipboard";
 import Link from "next/link";
+import { Badge } from "~/components/ui/badge";
 
-export default function TableDemo({ data }: { data: HealthInsurance[] }) {
+export default function TableDemo({ data }: { data: HealthInsuranceList[] }) {
   return (
     <div className="rounded-md border">
       <Table>
@@ -20,6 +21,7 @@ export default function TableDemo({ data }: { data: HealthInsurance[] }) {
             <TableHead className="w-[100px]">ID</TableHead>
             <TableHead>Registered ID</TableHead>
             <TableHead>Name</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead className="text-right">Price per credit</TableHead>
           </TableRow>
         </TableHeader>
@@ -27,7 +29,7 @@ export default function TableDemo({ data }: { data: HealthInsurance[] }) {
           {data.length === 0 && (
             <TableRow>
               <TableCell
-                colSpan={4}
+                colSpan={5}
                 className="text-center h-32 text-muted-foreground"
               >
                 No insurance providers
@@ -52,6 +54,15 @@ export default function TableDemo({ data }: { data: HealthInsurance[] }) {
                     {healthInsurance.name}
                   </CopyToClipboard>
                 </Link>
+              </TableCell>
+              <TableCell>
+                <Badge
+                  variant={
+                    healthInsurance.isActive === true ? "active" : "inactive"
+                  }
+                >
+                  {healthInsurance.isActive === true ? "Active" : "Inactive"}
+                </Badge>
               </TableCell>
               <TableCell className="text-right">
                 {healthInsurance.pricePerCredit}

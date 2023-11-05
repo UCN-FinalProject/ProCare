@@ -62,26 +62,25 @@ export default function CreateInsuranceProviderForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      insuranceID: undefined,
-      registeredID: undefined,
+      insuranceID: "",
+      registeredID: "",
       name: "",
       pricePerCredit: "",
       healthInsuranceAddress1: "",
-      healthInsuranceAddress2: undefined,
+      healthInsuranceAddress2: "",
       healthInsuranceCity: "",
       healthInsuranceZip: "",
-      healthInsurancePhone: undefined,
-      healthInsuranceEmail: undefined,
+      healthInsurancePhone: "",
+      healthInsuranceEmail: "",
       healthInsuranceVAT1: "",
       healthInsuranceVAT2: "",
-      healthInsuranceVAT3: undefined,
+      healthInsuranceVAT3: "",
     },
   });
 
-  const createHealthInsurance =
-    api.healthInsurance.createHealthInsurance.useMutation();
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    createHealthInsurance.mutate(
+  const createHealthInsurance = api.healthInsurance.create.useMutation();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await createHealthInsurance.mutateAsync(
       {
         insuranceID: Number(values.insuranceID),
         registeredID: Number(values.registeredID),
@@ -105,7 +104,7 @@ export default function CreateInsuranceProviderForm() {
         onSuccess: (res) => {
           setInsuranceID(res.id);
           toast.success("Health insurance created");
-          async () => await revalidateHealthProviderPath(undefined);
+          async () => await revalidateHealthProviderPath();
         },
         onError: (err) => toast.error(err.message),
       },

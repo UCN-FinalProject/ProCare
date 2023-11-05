@@ -1,4 +1,5 @@
 import {
+  boolean,
   decimal,
   integer,
   pgTable,
@@ -14,6 +15,7 @@ export const healthInsurance = pgTable("health_insurance", {
   registeredID: integer("registered_id").unique().notNull(),
   name: varchar("name").notNull(),
   pricePerCredit: decimal("price_per_credit").notNull(),
+  isActive: boolean("is_active").notNull(),
 });
 export const HealthInsuranceRelations = relations(
   healthInsurance,
@@ -33,6 +35,7 @@ export type HealthInsurance = typeof healthInsurance.$inferSelect & {
   healthInsuranceAddress: typeof healthInsuranceAddress.$inferSelect;
   healthInsuranceVAT: typeof healthInsuranceVAT.$inferSelect;
 };
+export type HealthInsuranceList = typeof healthInsurance.$inferSelect;
 
 // healthinsurance address table & relations
 export const healthInsuranceAddress = pgTable("health_insurance_address", {

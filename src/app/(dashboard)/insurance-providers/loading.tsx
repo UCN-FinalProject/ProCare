@@ -13,11 +13,14 @@ import {
 export default function Loading() {
   return (
     <div className="flex flex-col gap-4 overflow-hidden">
-      <PageHeader>Insurance providers</PageHeader>
+      <div className="flex justify-between">
+        <PageHeader>Insurance providers</PageHeader>
+        <Skeleton className="w-28 h-8" />
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50">
+            <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-[100px]">ID</TableHead>
               <TableHead>Registered ID</TableHead>
               <TableHead>Name</TableHead>

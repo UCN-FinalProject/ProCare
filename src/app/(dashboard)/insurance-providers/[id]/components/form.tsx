@@ -20,7 +20,7 @@ import {
 import { type HealthInsurance } from "~/server/db/export";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidateHealthProviderPath } from "../serverAction";
+import { revalidateHealthProviderPath } from "../../serverAction";
 
 const formSchema = z.object({
   insuranceID: z.number().min(1, {
@@ -83,10 +83,9 @@ export default function UpdateInsuranceProviderForm({
     },
   });
 
-  const updateHealthInsurance =
-    api.healthInsurance.updateHealthInsurance.useMutation();
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    updateHealthInsurance.mutate(
+  const updateHealthInsurance = api.healthInsurance.update.useMutation();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await updateHealthInsurance.mutateAsync(
       {
         id: data.id,
         insuranceID: values.insuranceID,
@@ -110,8 +109,8 @@ export default function UpdateInsuranceProviderForm({
       {
         onSuccess: () => {
           toast.success("Health insurance updated");
-          async () => await revalidateHealthProviderPath(data.id);
-          window.location.reload();
+          async () => await revalidateHealthProviderPath();
+          // window.location.reload();
         },
         onError: (err) => toast.error(err.message),
       },
