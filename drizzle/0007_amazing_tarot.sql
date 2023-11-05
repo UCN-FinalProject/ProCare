@@ -1,0 +1,1 @@
+ALTER TABLE "external_healthcare_provider" ALTER COLUMN "zip" SET DATA TYPE varchar;

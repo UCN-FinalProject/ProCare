@@ -1,6 +1,6 @@
 import { exampleRouter } from "~/server/api/routers/example";
 import { createTRPCRouter } from "~/server/api/trpc";
-import { healthcareProviderRouter } from "~/server/api/routers/externalHealthcareRouter";
+import { healthcareProviderRouter } from "~/server/api/routers/healthcareProviderRouter";
 
 import { tennantRouter } from "./routers/tennant";
 import { healthInsuranceRouter } from "./routers/healthInsurance";

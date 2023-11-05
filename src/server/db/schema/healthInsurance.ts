@@ -50,12 +50,15 @@ export const healthInsuranceAddress = pgTable("health_insurance_address", {
   phoneNumber: varchar("phone_number"),
   email: varchar("email"),
 });
-export const tennantVAT = relations(healthInsuranceAddress, ({ one }) => ({
-  healthInsurance: one(healthInsurance, {
-    fields: [healthInsuranceAddress.insuranceID],
-    references: [healthInsurance.id],
+export const healthInsuranceAddressRelations = relations(
+  healthInsuranceAddress,
+  ({ one }) => ({
+    healthInsurance: one(healthInsurance, {
+      fields: [healthInsuranceAddress.insuranceID],
+      references: [healthInsurance.id],
+    }),
   }),
-}));
+);
 
 // healthinsurance VAT table & relations
 export const healthInsuranceVAT = pgTable("health_insurance_vat", {

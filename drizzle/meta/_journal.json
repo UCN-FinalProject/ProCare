@@ -36,6 +36,27 @@
       "when": 1699124626584,
       "tag": "0004_strong_exodus",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1699191206187,
+      "tag": "0005_faulty_zombie",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1699191256792,
+      "tag": "0006_nappy_rhino",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1699192875178,
+      "tag": "0007_amazing_tarot",
+      "breakpoints": true
     }
   ]
 }
