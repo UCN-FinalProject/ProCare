@@ -1,4 +1,4 @@
-import { pgTable, varchar, date, boolean, serial } from "drizzle-orm/pg-core";
+import { pgTable, varchar, boolean, serial } from "drizzle-orm/pg-core";
 
 export const externalhHealthcareProvider = pgTable(
   "external_healthcare_provider",
@@ -11,8 +11,6 @@ export const externalhHealthcareProvider = pgTable(
     address2: varchar("address2"),
     city: varchar("city").notNull(),
     zip: varchar("zip").notNull(),
-    dateFrom: date("date_from"),
-    dateUntil: date("date_until"),
     note: varchar("note"),
     isActive: boolean("isActive").default(true),
   },

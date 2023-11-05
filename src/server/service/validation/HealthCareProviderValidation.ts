@@ -17,8 +17,6 @@ export const createHealthCareProviderInput = z.object({
   address2: z.string().optional(),
   city: z.string(),
   zip: z.string(),
-  dateFrom: z.string().optional(),
-  dateUntil: z.string().optional(),
   note: z.string().optional(),
 });
 export type CreateHealthCareProviderInput = z.infer<

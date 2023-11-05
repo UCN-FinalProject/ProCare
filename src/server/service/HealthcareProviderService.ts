@@ -50,8 +50,6 @@ export default {
           address2: input.address2,
           city: input.city,
           zip: input.zip,
-          dateFrom: input.dateFrom,
-          dateUntil: input.dateUntil,
           note: input.note,
           isActive: true,
         })
@@ -94,8 +92,6 @@ export default {
           address2: input.address2,
           city: input.city,
           zip: input.zip,
-          dateFrom: input.dateFrom,
-          dateUntil: input.dateUntil,
           note: input.note,
         })
         .where(eq(externalhHealthcareProvider.id, input.id))
