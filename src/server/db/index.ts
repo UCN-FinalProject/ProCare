@@ -1,5 +1,4 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
-// import postgres from "postgres";
 import { env } from "~/env.mjs";
 import * as schema from "./export";
 import { neonConfig, Pool } from "@neondatabase/serverless";
