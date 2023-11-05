@@ -3,8 +3,8 @@ import ExternalHealthcareService from "~/server/service/ExternalHealthcareServic
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
-export const externalHealthcareRouter = createTRPCRouter({
-  getHealthCareProvider: publicProcedure
+export const healthcareProviderRouter = createTRPCRouter({
+  getByID: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       try {

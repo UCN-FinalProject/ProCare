@@ -7,6 +7,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+// tennant table & tennant relations
 export const tennant = pgTable("tennant", {
   id: serial("id").primaryKey(),
   name: varchar("name").notNull(),
@@ -14,11 +15,24 @@ export const tennant = pgTable("tennant", {
   regionalAuthority: varchar("regional_authority").notNull(),
 });
 export const tennantRelations = relations(tennant, ({ one }) => ({
-  tennantVAT: one(tennantVAT),
-  tennantBankDetails: one(tennantBankDetails),
-  healthCareProvider: one(healthCareProvider),
-  headDoctor: one(headDoctor),
+  headDoctor: one(headDoctor, {
+    fields: [tennant.id],
+    references: [headDoctor.tennantID],
+  }),
+  healthCareProvider: one(healthCareProvider, {
+    fields: [tennant.id],
+    references: [healthCareProvider.tennantID],
+  }),
+  tennantBankDetails: one(tennantBankDetails, {
+    fields: [tennant.id],
+    references: [tennantBankDetails.tennantID],
+  }),
+  tennantVAT: one(tennantVAT, {
+    fields: [tennant.id],
+    references: [tennantVAT.tennantID],
+  }),
 }));
+// tennant type
 export type Tennant = typeof tennant.$inferSelect & {
   headDoctor: typeof headDoctor.$inferSelect;
   healthCareProvider: typeof healthCareProvider.$inferSelect;
@@ -26,6 +40,7 @@ export type Tennant = typeof tennant.$inferSelect & {
   tennantVAT: typeof tennantVAT.$inferSelect;
 };
 
+// HeadDoctor table & HeadDoctor relations
 export const headDoctor = pgTable("head_doctor", {
   id: serial("id").primaryKey(),
   tennantID: integer("tennant_id")
@@ -35,9 +50,13 @@ export const headDoctor = pgTable("head_doctor", {
   headDoctorID: varchar("head_doctor_id").notNull(),
 });
 export const headDoctorRelations = relations(headDoctor, ({ one }) => ({
-  tennant: one(tennant),
+  tennant: one(tennant, {
+    fields: [headDoctor.tennantID],
+    references: [tennant.id],
+  }),
 }));
 
+// (internal) HealthCareProvider table & HealthCareProvider relations
 export const healthCareProvider = pgTable("health_care_provider", {
   id: serial("id").primaryKey(),
   tennantID: integer("tennant_id")
@@ -52,10 +71,14 @@ export const healthCareProvider = pgTable("health_care_provider", {
 export const healthCareProviderRelations = relations(
   healthCareProvider,
   ({ one }) => ({
-    tennant: one(tennant),
+    tennant: one(tennant, {
+      fields: [healthCareProvider.tennantID],
+      references: [tennant.id],
+    }),
   }),
 );
 
+// TennantVAT table & TennantVAT relations
 export const tennantVAT = pgTable("tennant_vat", {
   id: serial("id").primaryKey(),
   tennantID: integer("tennant_id")
@@ -66,9 +89,13 @@ export const tennantVAT = pgTable("tennant_vat", {
   VAT3: varchar("vat3"),
 });
 export const tennantVATRelations = relations(tennantVAT, ({ one }) => ({
-  tennant: one(tennant),
+  tennant: one(tennant, {
+    fields: [tennantVAT.tennantID],
+    references: [tennant.id],
+  }),
 }));
 
+// TennantBankDetails table & TennantBankDetails relations
 export const tennantBankDetails = pgTable("tennant_bank_details", {
   id: serial("id").primaryKey(),
   tennantID: integer("tennant_id")
@@ -81,6 +108,9 @@ export const tennantBankDetails = pgTable("tennant_bank_details", {
 export const tennantBankDetailsRelations = relations(
   tennantBankDetails,
   ({ one }) => ({
-    tennant: one(tennant),
+    tennant: one(tennant, {
+      fields: [tennantBankDetails.tennantID],
+      references: [tennant.id],
+    }),
   }),
 );
