@@ -31,9 +31,10 @@ export default function HealthInsuranceAlert({
       await setActive.mutateAsync(
         { id },
         {
-          onSuccess: () => {
+          // eslint-disable-next-line
+          onSuccess: async () => {
             toast.success("Health insurance provider disabled");
-            async () => await revalidateHealthProviderPath();
+            await revalidateHealthProviderPath();
             window.location.reload();
           },
           onError: (err) => toast.error(err.message),
@@ -43,9 +44,10 @@ export default function HealthInsuranceAlert({
       await setInactive.mutateAsync(
         { id },
         {
-          onSuccess: () => {
+          // eslint-disable-next-line
+          onSuccess: async () => {
             toast.success("Health insurance provider enabled");
-            async () => await revalidateHealthProviderPath();
+            await revalidateHealthProviderPath();
             window.location.reload();
           },
           onError: (err) => toast.error(err.message),
@@ -71,7 +73,7 @@ export default function HealthInsuranceAlert({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <div onClick={() => handleClick()}>
+          <div onClick={() => handleClick()} onKeyDown={handleClick}>
             <AlertDialogAction>Confirm</AlertDialogAction>
           </div>
         </AlertDialogFooter>

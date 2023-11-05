@@ -101,10 +101,11 @@ export default function CreateInsuranceProviderForm() {
         },
       },
       {
-        onSuccess: (res) => {
+        // eslint-disable-next-line
+        onSuccess: async (res) => {
           setInsuranceID(res.id);
           toast.success("Health insurance created");
-          async () => await revalidateHealthProviderPath();
+          await revalidateHealthProviderPath();
         },
         onError: (err) => toast.error(err.message),
       },

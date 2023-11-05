@@ -107,10 +107,11 @@ export default function UpdateInsuranceProviderForm({
         },
       },
       {
-        onSuccess: () => {
+        // eslint-disable-next-line
+        onSuccess: async () => {
           toast.success("Health insurance updated");
-          async () => await revalidateHealthProviderPath();
-          // window.location.reload();
+          await revalidateHealthProviderPath();
+          window.location.reload();
         },
         onError: (err) => toast.error(err.message),
       },
