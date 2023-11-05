@@ -6,6 +6,7 @@ import {
   createHealthConditionInput,
   getManyHealthConditionsInput,
 } from "~/server/service/validation/HealthConditionValidation";
+import { parseErrorMessage } from "~/lib/parseError";
 
 export const healthConditionRouter = createTRPCRouter({
   get: publicProcedure
@@ -16,12 +17,10 @@ export const healthConditionRouter = createTRPCRouter({
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message:
-            error instanceof TRPCError
-              ? error.message
-              : error instanceof Error
-              ? error.message
-              : "Not found",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Not found",
+          }),
         });
       }
     }),
@@ -34,12 +33,10 @@ export const healthConditionRouter = createTRPCRouter({
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message:
-            error instanceof TRPCError
-              ? error.message
-              : error instanceof Error
-              ? error.message
-              : "Not found",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Not found",
+          }),
         });
       }
     }),
@@ -52,12 +49,10 @@ export const healthConditionRouter = createTRPCRouter({
       } catch (error) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message:
-            error instanceof TRPCError
-              ? error.message
-              : error instanceof Error
-              ? error.message
-              : "Bad request",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Bad request",
+          }),
         });
       }
     }),
@@ -70,12 +65,10 @@ export const healthConditionRouter = createTRPCRouter({
       } catch (error) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message:
-            error instanceof TRPCError
-              ? error.message
-              : error instanceof Error
-              ? error.message
-              : "Bad request",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Bad request",
+          }),
         });
       }
     }),
