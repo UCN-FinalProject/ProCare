@@ -30,3 +30,20 @@ export const updateHealthCareProviderInput = z.object({
 export type UpdateHealthCareProviderInput = z.infer<
   typeof updateHealthCareProviderInput
 >;
+
+export const setStatusHealthCareProviderInput = z.object({
+  id: z.number(),
+  isActive: z.boolean(),
+});
+export type SetStatusHealthCareProviderInput = z.infer<
+  typeof setStatusHealthCareProviderInput
+>;
+
+export const addDoctorInput = z.object({
+  healthcareProviderID: z.number(),
+  doctorID: z.number(),
+});
+export type AddDoctorInput = z.infer<typeof addDoctorInput>;
+
+export const removeDoctorInput = addDoctorInput;
+export type RemoveDoctorInput = z.infer<typeof removeDoctorInput>;
