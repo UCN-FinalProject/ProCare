@@ -18,7 +18,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidateHealthProviderPath } from "../serverAction";
+import { revalidateHealthProviderPath } from "../revalidate";
 import { useState } from "react";
 import Link from "next/link";
 

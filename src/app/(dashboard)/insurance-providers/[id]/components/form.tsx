@@ -20,7 +20,7 @@ import {
 import { type HealthInsurance } from "~/server/db/export";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidateHealthProviderPath } from "../../serverAction";
+import { revalidateHealthProviderPath } from "../../revalidate";
 
 const formSchema = z.object({
   insuranceID: z.number().min(1, {

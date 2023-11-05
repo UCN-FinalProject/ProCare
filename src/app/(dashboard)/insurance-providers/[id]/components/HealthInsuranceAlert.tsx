@@ -13,7 +13,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
-import { revalidateHealthProviderPath } from "../../serverAction";
+import { revalidateHealthProviderPath } from "../../revalidate";
 type Variant = "active" | "inactive";
 
 export default function HealthInsuranceAlert({
