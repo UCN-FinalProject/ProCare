@@ -20,7 +20,7 @@ import {
 import { type HealthInsurance } from "~/server/db/export";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidateHealthProviderPath } from "../../revalidate";
+import { revalidatePathClient } from "~/app/revalidate";
 
 const formSchema = z.object({
   insuranceID: z.number().min(1, {
@@ -110,7 +110,7 @@ export default function UpdateInsuranceProviderForm({
         // eslint-disable-next-line
         onSuccess: async () => {
           toast.success("Health insurance updated");
-          await revalidateHealthProviderPath();
+          await revalidatePathClient();
           window.location.reload();
         },
         onError: (err) => toast.error(err.message),

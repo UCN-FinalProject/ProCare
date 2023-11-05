@@ -5,3 +5,4 @@ export const healthCondition = pgTable("health_condition", {
   name: varchar("name").notNull(),
   description: varchar("description").notNull(),
 });
+export type HealthCondition = typeof healthCondition.$inferSelect;
