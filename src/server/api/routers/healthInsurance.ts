@@ -38,7 +38,7 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // POST (create)
-  createHealthInsurance: publicProcedure
+  create: publicProcedure
     .input(createHealthInsuranceInput)
     .mutation(async ({ input }) => {
       try {
@@ -61,11 +61,55 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // PUT (update)
-  updateHealthInsurance: publicProcedure
+  update: publicProcedure
     .input(updateHealthInsuranceInput)
     .mutation(async ({ input }) => {
       try {
         return await HealthInsuranceService.updateHealthInsurance(input);
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Bad request",
+          });
+        }
+      }
+    }),
+
+  // POST (set active)
+  setActive: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      try {
+        return await HealthInsuranceService.setActiveHealthInsurance(input.id);
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Bad request",
+          });
+        }
+      }
+    }),
+
+  // POST (set inactive)
+  setInactive: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      try {
+        return await HealthInsuranceService.setInactiveHealthInsurance(
+          input.id,
+        );
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({

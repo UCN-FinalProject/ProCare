@@ -12,7 +12,10 @@ const panelHandler = () => {
       transformer: "superjson",
     }),
     {
-      headers: { "Content-Type": "text/html" },
+      headers: {
+        "Content-Type": "text/html",
+        "Cache-Control": "no-cache",
+      },
     },
   );
 };

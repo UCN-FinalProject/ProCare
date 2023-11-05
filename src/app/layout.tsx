@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Toaster />
+          <Toaster closeButton />
           <TRPCReactProvider headers={headers()}>{children}</TRPCReactProvider>
         </ThemeProvider>
       </body>

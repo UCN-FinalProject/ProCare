@@ -3,6 +3,7 @@ import { z } from "zod";
 export const getHealthInsurancesInput = z.object({
   limit: z.number(),
   offset: z.number(),
+  isActive: z.boolean().optional().nullable(),
 });
 export type GetHealthInsurancesInput = z.infer<typeof getHealthInsurancesInput>;
 
