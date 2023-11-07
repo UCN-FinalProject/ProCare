@@ -6,6 +6,7 @@ import { tennantRouter } from "./routers/tennant";
 import { healthInsuranceRouter } from "./routers/healthInsurance";
 import { healthConditionRouter } from "./routers/healthCondition";
 import { doctorRouter } from "./routers/doctorRouter";
+import { webauthnRouter } from "./routers/authRouter";
 
 /**
  * This is the primary router for your server.
@@ -13,6 +14,7 @@ import { doctorRouter } from "./routers/doctorRouter";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  auth: webauthnRouter,
   example: exampleRouter,
   tennant: tennantRouter,
   healthcareProvider: healthcareProviderRouter,
