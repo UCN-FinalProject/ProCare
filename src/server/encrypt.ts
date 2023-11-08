@@ -1,10 +1,8 @@
 import crypto from "crypto";
 import { env } from "~/env.mjs";
 
-// TODO: add to env
-const SECRET_KEY =
-  "fa3c8e77b56d9a2c4e5f74cfc8ab45d4e9f2c4e79a6d1389b95f75f9126c7f0d";
-const IV = "8f2e5a7b49c63d01e48294a6f37bd9e8";
+const SECRET_KEY = env.ENCRYPTION_KEY;
+const IV = env.ENCRYPTION_IV;
 
 // Function to encrypt text using AES
 export function encryptText(text: string) {

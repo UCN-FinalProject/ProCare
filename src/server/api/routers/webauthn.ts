@@ -16,7 +16,7 @@ import {
 import { credentials } from "~/server/db/export";
 import { type AuthenticatorTransportFuture } from "@simplewebauthn/typescript-types";
 
-export const webauthnRouter = createTRPCRouter({
+export const authRouter = createTRPCRouter({
   handlePreRegister: protectedProcedure.query(async ({ ctx }) => {
     const email = ctx.session.user?.email;
     if (!email) {
@@ -162,10 +162,14 @@ export const webauthnRouter = createTRPCRouter({
         });
       }
 
+      const bufferObject = {
+        type: "Buffer",
+        data: Array.from(registrationInfo.credentialPublicKey),
+      };
       const transports = input.response.transports ?? ["internal"];
       await ctx.db.insert(credentials).values({
         credentialID: input.id,
-        credentialPublicKey: registrationInfo.credentialPublicKey as Buffer,
+        credentialPublicKey: bufferObject,
         userId: user.id,
         counter: registrationInfo.counter,
         transports: transports,

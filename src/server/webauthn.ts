@@ -5,12 +5,11 @@ if (!process.env.NEXTAUTH_URL && !process.env.VERCEL_URL) {
   throw new Error("NEXTAUTH_URL is not set");
 }
 
-export const rpID =
-  process.env.NEXTAUTH_URL?.replace("https://", "") ??
-  process.env.VERCEL_URL ??
-  "";
+export const rpID = process.env.VERCEL_URL ?? "localhost";
 
-export const domain = `https://${rpID}`;
+export const domain = process.env.VERCEL_URL
+  ? `https://${rpID}`
+  : `http://${rpID}:3000`;
 
 export async function saveChallenge({
   userID,

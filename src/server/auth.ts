@@ -105,8 +105,9 @@ export const authOptions: NextAuthOptions = {
               expectedOrigin: domain,
               expectedRPID: rpID,
               authenticator: {
-                credentialPublicKey:
-                  authenticator.credentialPublicKey as Buffer,
+                credentialPublicKey: new Uint8Array(
+                  (authenticator.credentialPublicKey as PublicKey).data,
+                ),
                 counter: authenticator.counter,
                 credentialID: Buffer.from(
                   authenticator.credentialID,
@@ -136,14 +137,14 @@ export const authOptions: NextAuthOptions = {
 
     EmailProvider({
       server: {
-        host: "smtp.resend.com",
-        port: "465",
+        host: env.RESEND_EMAIL_HOST,
+        port: env.RESEND_EMAIL_PORT,
         auth: {
-          user: "resend",
-          pass: "re_RmN7zmQW_3LMoKNvZskHYmpqX75q9pAFj",
+          user: env.RESEND_EMAIL_USER,
+          pass: env.RESEND_API_KEY,
         },
       },
-      from: "onboarding@resend.dev",
+      from: env.RESEND_EMAIL_FROM,
     }),
   ],
   pages: {
@@ -221,4 +222,9 @@ function getWebauthnBody(req: RequestInternal): AuthenticationResponseJSON {
  */
 export const getServerAuthSession = () => {
   return getServerSession(authOptions);
+};
+
+type PublicKey = {
+  type: string;
+  data: number[];
 };
