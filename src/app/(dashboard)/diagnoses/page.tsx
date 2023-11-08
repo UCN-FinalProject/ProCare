@@ -17,7 +17,7 @@ export default async function page() {
       <div className="flex justify-between">
         <PageHeader>Health conditions</PageHeader>
         {/* TODO: Hide button if user is not admin */}
-        <Button>
+        <Button variant="secondary">
           <Link href="/diagnoses/create" className="flex items-center gap-1">
             <Plus className="w-[18px]" />
             Add new

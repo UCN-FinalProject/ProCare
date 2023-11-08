@@ -1,4 +1,5 @@
 import { exampleRouter } from "~/server/api/routers/example";
+import { authRouter } from "~/server/api/routers/webauthn";
 import { createTRPCRouter } from "~/server/api/trpc";
 import { healthcareProviderRouter } from "~/server/api/routers/healthcareProviderRouter";
 
@@ -13,6 +14,7 @@ import { doctorRouter } from "./routers/doctorRouter";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  auth: authRouter,
   example: exampleRouter,
   tennant: tennantRouter,
   healthcareProvider: healthcareProviderRouter,
