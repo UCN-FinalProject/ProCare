@@ -1,6 +1,5 @@
 "use client";
 import { useTheme } from "next-themes";
-import { cn } from "~/lib/utils";
 
 export default function Logo({
   width,
