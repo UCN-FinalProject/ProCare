@@ -7,17 +7,26 @@ import {
   pgTable,
   timestamp,
   json,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
+
+export const userRole = pgEnum("role", ["admin", "user"]);
 
 export const users = pgTable("user", {
   id: text("id")
     .notNull()
     .primaryKey()
     .$default(() => createId()),
-  name: text("name"),
+  name: text("name").notNull(),
   email: text("email").notNull(),
   emailVerified: timestamp("emailVerified").$defaultFn(() => new Date()),
+  role: userRole("role")
+    .notNull()
+    .$default(() => "user"),
+  doctorID: text("doctorId"),
+  // this is only for next auth
+  // otherwise it will throw an error
   image: text("image"),
 });
 

@@ -1,5 +1,5 @@
 import { exampleRouter } from "~/server/api/routers/example";
-import { authRouter } from "~/server/api/routers/webauthn";
+import { authRouter } from "~/server/api/routers/authRouter";
 import { createTRPCRouter } from "~/server/api/trpc";
 import { healthcareProviderRouter } from "~/server/api/routers/healthcareProviderRouter";
 

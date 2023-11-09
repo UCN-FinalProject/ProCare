@@ -74,6 +74,7 @@ export const authOptions: NextAuthOptions = {
   secret: env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
+    maxAge: 12 * 60 * 60, // 12 hours
   },
   providers: [
     CredentialsProvider({
@@ -134,17 +135,19 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-
     EmailProvider({
-      server: {
-        host: env.RESEND_EMAIL_HOST,
-        port: env.RESEND_EMAIL_PORT,
-        auth: {
-          user: env.RESEND_EMAIL_USER,
-          pass: env.RESEND_API_KEY,
+      // disable sign in by email in development
+      ...(env.NODE_ENV !== "development" && {
+        server: {
+          host: env.RESEND_EMAIL_HOST,
+          port: env.RESEND_EMAIL_PORT,
+          auth: {
+            user: env.RESEND_EMAIL_USER,
+            pass: env.RESEND_API_KEY,
+          },
         },
-      },
-      from: env.RESEND_EMAIL_FROM,
+        from: env.RESEND_EMAIL_FROM,
+      }),
     }),
   ],
   pages: {

@@ -14,7 +14,7 @@ export default function RegistrationComponent({
 }) {
   const [hasRegistered, setHasRegistered] = useState(false);
   const { mutate, isLoading: registrationLoading } =
-    api.auth.handleRegister.useMutation();
+    api.auth.registerPassKey.useMutation();
 
   const router = useRouter();
 
@@ -29,9 +29,7 @@ export default function RegistrationComponent({
           router.refresh();
           setHasRegistered(true);
         },
-        onError: () => {
-          toast.error("Could not register passkey");
-        },
+        onError: () => toast.error("Could not register passkey"),
       });
     } catch (err) {
       console.error(err);

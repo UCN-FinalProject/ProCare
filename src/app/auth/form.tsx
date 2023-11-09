@@ -29,9 +29,6 @@ const formSchema = z.object({
 });
 
 export default function SignInForm() {
-  //   const [healthConditionID, setHealthConditionID] = useState<number | null>(
-  //     null,
-  //   );
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,22 +40,31 @@ export default function SignInForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await signInWithWebauthn({ email: values.email });
-      console.log("signin complete");
     } catch (error) {
-      console.log(error);
       // fallback to email sign in
       // disabled in dev env
-      env.NODE_ENV !== "development" &&
-        (await signInWithEmail({ email: values.email }));
+      await signInWithEmail({ email: values.email });
     }
   }
 
   async function signInWithEmail({ email }: { email: string }) {
-    await signIn("email", { email });
+    if (env.NODE_ENV === "development") {
+      alert(
+        "Email sign in is disabled in development. Please use biometric authentication instead.",
+      );
+      return;
+    }
+    try {
+      await directApi.auth.allowEmailAuth.query(email);
+      await signIn("email", { email });
+    } catch (error) {
+      alert("User with this email does not exist.");
+      return;
+    }
   }
 
   async function signInWithWebauthn({ email }: { email: string }) {
-    const options = await directApi.auth.startAuthentication.query(email);
+    const options = await directApi.auth.authenticate.query(email);
     if (!options) {
       alert("error getting options");
     }

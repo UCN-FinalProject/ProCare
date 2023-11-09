@@ -17,7 +17,7 @@ import { credentials } from "~/server/db/export";
 import { type AuthenticatorTransportFuture } from "@simplewebauthn/typescript-types";
 
 export const authRouter = createTRPCRouter({
-  handlePreRegister: protectedProcedure.query(async ({ ctx }) => {
+  startPassKeyRegistration: protectedProcedure.query(async ({ ctx }) => {
     const email = ctx.session.user?.email;
     if (!email) {
       throw new TRPCError({
@@ -82,7 +82,7 @@ export const authRouter = createTRPCRouter({
     return options;
   }),
 
-  handleRegister: protectedProcedure
+  registerPassKey: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -176,7 +176,7 @@ export const authRouter = createTRPCRouter({
       });
     }),
 
-  startAuthentication: publicProcedure
+  authenticate: publicProcedure
     .input(z.string().email())
     .query(async ({ ctx, input }) => {
       const user = await ctx.db.query.users.findFirst({
@@ -222,5 +222,25 @@ export const authRouter = createTRPCRouter({
         });
       }
       return options;
+    }),
+
+  allowEmailAuth: publicProcedure
+    .input(z.string().email())
+    .query(async ({ ctx, input }) => {
+      const user = await ctx.db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.email, input),
+        columns: {
+          email: true,
+        },
+      });
+
+      if (!user?.email) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid user",
+        });
+      }
+
+      return user.email;
     }),
 });

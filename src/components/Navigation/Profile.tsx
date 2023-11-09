@@ -1,15 +1,11 @@
 // import { getSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import LogoutButton from "./LogOutButton";
+import { getServerAuthSession } from "~/server/auth";
 
 export default async function Profile() {
-  // TODO: implement once auth is implemented
-  //   const session = await getSession();
-  //   if (!session?.user) {
-  //     redirect("/login");
-  //   }
+  const session = await getServerAuthSession();
 
   return (
     <div className="flex w-full items-center justify-between">
@@ -26,7 +22,9 @@ export default async function Profile() {
           className="h-6 w-6 rounded-full"
         />
         {/* TODO: replace with user's name */}
-        <span className="truncate text-sm font-medium">Tomáš Sabol</span>
+        <span className="truncate text-sm font-medium">
+          {session?.user.name}
+        </span>
       </Link>
       <LogoutButton />
     </div>

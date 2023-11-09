@@ -30,6 +30,6 @@ export default async function AuthShowcase() {
 }
 
 async function PasskeyManagement() {
-  const registrationData = await api.auth.handlePreRegister.query();
+  const registrationData = await api.auth.startPassKeyRegistration.query();
   return <RegistrationComponent webauthnData={registrationData} />;
 }
