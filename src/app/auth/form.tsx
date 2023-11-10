@@ -18,6 +18,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Fingerprint } from "lucide-react";
 import { env } from "~/env.mjs";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z
@@ -26,6 +27,7 @@ const formSchema = z.object({
     .min(1, {
       message: "Email cannot be empty.",
     }),
+  method: z.enum(["email", "passkeys"]).default("passkeys"),
 });
 
 export default function SignInForm() {
@@ -34,16 +36,20 @@ export default function SignInForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
+      method: "passkeys",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (values.method === "email") {
+      await signInWithEmail({ email: values.email });
+      return;
+    }
+
     try {
       await signInWithWebauthn({ email: values.email });
     } catch (error) {
-      // fallback to email sign in
-      // disabled in dev env
-      await signInWithEmail({ email: values.email });
+      toast.error("Error signing in with biometric authentication.");
     }
   }
 
@@ -58,7 +64,9 @@ export default function SignInForm() {
       await directApi.auth.allowEmailAuth.query(email);
       await signIn("email", { email });
     } catch (error) {
-      alert("User with this email does not exist.");
+      toast.error(
+        error instanceof Error ? error.message : "Error signing in with email.",
+      );
       return;
     }
   }
@@ -86,7 +94,7 @@ export default function SignInForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 max-w-sm w-full"
+        className="space-y-3 max-w-sm w-full"
       >
         <FormField
           control={form.control}
@@ -103,14 +111,23 @@ export default function SignInForm() {
           )}
         />
 
-        <div className="flex gap-1">
+        <div className="flex flex-col gap-1">
           <Button
             type="submit"
             className="flex gap-2 w-full h-8 justify-between"
+            onClick={() => form.setValue("method", "passkeys")}
           >
             <Fingerprint className="w-4 h-4" />
             Sign in
             <div />
+          </Button>
+          <Button
+            variant="secondary"
+            type="submit"
+            className=" h-8"
+            onClick={() => form.setValue("method", "email")}
+          >
+            Sign in via email
           </Button>
         </div>
       </form>
