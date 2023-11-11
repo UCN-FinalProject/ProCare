@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 import HealthConditionService from "~/server/service/HealthConditionService";
 import { TRPCError } from "@trpc/server";
 import {
@@ -9,11 +9,11 @@ import {
 import { parseErrorMessage } from "~/lib/parseError";
 
 export const healthConditionRouter = createTRPCRouter({
-  getByID: publicProcedure
+  getByID: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        return await HealthConditionService.getByID(input.id);
+        return await HealthConditionService.getByID({ id: input.id, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -25,11 +25,11 @@ export const healthConditionRouter = createTRPCRouter({
       }
     }),
 
-  getMany: publicProcedure
+  getMany: protectedProcedure
     .input(getManyHealthConditionsInput)
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        return await HealthConditionService.getMany(input);
+        return await HealthConditionService.getMany({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -41,11 +41,11 @@ export const healthConditionRouter = createTRPCRouter({
       }
     }),
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(createHealthConditionInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await HealthConditionService.create(input);
+        return await HealthConditionService.create({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -57,11 +57,11 @@ export const healthConditionRouter = createTRPCRouter({
       }
     }),
 
-  update: publicProcedure
+  update: protectedProcedure
     .input(z.object({ id: z.number() }).merge(createHealthConditionInput))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await HealthConditionService.update(input);
+        return await HealthConditionService.update({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "BAD_REQUEST",

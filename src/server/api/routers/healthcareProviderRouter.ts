@@ -1,6 +1,6 @@
 import { z } from "zod";
 import ExternalHealthcareService from "~/server/service/HealthcareProviderService";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import {
   createHealthCareProviderInput,
@@ -11,11 +11,11 @@ import {
 } from "~/server/service/validation/HealthCareProviderValidation";
 
 export const healthcareProviderRouter = createTRPCRouter({
-  getByID: publicProcedure
+  getByID: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        return await ExternalHealthcareService.getByID(input.id);
+        return await ExternalHealthcareService.getByID({ id: input.id, ctx });
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({
@@ -31,11 +31,11 @@ export const healthcareProviderRouter = createTRPCRouter({
       }
     }),
 
-  getMany: publicProcedure
+  getMany: protectedProcedure
     .input(getManyHealthCareProvidersInput)
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        return await ExternalHealthcareService.getMany(input);
+        return await ExternalHealthcareService.getMany({ input, ctx });
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({
@@ -51,11 +51,11 @@ export const healthcareProviderRouter = createTRPCRouter({
       }
     }),
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(createHealthCareProviderInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await ExternalHealthcareService.create(input);
+        return await ExternalHealthcareService.create({ input, ctx });
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({
@@ -71,11 +71,11 @@ export const healthcareProviderRouter = createTRPCRouter({
       }
     }),
 
-  update: publicProcedure
+  update: protectedProcedure
     .input(updateHealthCareProviderInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await ExternalHealthcareService.update(input);
+        return await ExternalHealthcareService.update({ input, ctx });
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({
@@ -91,13 +91,16 @@ export const healthcareProviderRouter = createTRPCRouter({
       }
     }),
 
-  setActive: publicProcedure
+  setActive: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         return await ExternalHealthcareService.setStatus({
-          id: input.id,
-          isActive: true,
+          input: {
+            id: input.id,
+            isActive: true,
+          },
+          ctx,
         });
       } catch (error) {
         if (error instanceof TRPCError) {
@@ -114,13 +117,16 @@ export const healthcareProviderRouter = createTRPCRouter({
       }
     }),
 
-  setInactive: publicProcedure
+  setInactive: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         return await ExternalHealthcareService.setStatus({
-          id: input.id,
-          isActive: false,
+          input: {
+            id: input.id,
+            isActive: false,
+          },
+          ctx,
         });
       } catch (error) {
         if (error instanceof TRPCError) {
@@ -137,11 +143,14 @@ export const healthcareProviderRouter = createTRPCRouter({
       }
     }),
 
-  getDoctors: publicProcedure
+  getDoctors: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        return await ExternalHealthcareService.getDoctors(input.id);
+        return await ExternalHealthcareService.getDoctors({
+          id: input.id,
+          ctx,
+        });
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({
@@ -157,11 +166,11 @@ export const healthcareProviderRouter = createTRPCRouter({
       }
     }),
 
-  addDoctor: publicProcedure
+  addDoctor: protectedProcedure
     .input(addDoctorInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await ExternalHealthcareService.addDoctor(input);
+        return await ExternalHealthcareService.addDoctor({ input, ctx });
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({
@@ -177,11 +186,11 @@ export const healthcareProviderRouter = createTRPCRouter({
       }
     }),
 
-  removeDoctor: publicProcedure
+  removeDoctor: protectedProcedure
     .input(removeDoctorInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await ExternalHealthcareService.removeDoctor(input);
+        return await ExternalHealthcareService.removeDoctor({ input, ctx });
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({

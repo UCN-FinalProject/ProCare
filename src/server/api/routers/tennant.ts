@@ -1,45 +1,46 @@
 import TennantService from "~/server/service/TennantService";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { tennantInput } from "~/server/service/validation/TennantValidation";
+import { parseErrorMessage } from "~/lib/parseError";
 
 export const tennantRouter = createTRPCRouter({
   // GET
-  getTennant: publicProcedure.query(async () => {
+  getTennant: protectedProcedure.query(async ({ ctx }) => {
     try {
-      return await TennantService.getTennant();
+      return await TennantService.getTennant({ ctx });
     } catch (error) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: error instanceof Error ? error.message : "Not found",
+        message: parseErrorMessage({ error, defaultMessage: "Not found" }),
       });
     }
   }),
 
   // POST (CREATE)
-  createTennant: publicProcedure
+  createTennant: protectedProcedure
     .input(tennantInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await TennantService.createTennant({ tennant: input });
+        return await TennantService.createTennant({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: error instanceof Error ? error.message : "Not found",
+          message: parseErrorMessage({ error, defaultMessage: "Not found" }),
         });
       }
     }),
 
   // UPDATE
-  updateTenant: publicProcedure
+  updateTenant: protectedProcedure
     .input(tennantInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await TennantService.updateTennant({ tennant: input });
+        return await TennantService.updateTennant({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: error instanceof Error ? error.message : "Not found",
+          message: parseErrorMessage({ error, defaultMessage: "Not found" }),
         });
       }
     }),

@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 import HealthInsuranceService from "~/server/service/HealthInsuranceService";
 import { z } from "zod";
 import {
@@ -10,11 +10,14 @@ import {
 
 export const healthInsuranceRouter = createTRPCRouter({
   // GET (single)
-  getHealthInsuranceByID: publicProcedure
+  getHealthInsuranceByID: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        return await HealthInsuranceService.getHealthInsuranceByID(input.id);
+        return await HealthInsuranceService.getHealthInsuranceByID({
+          id: input.id,
+          ctx,
+        });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -24,11 +27,11 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // GET (multiple)
-  getHealthInsurances: publicProcedure
+  getHealthInsurances: protectedProcedure
     .input(getHealthInsurancesInput)
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        return await HealthInsuranceService.getHealthInsurances(input);
+        return await HealthInsuranceService.getHealthInsurances({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -38,12 +41,13 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // POST (create)
-  create: publicProcedure
+  create: protectedProcedure
     .input(createHealthInsuranceInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         return await HealthInsuranceService.createHealthInsurance({
-          healthInsurance: input,
+          input,
+          ctx,
         });
       } catch (error) {
         if (error instanceof TRPCError) {
@@ -61,11 +65,14 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // PUT (update)
-  update: publicProcedure
+  update: protectedProcedure
     .input(updateHealthInsuranceInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await HealthInsuranceService.updateHealthInsurance(input);
+        return await HealthInsuranceService.updateHealthInsurance({
+          input,
+          ctx,
+        });
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({
@@ -82,11 +89,14 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // POST (set active)
-  setActive: publicProcedure
+  setActive: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await HealthInsuranceService.setActiveHealthInsurance(input.id);
+        return await HealthInsuranceService.setActiveHealthInsurance({
+          id: input.id,
+          ctx,
+        });
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({
@@ -103,13 +113,14 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // POST (set inactive)
-  setInactive: publicProcedure
+  setInactive: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await HealthInsuranceService.setInactiveHealthInsurance(
-          input.id,
-        );
+        return await HealthInsuranceService.setInactiveHealthInsurance({
+          id: input.id,
+          ctx,
+        });
       } catch (error) {
         if (error instanceof TRPCError) {
           throw new TRPCError({

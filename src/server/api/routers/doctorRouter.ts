@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 import DoctorService from "~/server/service/DoctorService";
 import { TRPCError } from "@trpc/server";
 import { parseErrorMessage } from "~/lib/parseError";
@@ -12,11 +12,11 @@ import {
 } from "~/server/service/validation/DoctorValidation";
 
 export const doctorRouter = createTRPCRouter({
-  getByID: publicProcedure
+  getByID: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        return await DoctorService.getByID(input.id);
+        return await DoctorService.getByID({ id: input.id, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -28,11 +28,11 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  getMany: publicProcedure
+  getMany: protectedProcedure
     .input(getManyDoctorsInput)
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        return await DoctorService.getMany(input);
+        return await DoctorService.getMany({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -44,11 +44,11 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(createDoctorInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await DoctorService.create(input);
+        return await DoctorService.create({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -60,11 +60,11 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  update: publicProcedure
+  update: protectedProcedure
     .input(updateDoctorInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await DoctorService.update(input);
+        return await DoctorService.update({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -76,13 +76,16 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  setActive: publicProcedure
+  setActive: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         return await DoctorService.setStatus({
-          id: input.id,
-          isActive: true,
+          input: {
+            id: input.id,
+            isActive: true,
+          },
+          ctx,
         });
       } catch (error) {
         throw new TRPCError({
@@ -95,13 +98,16 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  setInactive: publicProcedure
+  setInactive: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         return await DoctorService.setStatus({
-          id: input.id,
-          isActive: false,
+          input: {
+            id: input.id,
+            isActive: false,
+          },
+          ctx,
         });
       } catch (error) {
         throw new TRPCError({
@@ -114,11 +120,14 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  getHealthCareProviders: publicProcedure
+  getHealthCareProviders: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        return await DoctorService.getHealthCareProviders(input.id);
+        return await DoctorService.getHealthCareProviders({
+          id: input.id,
+          ctx,
+        });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -130,11 +139,11 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  addHealthCareProvider: publicProcedure
+  addHealthCareProvider: protectedProcedure
     .input(addDoctorInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await DoctorService.addHealthCareProvider(input);
+        return await DoctorService.addHealthCareProvider({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -146,11 +155,11 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  removeHealthCareProvider: publicProcedure
+  removeHealthCareProvider: protectedProcedure
     .input(removeDoctorInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        return await DoctorService.removeHealthCareProvider(input);
+        return await DoctorService.removeHealthCareProvider({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

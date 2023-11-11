@@ -1,16 +1,16 @@
 import { TRPCError } from "@trpc/server";
-import { db } from "../db";
 import {
   type GetManyHealthConditionsInput,
   type CreateHealthConditionInput,
   type UpdateHealthConditionInput,
 } from "./validation/HealthConditionValidation";
+import { type TRPCContext } from "../api/trpc";
 import { healthCondition } from "../db/export";
 import { asc, eq } from "drizzle-orm";
 
 export default {
-  async getByID(id: number) {
-    const res = await db.query.healthCondition.findFirst({
+  async getByID({ id, ctx }: { id: number; ctx: TRPCContext }) {
+    const res = await ctx.db.query.healthCondition.findFirst({
       where: (healthCondition, { eq }) => eq(healthCondition.id, id),
     });
     if (res) return res;
@@ -20,13 +20,19 @@ export default {
     });
   },
 
-  async getMany(input: GetManyHealthConditionsInput) {
-    const res = await db.query.healthCondition.findMany({
+  async getMany({
+    input,
+    ctx,
+  }: {
+    input: GetManyHealthConditionsInput;
+    ctx: TRPCContext;
+  }) {
+    const res = await ctx.db.query.healthCondition.findMany({
       limit: input.limit,
       offset: input.offset,
       orderBy: [asc(healthCondition.id)],
     });
-    const total = await db
+    const total = await ctx.db
       .select({ id: healthCondition.id })
       .from(healthCondition);
 
@@ -43,8 +49,14 @@ export default {
     });
   },
 
-  async create(input: CreateHealthConditionInput) {
-    const transaction = await db.transaction(async (tx) => {
+  async create({
+    input,
+    ctx,
+  }: {
+    input: CreateHealthConditionInput;
+    ctx: TRPCContext;
+  }) {
+    const transaction = await ctx.db.transaction(async (tx) => {
       const insert = await tx
         .insert(healthCondition)
         .values({
@@ -77,8 +89,14 @@ export default {
     });
   },
 
-  async update(input: UpdateHealthConditionInput) {
-    const transaction = await db.transaction(async (tx) => {
+  async update({
+    input,
+    ctx,
+  }: {
+    input: UpdateHealthConditionInput;
+    ctx: TRPCContext;
+  }) {
+    const transaction = await ctx.db.transaction(async (tx) => {
       await tx
         .update(healthCondition)
         .set({

@@ -1,5 +1,4 @@
 import { TRPCError } from "@trpc/server";
-import { db } from "../db";
 import {
   healthInsurance,
   healthInsuranceAddress,
@@ -10,27 +9,33 @@ import {
   type GetHealthInsurancesInput,
   type UpdateHealthInsuranceInput,
 } from "./validation/HealthInsurance";
+import { type TRPCContext } from "../api/trpc";
 import { asc, eq } from "drizzle-orm";
 
 export default {
-  async getHealthInsuranceByID(id: number) {
-    const res = await db.query.healthInsurance.findFirst({
+  async getHealthInsuranceByID({ id, ctx }: { id: number; ctx: TRPCContext }) {
+    const res = await ctx.db.query.healthInsurance.findFirst({
       with: {
         healthInsuranceAddress: true,
         healthInsuranceVAT: true,
       },
       where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
     });
-    if (!res) throw new Error("Health insurance not found");
-    if (!res.healthInsuranceAddress)
-      throw new Error("Health insurance address not found");
-    if (!res.healthInsuranceVAT)
-      throw new Error("Health insurance VAT not found");
-    return res;
+    if (res) return res;
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Health insurance not found",
+    });
   },
 
-  async getHealthInsurances(input: GetHealthInsurancesInput) {
-    const res = await db.query.healthInsurance.findMany({
+  async getHealthInsurances({
+    input,
+    ctx,
+  }: {
+    input: GetHealthInsurancesInput;
+    ctx: TRPCContext;
+  }) {
+    const res = await ctx.db.query.healthInsurance.findMany({
       limit: input.limit,
       offset: input.offset,
       where: (healthInsurance, { eq }) =>
@@ -39,7 +44,7 @@ export default {
           : undefined,
       orderBy: [asc(healthInsurance.id)],
     });
-    const total = await db.query.healthInsurance.findMany({
+    const total = await ctx.db.query.healthInsurance.findMany({
       columns: { id: true },
       where: (healthInsurance, { eq }) =>
         input.isActive !== undefined
@@ -55,18 +60,22 @@ export default {
   },
 
   // POST (create)
-  async createHealthInsurance(input: {
-    healthInsurance: HealthInsuranceInput;
+  async createHealthInsurance({
+    input,
+    ctx,
+  }: {
+    input: HealthInsuranceInput;
+    ctx: TRPCContext;
   }) {
     // TRANSACTION
-    const transaction = await db.transaction(async (tx) => {
+    const transaction = await ctx.db.transaction(async (tx) => {
       const insert = await tx
         .insert(healthInsurance)
         .values({
-          insuranceID: input.healthInsurance.insuranceID,
-          registeredID: input.healthInsurance.registeredID,
-          name: input.healthInsurance.name,
-          pricePerCredit: input.healthInsurance.pricePerCredit,
+          insuranceID: input.insuranceID,
+          registeredID: input.registeredID,
+          name: input.name,
+          pricePerCredit: input.pricePerCredit,
           isActive: true,
         })
         .returning({ id: healthInsurance.id })
@@ -88,12 +97,12 @@ export default {
         .insert(healthInsuranceAddress)
         .values({
           insuranceID: insert.at(0)!.id!,
-          address1: input.healthInsurance.address.address1,
-          address2: input.healthInsurance.address.address2,
-          city: input.healthInsurance.address.city,
-          zip: input.healthInsurance.address.zip,
-          phoneNumber: input.healthInsurance.address.phoneNumber,
-          email: input.healthInsurance.address.email,
+          address1: input.address.address1,
+          address2: input.address.address2,
+          city: input.address.city,
+          zip: input.address.zip,
+          phoneNumber: input.address.phoneNumber,
+          email: input.address.email,
         })
         .catch((err) => {
           tx.rollback();
@@ -106,9 +115,9 @@ export default {
         .insert(healthInsuranceVAT)
         .values({
           insuranceID: insert.at(0)!.id!,
-          vat1: input.healthInsurance.vat.VAT1,
-          vat2: input.healthInsurance.vat.VAT2,
-          vat3: input.healthInsurance.vat.VAT3 ?? undefined,
+          vat1: input.vat.VAT1,
+          vat2: input.vat.VAT2,
+          vat3: input.vat.VAT3 ?? undefined,
         })
         .catch((err) => {
           tx.rollback();
@@ -125,7 +134,7 @@ export default {
             healthInsuranceVAT: true,
           },
           where: (healthInsurance, { eq }) =>
-            eq(healthInsurance.insuranceID, input.healthInsurance.insuranceID),
+            eq(healthInsurance.insuranceID, input.insuranceID),
         })
         .catch((err) => {
           tx.rollback();
@@ -143,21 +152,29 @@ export default {
   },
 
   // POST (update)
-  async updateHealthInsurance(input: UpdateHealthInsuranceInput) {
-    const initialHealthInsurance = await db.query.healthInsurance.findFirst({
-      with: {
-        healthInsuranceAddress: true,
-        healthInsuranceVAT: true,
+  async updateHealthInsurance({
+    input,
+    ctx,
+  }: {
+    input: UpdateHealthInsuranceInput;
+    ctx: TRPCContext;
+  }) {
+    const initialHealthInsurance = await ctx.db.query.healthInsurance.findFirst(
+      {
+        with: {
+          healthInsuranceAddress: true,
+          healthInsuranceVAT: true,
+        },
+        where: (healthInsurance, { eq }) => eq(healthInsurance.id, input.id),
       },
-      where: (healthInsurance, { eq }) => eq(healthInsurance.id, input.id),
-    });
+    );
     if (!initialHealthInsurance)
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Health insurance not found",
       });
 
-    const transaction = await db.transaction(async (tx) => {
+    const transaction = await ctx.db.transaction(async (tx) => {
       await tx
         .update(healthInsurance)
         .set({
@@ -241,17 +258,25 @@ export default {
   },
 
   // POST (set active)
-  async setActiveHealthInsurance(id: number) {
-    const initialHealthInsurance = await db.query.healthInsurance.findFirst({
-      where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
-    });
+  async setActiveHealthInsurance({
+    id,
+    ctx,
+  }: {
+    id: number;
+    ctx: TRPCContext;
+  }) {
+    const initialHealthInsurance = await ctx.db.query.healthInsurance.findFirst(
+      {
+        where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
+      },
+    );
     if (!initialHealthInsurance)
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Health insurance not found",
       });
 
-    const transaction = await db.transaction(async (tx) => {
+    const transaction = await ctx.db.transaction(async (tx) => {
       await tx
         .update(healthInsurance)
         .set({
@@ -288,17 +313,25 @@ export default {
   },
 
   // POST (set inactive)
-  async setInactiveHealthInsurance(id: number) {
-    const initialHealthInsurance = await db.query.healthInsurance.findFirst({
-      where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
-    });
+  async setInactiveHealthInsurance({
+    id,
+    ctx,
+  }: {
+    id: number;
+    ctx: TRPCContext;
+  }) {
+    const initialHealthInsurance = await ctx.db.query.healthInsurance.findFirst(
+      {
+        where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
+      },
+    );
     if (!initialHealthInsurance)
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Health insurance not found",
       });
 
-    const transaction = await db.transaction(async (tx) => {
+    const transaction = await ctx.db.transaction(async (tx) => {
       await tx
         .update(healthInsurance)
         .set({

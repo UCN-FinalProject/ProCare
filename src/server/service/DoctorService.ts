@@ -1,5 +1,4 @@
 import { TRPCError } from "@trpc/server";
-import { db } from "../db";
 import {
   type GetManyDoctorsInput,
   type CreateDoctorInput,
@@ -10,10 +9,11 @@ import {
 } from "./validation/DoctorValidation";
 import { asc, eq } from "drizzle-orm";
 import { doctor, healthcareProviderDoctors } from "../db/export";
+import { type TRPCContext } from "../api/trpc";
 
 export default {
-  async getByID(id: number) {
-    const res = await db.query.doctor.findFirst({
+  async getByID({ id, ctx }: { id: number; ctx: TRPCContext }) {
+    const res = await ctx.db.query.doctor.findFirst({
       where: (doctor, { eq }) => eq(doctor.id, id),
     });
     if (res) return res;
@@ -23,8 +23,14 @@ export default {
     });
   },
 
-  async getMany(input: GetManyDoctorsInput) {
-    const res = await db.query.doctor.findMany({
+  async getMany({
+    input,
+    ctx,
+  }: {
+    input: GetManyDoctorsInput;
+    ctx: TRPCContext;
+  }) {
+    const res = await ctx.db.query.doctor.findMany({
       limit: input.limit,
       offset: input.offset,
       where: (doctor, { eq }) =>
@@ -33,7 +39,7 @@ export default {
           : undefined,
       orderBy: [asc(doctor.id)],
     });
-    const total = await db.query.doctor.findMany({
+    const total = await ctx.db.query.doctor.findMany({
       columns: { id: true },
       where: (doctor, { eq }) =>
         input.isActive !== undefined
@@ -54,8 +60,8 @@ export default {
     });
   },
 
-  async create(input: CreateDoctorInput) {
-    const transaction = await db.transaction(async (tx) => {
+  async create({ input, ctx }: { input: CreateDoctorInput; ctx: TRPCContext }) {
+    const transaction = await ctx.db.transaction(async (tx) => {
       const insert = await tx
         .insert(doctor)
         .values({
@@ -88,8 +94,8 @@ export default {
     });
   },
 
-  async update(input: UpdateDoctorInput) {
-    const transaction = await db.transaction(async (tx) => {
+  async update({ input, ctx }: { input: UpdateDoctorInput; ctx: TRPCContext }) {
+    const transaction = await ctx.db.transaction(async (tx) => {
       await tx
         .update(doctor)
         .set({
@@ -116,8 +122,14 @@ export default {
     });
   },
 
-  async setStatus(input: SetStatusDoctorInput) {
-    const transaction = await db.transaction(async (tx) => {
+  async setStatus({
+    input,
+    ctx,
+  }: {
+    input: SetStatusDoctorInput;
+    ctx: TRPCContext;
+  }) {
+    const transaction = await ctx.db.transaction(async (tx) => {
       await tx
         .update(doctor)
         .set({
@@ -143,8 +155,8 @@ export default {
   },
 
   // TODO: test and improve return structure
-  async getHealthCareProviders(id: number) {
-    const res = await db.query.healthcareProviderDoctors.findMany({
+  async getHealthCareProviders({ id, ctx }: { id: number; ctx: TRPCContext }) {
+    const res = await ctx.db.query.healthcareProviderDoctors.findMany({
       where: (healthcareProviderDoctors, { eq }) =>
         eq(healthcareProviderDoctors.doctorID, id),
       orderBy: [asc(healthcareProviderDoctors.id)],
@@ -159,8 +171,14 @@ export default {
     });
   },
 
-  async addHealthCareProvider(input: AddDoctorInput) {
-    const transaction = await db.transaction(async (tx) => {
+  async addHealthCareProvider({
+    input,
+    ctx,
+  }: {
+    input: AddDoctorInput;
+    ctx: TRPCContext;
+  }) {
+    const transaction = await ctx.db.transaction(async (tx) => {
       const checkIfAlreadyAdded =
         await tx.query.healthcareProviderDoctors.findFirst({
           where: (healthcareProviderDoctors, { eq }) =>
@@ -197,8 +215,14 @@ export default {
     });
   },
 
-  async removeHealthCareProvider(input: RemoveDoctorInput) {
-    const transaction = await db.transaction(async (tx) => {
+  async removeHealthCareProvider({
+    input,
+    ctx,
+  }: {
+    input: RemoveDoctorInput;
+    ctx: TRPCContext;
+  }) {
+    const transaction = await ctx.db.transaction(async (tx) => {
       await tx
         .delete(healthcareProviderDoctors)
         .where(
