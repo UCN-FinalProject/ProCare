@@ -29,6 +29,7 @@ export const users = pgTable("user", {
   // otherwise it will throw an error
   image: text("image"),
 });
+export type User = Omit<typeof users.$inferSelect, "image">;
 
 export const usersRelations = relations(users, ({ many }) => ({
   credentials: many(credentials),

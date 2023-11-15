@@ -6,8 +6,10 @@ import ID from "~/components/ID";
 import Form from "./components/form";
 import { Badge } from "~/components/ui/badge";
 import HealthInsuranceAlert from "./components/HealthInsuranceAlert";
+import { getServerAuthSession } from "~/server/auth";
 
 export default async function page({ params }: { params: { id: string } }) {
+  const session = await getServerAuthSession();
   const id = Number(params.id);
   const healthInsuranceProvider =
     await api.healthInsurance.getHealthInsuranceByID
@@ -27,16 +29,17 @@ export default async function page({ params }: { params: { id: string } }) {
             {healthInsuranceProvider.isActive === true ? "Active" : "Inactive"}
           </Badge>
         </div>
-        {/* TODO: hide the button/alert from non admin users */}
-        <HealthInsuranceAlert
-          variant={
-            healthInsuranceProvider.isActive === true ? "active" : "inactive"
-          }
-          id={id}
-        />
+        {session?.user.role === "admin" && (
+          <HealthInsuranceAlert
+            variant={
+              healthInsuranceProvider.isActive === true ? "active" : "inactive"
+            }
+            id={id}
+          />
+        )}
       </div>
       <div className="flex flex-col lg:max-w-lg">
-        <Form data={healthInsuranceProvider} />
+        <Form data={healthInsuranceProvider} session={session} />
       </div>
     </div>
   );

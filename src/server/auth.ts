@@ -19,6 +19,7 @@ import { domain, getChallenge, rpID } from "~/server/webauthn";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 import { type JWT } from "next-auth/jwt";
 import { type AuthenticationResponseJSON } from "@simplewebauthn/typescript-types";
+import { type User } from "~/server/db/export";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -28,11 +29,8 @@ import { type AuthenticationResponseJSON } from "@simplewebauthn/typescript-type
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: {
-      id: string;
-      // ...other properties
-      // role: UserRole;
-    } & DefaultSession["user"];
+    user: User;
+    //  & DefaultSession["user"];
   }
 
   // interface User {

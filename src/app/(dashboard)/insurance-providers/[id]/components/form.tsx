@@ -1,6 +1,5 @@
 "use client";
 
-// TODO: disable fields and hide button for non admin users
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -21,6 +20,7 @@ import { type HealthInsurance } from "~/server/db/export";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
 import { revalidatePathClient } from "~/app/revalidate";
+import { type Session } from "next-auth/core/types";
 
 const formSchema = z.object({
   insuranceID: z.number().min(1, {
@@ -58,9 +58,12 @@ const formSchema = z.object({
 
 export default function UpdateInsuranceProviderForm({
   data,
+  session,
 }: {
   data: HealthInsurance;
+  session: Session | null;
 }) {
+  const isAdmin = session?.user.role === "admin";
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -128,7 +131,12 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>Insurance ID</FormLabel>
               <FormControl>
-                <Input placeholder="Insurance ID" type="number" {...field} />
+                <Input
+                  placeholder="Insurance ID"
+                  type="number"
+                  {...field}
+                  disabled={!isAdmin}
+                />
               </FormControl>
               <FormDescription>Health insurance&apos;s ID.</FormDescription>
 
@@ -143,7 +151,12 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>Registered ID</FormLabel>
               <FormControl>
-                <Input placeholder="Registered ID" type="number" {...field} />
+                <Input
+                  placeholder="Registered ID"
+                  type="number"
+                  {...field}
+                  disabled={!isAdmin}
+                />
               </FormControl>
               <FormDescription>
                 ID registered in the National Health Insurance register.
@@ -160,7 +173,7 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Name" {...field} />
+                <Input placeholder="Name" {...field} disabled={!isAdmin} />
               </FormControl>
 
               <FormMessage />
@@ -178,6 +191,7 @@ export default function UpdateInsuranceProviderForm({
                   placeholder="Price per credit"
                   type="number"
                   {...field}
+                  disabled={!isAdmin}
                 />
               </FormControl>
 
@@ -193,7 +207,7 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>Address 1</FormLabel>
               <FormControl>
-                <Input placeholder="Address 1" {...field} />
+                <Input placeholder="Address 1" {...field} disabled={!isAdmin} />
               </FormControl>
 
               <FormMessage />
@@ -207,7 +221,7 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>Address 2</FormLabel>
               <FormControl>
-                <Input placeholder="Address 2" {...field} />
+                <Input placeholder="Address 2" {...field} disabled={!isAdmin} />
               </FormControl>
 
               <FormMessage />
@@ -221,7 +235,7 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>City</FormLabel>
               <FormControl>
-                <Input placeholder="City" {...field} />
+                <Input placeholder="City" {...field} disabled={!isAdmin} />
               </FormControl>
 
               <FormMessage />
@@ -235,7 +249,7 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>Zip</FormLabel>
               <FormControl>
-                <Input placeholder="Zip" {...field} />
+                <Input placeholder="Zip" {...field} disabled={!isAdmin} />
               </FormControl>
 
               <FormMessage />
@@ -250,7 +264,7 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>Phone</FormLabel>
               <FormControl>
-                <Input placeholder="Phone" {...field} />
+                <Input placeholder="Phone" {...field} disabled={!isAdmin} />
               </FormControl>
 
               <FormMessage />
@@ -264,7 +278,7 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Email" {...field} />
+                <Input placeholder="Email" {...field} disabled={!isAdmin} />
               </FormControl>
 
               <FormMessage />
@@ -279,7 +293,7 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>VAT 1</FormLabel>
               <FormControl>
-                <Input placeholder="VAT 1" {...field} />
+                <Input placeholder="VAT 1" {...field} disabled={!isAdmin} />
               </FormControl>
 
               <FormMessage />
@@ -293,7 +307,7 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>VAT 2</FormLabel>
               <FormControl>
-                <Input placeholder="VAT 2" {...field} />
+                <Input placeholder="VAT 2" {...field} disabled={!isAdmin} />
               </FormControl>
 
               <FormMessage />
@@ -307,7 +321,7 @@ export default function UpdateInsuranceProviderForm({
             <FormItem>
               <FormLabel>VAT 3</FormLabel>
               <FormControl>
-                <Input placeholder="VAT 3" {...field} />
+                <Input placeholder="VAT 3" {...field} disabled={!isAdmin} />
               </FormControl>
 
               <FormMessage />
@@ -315,13 +329,15 @@ export default function UpdateInsuranceProviderForm({
           )}
         />
 
-        <Button
-          type="submit"
-          className="sticky bottom-5 left-0"
-          isLoading={updateHealthInsurance.isLoading}
-        >
-          Submit
-        </Button>
+        {isAdmin && (
+          <Button
+            type="submit"
+            className="sticky bottom-5 left-0"
+            isLoading={updateHealthInsurance.isLoading}
+          >
+            Submit
+          </Button>
+        )}
       </form>
     </Form>
   );
