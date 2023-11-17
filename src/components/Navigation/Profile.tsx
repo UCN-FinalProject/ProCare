@@ -1,4 +1,3 @@
-// import { getSession } from "@/lib/auth";
 import Link from "next/link";
 import Image from "next/image";
 import LogoutButton from "./LogOutButton";
@@ -21,7 +20,6 @@ export default async function Profile() {
           alt={"Tomáš's Sabol avatar" ?? "User avatar"}
           className="h-6 w-6 rounded-full"
         />
-        {/* TODO: replace with user's name */}
         <span className="truncate text-sm font-medium">
           {session?.user.name}
         </span>
