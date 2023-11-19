@@ -50,16 +50,8 @@ export const userRouter = createTRPCRouter({
     .input(createUserInput)
     .mutation(async ({ input, ctx }) => {
       try {
-        return await UserService.create({ input, ctx });
-      } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: parseErrorMessage({
-            error,
-            defaultMessage: "Bad request",
-          }),
-        });
-      } finally {
+        const res = await UserService.create({ input, ctx });
+
         try {
           await EmailService.sendEmail({
             to: input.email,
@@ -71,6 +63,16 @@ export const userRouter = createTRPCRouter({
             message: "Failed to send email",
           });
         }
+
+        return res;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Bad request",
+          }),
+        });
       }
     }),
 
