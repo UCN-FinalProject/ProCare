@@ -17,7 +17,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 import { domain, getChallenge, rpID } from "~/server/webauthn";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
-import { type JWT } from "next-auth/jwt";
+import { type DefaultJWT, type JWT } from "next-auth/jwt";
 import { type AuthenticationResponseJSON } from "@simplewebauthn/typescript-types";
 import { type User } from "~/server/db/export";
 
@@ -30,13 +30,13 @@ import { type User } from "~/server/db/export";
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: User;
-    //  & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface JWT extends DefaultJWT {
+    id: string;
+    email: string;
+    role: User["role"];
+  }
 }
 
 // TODO: verify user exists somewhere in here
@@ -55,6 +55,7 @@ export const authOptions: NextAuthOptions = {
           user: {
             ...session.user,
             id: token.id,
+            role: token.role as User["role"],
           },
         };
       }
@@ -64,6 +65,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        token.role = (user as User).role;
       }
       return token;
     },
