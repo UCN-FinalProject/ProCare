@@ -33,7 +33,7 @@ export default function TableDemo({ data }: { data: User[] }) {
                 colSpan={5}
                 className="text-center h-32 text-muted-foreground"
               >
-                No insurance providers
+                No users
               </TableCell>
             </TableRow>
           )}
