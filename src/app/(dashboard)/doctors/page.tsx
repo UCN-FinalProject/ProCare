@@ -19,14 +19,14 @@ export default async function page() {
     <div className="flex flex-col gap-4 overflow-hidden">
       <div className="flex justify-between">
         <PageHeader>Doctors</PageHeader>
-        {/* {session?.user.role === "admin" && ( */}
-        <Button variant="secondary">
-          <Link href="/doctors/create" className="flex items-center gap-1">
-            <Plus className="w-[18px]" />
-            Add new
-          </Link>
-        </Button>
-        {/* )} */}
+        {session?.user.role === "admin" && (
+          <Button variant="secondary">
+            <Link href="/doctors/create" className="flex items-center gap-1">
+              <Plus className="w-[18px]" />
+              Add new
+            </Link>
+          </Button>
+        )}
       </div>
       <Table data={doctors.result} />
     </div>
