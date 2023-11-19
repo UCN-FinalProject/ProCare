@@ -6,7 +6,6 @@ import { notFound } from "next/navigation";
 
 export default async function Page() {
   const session = await getServerAuthSession();
-  await new Promise((resolve) => setTimeout(resolve, 1000));
   if (session?.user.role !== "admin") return notFound();
 
   return (

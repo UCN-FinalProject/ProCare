@@ -18,15 +18,15 @@ import { useRouter } from "next/navigation";
 
 type Variant = "active" | "inactive";
 
-export default function HealthInsuranceAlert({
+export default function DoctorAlert({
   variant,
   id,
 }: {
   variant: Variant;
   id: number;
 }) {
-  const setActive = api.healthInsurance.setActive.useMutation();
-  const setInactive = api.healthInsurance.setInactive.useMutation();
+  const setActive = api.doctor.setActive.useMutation();
+  const setInactive = api.doctor.setInactive.useMutation();
 
   const router = useRouter();
 
@@ -37,7 +37,7 @@ export default function HealthInsuranceAlert({
         {
           // eslint-disable-next-line
           onSuccess: async () => {
-            toast.success("Health insurance provider disabled");
+            toast.success(`Doctor's status was set to active`);
             await revalidatePathClient().then(() => router.refresh());
           },
           onError: (err) => toast.error(err.message),
@@ -49,7 +49,7 @@ export default function HealthInsuranceAlert({
         {
           // eslint-disable-next-line
           onSuccess: async () => {
-            toast.success("Health insurance provider enabled");
+            toast.success(`Doctor's status was set to inactive`);
             await revalidatePathClient().then(() => router.refresh());
           },
           onError: (err) => toast.error(err.message),
@@ -62,15 +62,16 @@ export default function HealthInsuranceAlert({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="secondary">
-          {variant === "active" ? "Disable" : "Enable"}
+          {variant === "active" ? "Set inactive" : "Set active"}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will {variant === "active" ? "disable" : "enable"} this health
-            insurance provider. You can change the status at any time.
+            This will set doctor&apos;s status to{" "}
+            {variant === "active" ? "inactive" : "active"}. You can change the
+            status at any time.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
