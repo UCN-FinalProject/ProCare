@@ -6,6 +6,8 @@ import {
   createUserInput,
   updateUserInput,
 } from "~/server/service/validation/UserValidation";
+import EmailService from "~/server/service/EmailService";
+import { parseErrorMessage } from "~/lib/parseError";
 
 export const userRouter = createTRPCRouter({
   getByID: protectedProcedure
@@ -48,17 +50,28 @@ export const userRouter = createTRPCRouter({
     .input(createUserInput)
     .mutation(async ({ input, ctx }) => {
       try {
-        return await UserService.create({ input, ctx });
-      } catch (error) {
-        if (error instanceof Error) {
+        const res = await UserService.create({ input, ctx });
+
+        try {
+          await EmailService.sendEmail({
+            to: input.email,
+            subject: "Welcome to ProCare!",
+          });
+        } catch (error) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: error.message,
+            message: "Failed to send email",
           });
         }
+
+        return res;
+      } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Bad request",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Bad request",
+          }),
         });
       }
     }),
