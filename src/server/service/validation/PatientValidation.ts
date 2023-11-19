@@ -7,14 +7,35 @@ export const getPatientInput = z.object({
 export type GetPatientInput = z.infer<typeof getPatientInput>;
 
 export const createPatientInput = z.object({
+  id: z.number(),
   fullName: z.string(),
   address: z.string(),
   personalDoctorID: z.number(), // do we want these as optinal? maybe you link them afterwards?
   healthInsuranceID: z.number(),
+  patientConditions: z
+    .array(
+      z.object({
+        patientID: z.number(),
+        conditionID: z.number(),
+      }),
+    )
+    .optional(),
+  patientProcedures: z
+    .array(
+      z.object({
+        patientID: z.number(),
+        procedureID: z.number(),
+        date: z.date(),
+        doctorName: z.string(),
+        doctorID: z.number(),
+      }),
+    )
+    .optional(),
 });
 export type CreatePatientInput = z.infer<typeof createPatientInput>;
 
 export const updatePatientInput = z.object({
+  id: z.number(),
   fullName: z.string(),
   address: z.string(),
   personalDoctorID: z.number(), // do we want these as optinal? maybe you link them afterwards?
