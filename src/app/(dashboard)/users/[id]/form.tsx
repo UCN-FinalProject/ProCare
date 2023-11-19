@@ -25,51 +25,59 @@ import {
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
 import { revalidatePathClient } from "~/app/revalidate";
-import { useState } from "react";
-import Link from "next/link";
+import { type User } from "~/server/db/export";
+import { useRouter } from "next/navigation";
+import { type Session } from "next-auth";
 
 const formSchema = z.object({
   name: z.string().min(1, {
     message: "Name cannot be empty.",
   }),
-  email: z
-    .string()
-    .min(1, {
-      message: "Email cannot be empty.",
-    })
-    .email({ message: "Email must be a valid email." }),
+  email: z.string().email(),
   role: z.enum(["admin", "user"]),
   doctorID: z.string().optional(),
 });
 
-export default function CreateUserForm() {
-  const [userID, setuserID] = useState<string | null>(null);
+export default function UpdateUserForm({
+  data,
+  session,
+}: {
+  data: User;
+  session: Session;
+}) {
+  const router = useRouter();
+  const isAdmin = session.user.role === "admin";
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      doctorID: "",
-      role: "user",
+      email: data.email,
+      name: data.name,
+      doctorID: data.doctorID ?? "",
+      role: data.role,
     },
   });
 
-  const createUser = api.user.create.useMutation();
+  const createUser = api.user.update.useMutation();
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!isAdmin) {
+      toast.error("Only administrators are able to perform this action.");
+      return;
+    }
     await createUser.mutateAsync(
       {
+        id: data.id,
         name: values.name,
-        email: values.email,
         role: values.role,
         doctorID: values.doctorID ?? undefined,
       },
       {
         // eslint-disable-next-line
         onSuccess: async (res) => {
-          setuserID(res!);
-          toast.success("User was created successfully created");
+          toast.success("User was updated successfully created");
           await revalidatePathClient();
+          router.refresh();
         },
         onError: (err) => toast.error(err.message),
       },
@@ -86,7 +94,7 @@ export default function CreateUserForm() {
             <FormItem>
               <FormLabel>Full name</FormLabel>
               <FormControl>
-                <Input placeholder="Full name" {...field} />
+                <Input placeholder="Full name" {...field} disabled={!isAdmin} />
               </FormControl>
               <FormDescription>
                 Full name of the user (including titles).
@@ -103,7 +111,7 @@ export default function CreateUserForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Email" {...field} />
+                <Input placeholder="Email" {...field} disabled />
               </FormControl>
               <FormDescription>
                 Email of the user. This will be used to log in.
@@ -120,7 +128,7 @@ export default function CreateUserForm() {
             <FormItem>
               <FormLabel>Doctor ID</FormLabel>
               <FormControl>
-                <Input placeholder="Doctor ID" {...field} />
+                <Input placeholder="Doctor ID" {...field} disabled={!isAdmin} />
               </FormControl>
               <FormDescription>
                 ID of the doctor registered in the National Health Service.
@@ -136,7 +144,11 @@ export default function CreateUserForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                disabled={!isAdmin}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a role" />
@@ -156,16 +168,11 @@ export default function CreateUserForm() {
           )}
         />
 
-        <div className="flex gap-1">
+        {isAdmin && (
           <Button type="submit" isLoading={createUser.isLoading}>
             Submit
           </Button>
-          {createUser.isSuccess && (
-            <Button variant="outline">
-              <Link href={"/users/" + userID}>View user</Link>
-            </Button>
-          )}
-        </div>
+        )}
       </form>
     </Form>
   );
