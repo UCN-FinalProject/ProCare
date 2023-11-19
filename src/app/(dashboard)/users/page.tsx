@@ -10,7 +10,6 @@ import { getServerAuthSession } from "~/server/auth";
 export default async function page() {
   const session = await getServerAuthSession();
   const users = await api.user.getMany.query();
-  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   return (
     <div className="flex flex-col gap-4 overflow-hidden">
