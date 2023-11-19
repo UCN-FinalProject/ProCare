@@ -42,19 +42,19 @@ export default function TableDoctors({ data }: { data: Doctor[] }) {
                   <ID>{doctor.id}</ID>
                 </CopyToClipboard>
               </TableCell>
-              <TableCell>
-                <CopyToClipboard text={doctor.doctorID}>
-                  {doctor.doctorID}
-                </CopyToClipboard>
-              </TableCell>
               <TableCell className="font-medium">
-                <Link href={`/insurance-providers/${doctor.id}`}>
+                <Link href={`/doctors/${doctor.id}`}>
                   <CopyToClipboard text={doctor.fullName}>
                     {doctor.fullName}
                   </CopyToClipboard>
                 </Link>
               </TableCell>
               <TableCell>
+                <CopyToClipboard text={doctor.doctorID}>
+                  {doctor.doctorID}
+                </CopyToClipboard>
+              </TableCell>
+              <TableCell align="right">
                 <Badge
                   variant={doctor.isActive === true ? "active" : "inactive"}
                 >
