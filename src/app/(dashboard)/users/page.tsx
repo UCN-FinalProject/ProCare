@@ -1,12 +1,31 @@
-import { Suspense } from "react";
-import AuthShowcase from "~/app/_components/auth";
+import React from "react";
+import PageHeader from "~/components/Headers/PageHeader";
+import Table from "./table";
+import { api } from "~/trpc/server";
+import { Button } from "~/components/ui/button";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { getServerAuthSession } from "~/server/auth";
 
-export default function Home() {
+export default async function page() {
+  const session = await getServerAuthSession();
+  const users = await api.user.getMany.query();
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
   return (
-    <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-      <Suspense fallback={<div>Loading...</div>}>
-        <AuthShowcase />
-      </Suspense>
+    <div className="flex flex-col gap-4 overflow-hidden">
+      <div className="flex justify-between">
+        <PageHeader>Users</PageHeader>
+        {session?.user.role === "admin" && (
+          <Button variant="secondary">
+            <Link href="/users/create" className="flex items-center gap-1">
+              <Plus className="w-[18px]" />
+              Add new
+            </Link>
+          </Button>
+        )}
+      </div>
+      <Table data={users} />
     </div>
   );
 }
