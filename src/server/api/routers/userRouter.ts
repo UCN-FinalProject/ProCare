@@ -16,15 +16,12 @@ export const userRouter = createTRPCRouter({
       try {
         return await UserService.getByID({ id: input.id, ctx });
       } catch (error) {
-        if (error instanceof Error) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: error.message,
-          });
-        }
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "User not found",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "User not found",
+          }),
         });
       }
     }),
@@ -33,15 +30,12 @@ export const userRouter = createTRPCRouter({
     try {
       return await UserService.getMany(ctx);
     } catch (error) {
-      if (error instanceof Error) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: error.message,
-        });
-      }
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Users not found",
+        message: parseErrorMessage({
+          error,
+          defaultMessage: "Users not found",
+        }),
       });
     }
   }),
@@ -82,15 +76,12 @@ export const userRouter = createTRPCRouter({
       try {
         return await UserService.update({ input, ctx });
       } catch (error) {
-        if (error instanceof Error) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: error.message,
-          });
-        }
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Bad request",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Bad request",
+          }),
         });
       }
     }),
