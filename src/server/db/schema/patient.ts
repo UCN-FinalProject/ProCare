@@ -1,4 +1,11 @@
-import { date, integer, pgTable, serial, varchar } from "drizzle-orm/pg-core";
+import {
+  date,
+  integer,
+  pgTable,
+  serial,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { healthcareProviderDoctors } from "./healthcareProvider";
 import { relations } from "drizzle-orm";
 import { healthInsurance } from "./healthInsurance";
@@ -28,11 +35,20 @@ export const patientConditions = pgTable("patientConditions", {
 });
 
 export const patientProcedure = pgTable("patientProcedures", {
-  patientID: integer("patient_id").references(() => patient.id),
-  procedureID: integer("procedure_id").references(() => procedure.id),
-  date: date("date").notNull(),
-  doctorName: varchar("user_name").references(() => users.name), //is this the correct reference?-should there even be a reference(historical data?)
-  doctorID: integer("user_id").references(() => users.id),
+  id: serial("id").primaryKey(),
+  patientID: integer("patient_id")
+    .references(() => patient.id)
+    .notNull(),
+  procedureID: integer("procedure_id")
+    .references(() => procedure.id)
+    .notNull(),
+  date: timestamp("date").notNull().defaultNow(),
+  doctorName: varchar("user_name")
+    .references(() => users.name)
+    .notNull(), //is this the correct reference?-should there even be a reference(historical data?)
+  doctorID: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
 });
 
 export const conditions = relations(patient, ({ many }) => ({
