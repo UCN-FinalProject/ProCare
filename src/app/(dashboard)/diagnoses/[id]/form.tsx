@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { api } from "~/trpc/react";
+import { useRouter } from "next/navigation";
 
 import Button from "~/components/Button";
 import {
@@ -34,6 +35,8 @@ export default function UpdateHealthConditionForm({
 }: {
   data: HealthCondition;
 }) {
+  const router = useRouter();
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,8 +58,8 @@ export default function UpdateHealthConditionForm({
         // eslint-disable-next-line
         onSuccess: async (res) => {
           toast.success("Health condition updated");
-          window.location.reload();
           await revalidatePathClient();
+          router.refresh();
         },
         onError: (err) => toast.error(err.message),
       },
