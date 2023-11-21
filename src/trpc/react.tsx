@@ -30,11 +30,12 @@ export function TRPCReactProvider(props: {
           headers() {
             const heads = new Map(props.headers);
             heads.set("x-trpc-source", "react");
+            heads.set("cache-control", "no-cache");
             return Object.fromEntries(heads);
           },
         }),
       ],
-    })
+    }),
   );
 
   return (

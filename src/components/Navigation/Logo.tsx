@@ -1,12 +1,19 @@
+"use client";
 import { useTheme } from "next-themes";
 
-export default function Logo() {
+export default function Logo({
+  width,
+  height,
+}: {
+  width?: string;
+  height?: string;
+}) {
   const { systemTheme } = useTheme();
   return (
     <div>
       <svg
-        width="90"
-        height="25"
+        width={width ?? "90"}
+        height={height ?? "25"}
         viewBox="0 0 176.09 38.55"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

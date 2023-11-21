@@ -22,6 +22,69 @@
       "when": 1698878023552,
       "tag": "0002_futuristic_leper_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1699024992769,
+      "tag": "0003_fair_eddie_brock",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1699124626584,
+      "tag": "0004_strong_exodus",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1699191206187,
+      "tag": "0005_faulty_zombie",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1699191256792,
+      "tag": "0006_nappy_rhino",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1699192875178,
+      "tag": "0007_amazing_tarot",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1699196536543,
+      "tag": "0008_tense_justin_hammer",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1699217880247,
+      "tag": "0009_aromatic_red_hulk",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1699476759414,
+      "tag": "0010_misty_clint_barton",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1699566972310,
+      "tag": "0011_old_nova",
+      "breakpoints": true
     }
   ]
 }

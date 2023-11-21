@@ -39,7 +39,6 @@ interface CreateContextOptions {
  */
 export const createInnerTRPCContext = async (opts: CreateContextOptions) => {
   const session = await getServerAuthSession();
-
   return {
     session,
     headers: opts.headers,
@@ -56,10 +55,15 @@ export const createInnerTRPCContext = async (opts: CreateContextOptions) => {
 export const createTRPCContext = async (opts: { req: NextRequest }) => {
   // Fetch stuff that depends on the request
 
+  opts.req.headers.append("cache-control", "no-cache");
+
   return await createInnerTRPCContext({
     headers: opts.req.headers,
   });
 };
+
+// context type
+export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
 
 /**
  * 2. INITIALIZATION
