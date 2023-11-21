@@ -3,13 +3,14 @@ import PageHeader from "~/components/Headers/PageHeader";
 import Form from "./form";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export type Tennant = Awaited<ReturnType<typeof api.tennant.getTennant.query>>;
 export default async function page() {
   const session = await getServerAuthSession();
 
   if (!session?.user) return notFound();
+  if (session.user.role !== "admin") redirect("/settings/account");
 
   const tennant = await api.tennant.getTennant.query();
   return (

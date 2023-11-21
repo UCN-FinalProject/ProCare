@@ -2,9 +2,12 @@
 import { useSelectedLayoutSegments, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { useSession } from "next-auth/react";
 
 type Tabs = "tennant" | "account";
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const session = useSession();
+
   const segments = useSelectedLayoutSegments();
   const [activeTab, setActiveTab] = useState<Tabs>(segments[0] as Tabs);
   const router = useRouter();
@@ -13,10 +16,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setActiveTab(segments[0] as Tabs);
   }, [segments]);
 
-  //   TODO: return this only if user has admin role
+  if (session.data?.user?.role !== "admin") return <>{children}</>;
+
   return (
-    <div>
-      <Tabs defaultValue="account" className="w-fit pb-4" value={activeTab}>
+    <>
+      <Tabs defaultValue="account" className="w-fit" value={activeTab}>
         <TabsList>
           <TabsTrigger
             value="tennant"
@@ -39,6 +43,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </TabsList>
       </Tabs>
       {children}
-    </div>
+    </>
   );
 }
