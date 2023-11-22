@@ -28,6 +28,7 @@ import { revalidatePathClient } from "~/app/revalidate";
 import { type User } from "~/server/db/export";
 import { useRouter } from "next/navigation";
 import { type Session } from "next-auth";
+import { trimOrNull } from "~/lib/trimOrNull";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -54,7 +55,7 @@ export default function UpdateUserForm({
     defaultValues: {
       email: data.email,
       name: data.name,
-      doctorID: data.doctorID ?? "",
+      doctorID: trimOrNull(data.doctorID) ?? undefined,
       role: data.role,
     },
   });

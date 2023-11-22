@@ -24,13 +24,16 @@ export default function RegisterPasskey({
 
     try {
       const registrationResponse = await startRegistration(webauthnData);
-      mutate(registrationResponse, {
-        onSuccess: () => {
-          toast.success("Passkey Registered!");
-          router.refresh();
+      mutate(
+        { ...registrationResponse, browserDetails: navigator.userAgent },
+        {
+          onSuccess: () => {
+            toast.success("Passkey Registered!");
+            router.refresh();
+          },
+          onError: () => toast.error("Could not register passkey"),
         },
-        onError: () => toast.error("Could not register passkey"),
-      });
+      );
     } catch (error) {
       toast.error(
         parseErrorMessage({

@@ -11,27 +11,26 @@ export default {
   async getByID({ id, ctx }: { id: string; ctx: TRPCContext }) {
     const res = await ctx.db.query.users.findFirst({
       where: (user, { eq }) => eq(user.id, id),
-      with: {
-        credentials: true,
-      },
     });
 
-    if (res) {
-      return {
-        ...res,
-        credentials: res.credentials.map((credential) => {
-          return {
-            id: credential.id,
-            transports: credential.transports,
-          };
-        }),
-      };
-    }
-
     if (res) return res;
+
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "User not found",
+    });
+  },
+
+  async getCredentialsByUserID({ id, ctx }: { id: string; ctx: TRPCContext }) {
+    const res = await ctx.db.query.credentials.findMany({
+      where: (credential, { eq }) => eq(credential.userId, id),
+    });
+
+    if (res) return res;
+
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Credentials not found",
     });
   },
 
@@ -89,7 +88,7 @@ export default {
         .set({
           name: input.name,
           role: input.role,
-          doctorID: input.doctorID,
+          doctorID: input.doctorID ?? null,
         })
         .where(eq(users.id, input.id));
 

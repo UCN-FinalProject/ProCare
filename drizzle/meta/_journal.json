@@ -85,6 +85,13 @@
       "when": 1699566972310,
       "tag": "0011_old_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1700653676737,
+      "tag": "0012_light_annihilus",
+      "breakpoints": true
     }
   ]
 }

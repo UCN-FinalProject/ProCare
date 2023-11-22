@@ -26,6 +26,22 @@ export const userRouter = createTRPCRouter({
       }
     }),
 
+  getCredentialsByUserID: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      try {
+        return await UserService.getCredentialsByUserID({ id: input.id, ctx });
+      } catch (error) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Credentials not found",
+          }),
+        });
+      }
+    }),
+
   getMany: protectedProcedure.query(async ({ ctx }) => {
     try {
       return await UserService.getMany(ctx);

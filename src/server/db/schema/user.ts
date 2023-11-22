@@ -61,6 +61,8 @@ export const credentials = pgTable(
     credentialPublicKey: json("credentialPublicKey").notNull(),
     counter: integer("counter").notNull(),
     transports: text("transports").array().notNull(),
+    browserDetails: text("browserDetails"),
+    createdAt: timestamp("createdAt").$defaultFn(() => new Date()),
   },
   (credential) => ({
     userIdIdx: index("cred_userId_idx").on(credential.userId),
