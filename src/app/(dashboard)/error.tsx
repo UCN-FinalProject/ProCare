@@ -6,7 +6,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 
-export default function Error() {
+export default function ErrorPage() {
   const router = useRouter();
   return (
     <section className="flex flex-col items-center justify-center h-[92svh] dark:bg-gray-800">
@@ -16,8 +16,8 @@ export default function Error() {
           Oops! Something went wrong.
         </h1>
         <p className="text-gray-600 dark:text-gray-300">
-          We're sorry, but we're having some technical issues. Please try again
-          later.
+          We&apos;re sorry, but we&apos;re having some technical issues. Please
+          try again later.
         </p>
         <div className="flex gap-2">
           <Button
