@@ -7,7 +7,7 @@ export default function NullOrUndefined({
 }) {
   return (
     <p className="text-slate-400 font-normal italic p-0">
-      {children ? children : "Unknown"}
+      {children ?? "Unknown"}
     </p>
   );
 }
