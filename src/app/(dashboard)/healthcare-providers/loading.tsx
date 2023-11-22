@@ -32,8 +32,8 @@ export default function Loading() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Array.from({ length: 10 }).map((_, i) => (
-              <RowLoading key={i} />
+            {Array.from({ length: 10 }).map((_) => (
+              <RowLoading key={crypto.randomUUID()} />
             ))}
           </TableBody>
         </Table>
@@ -48,8 +48,8 @@ function RowLoading() {
       <TableCell className="w-fit">
         <Skeleton className="h-4 w-[100px]" />
       </TableCell>
-      {Array.from({ length: 7 }).map((_, i) => (
-        <TableCell key={i}>
+      {Array.from({ length: 7 }).map((_) => (
+        <TableCell key={crypto.randomUUID()}>
           <Skeleton className="h-4 w-full" />
         </TableCell>
       ))}
