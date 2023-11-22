@@ -125,10 +125,10 @@ export default {
           healthcareProviderCode: input.healthcareProviderCode,
           VAT: input.VAT,
           address1: input.address1,
-          address2: input.address2,
+          address2: input.address2 ?? null,
           city: input.city,
           zip: input.zip,
-          note: input.note,
+          note: input.note ?? null,
         })
         .where(eq(externalHealthcareProvider.id, input.id))
         .catch((error) => {
