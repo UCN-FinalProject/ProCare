@@ -19,40 +19,51 @@ export const patient = pgTable("patient", {
   address: varchar("address").notNull(),
   personalDoctorID: integer("personal_doctor_id")
     .notNull()
-    .references(() => healthcareProviderDoctors.id),
+    .references(() => healthcareProviderDoctors.id, { onDelete: "cascade" }),
   healthInsuranceID: integer("health_insurance_id")
     .notNull()
-    .references(() => healthInsurance.id),
+    .references(() => healthInsurance.id, { onDelete: "cascade" }),
 });
+
+export const patientRelations = relations(patient, ({ many, one }) => ({
+  conditions: many(patientConditions),
+  procedures: many(patientProcedure),
+}));
+export type Patient = typeof patient.$inferInsert;
 
 export const patientConditions = pgTable("patientConditions", {
   id: serial("id").primaryKey(),
   patientID: integer("patientID")
     .notNull()
-    .references(() => patient.id),
+    .references(() => patient.id, { onDelete: "cascade" }),
   conditionID: integer("conditionID")
     .notNull()
-    .references(() => healthCondition.id),
+    .references(() => healthCondition.id, { onDelete: "cascade" }),
 });
+
+export const conditionsRelations = relations(patient, ({ many, one }) => ({
+  patient: one(patient),
+  conditions: many(patientConditions),
+}));
 
 export const patientProcedure = pgTable("patientProcedures", {
   id: serial("id").primaryKey(),
   patientID: integer("patient_id")
-    .references(() => patient.id)
+    .references(() => patient.id, { onDelete: "cascade" })
     .notNull(),
   procedureID: integer("procedure_id")
-    .references(() => procedure.id)
+    .references(() => procedure.id, { onDelete: "cascade" })
     .notNull(),
   date: timestamp("date").notNull().defaultNow(),
   doctorName: varchar("user_name")
-    .references(() => users.name)
+    .references(() => users.name, { onDelete: "cascade" })
     .notNull(), //is this the correct reference?-should there even be a reference(historical data?)
   doctorID: integer("user_id")
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
 });
 
-export const conditions = relations(patient, ({ many }) => ({
-  conditions: many(patientConditions),
+export const procedureRelations = relations(patient, ({ many, one }) => ({
+  patient: one(patient),
   procedures: many(patientProcedure),
 }));
