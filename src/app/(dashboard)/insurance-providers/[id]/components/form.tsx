@@ -21,6 +21,7 @@ import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
 import { revalidatePathClient } from "~/app/revalidate";
 import { type Session } from "next-auth/core/types";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   insuranceID: z.number().min(1, {
@@ -63,7 +64,9 @@ export default function UpdateInsuranceProviderForm({
   data: HealthInsurance;
   session: Session | null;
 }) {
+  const router = useRouter();
   const isAdmin = session?.user.role === "admin";
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -114,7 +117,7 @@ export default function UpdateInsuranceProviderForm({
         onSuccess: async () => {
           toast.success("Health insurance updated");
           await revalidatePathClient();
-          window.location.reload();
+          router.refresh();
         },
         onError: (err) => toast.error(err.message),
       },
