@@ -1,5 +1,4 @@
 import {
-  date,
   integer,
   pgTable,
   serial,
@@ -11,7 +10,7 @@ import { relations } from "drizzle-orm";
 import { healthInsurance } from "./healthInsurance";
 import { healthCondition } from "./healthCondition";
 import { procedure } from "./procedure";
-import { users } from "./user";
+import { doctor } from "./doctor";
 
 export const patient = pgTable("patient", {
   id: serial("id").primaryKey(),
@@ -41,10 +40,13 @@ export const patientConditions = pgTable("patientConditions", {
     .references(() => healthCondition.id, { onDelete: "cascade" }),
 });
 
-export const conditionsRelations = relations(patient, ({ many, one }) => ({
-  patient: one(patient),
-  conditions: many(patientConditions),
-}));
+export const patientConditionsRelations = relations(
+  patientConditions,
+  ({ one }) => ({
+    patient: one(patient),
+    conditions: one(healthCondition),
+  }),
+);
 
 export const patientProcedure = pgTable("patientProcedures", {
   id: serial("id").primaryKey(),
@@ -55,15 +57,15 @@ export const patientProcedure = pgTable("patientProcedures", {
     .references(() => procedure.id, { onDelete: "cascade" })
     .notNull(),
   date: timestamp("date").notNull().defaultNow(),
-  doctorName: varchar("user_name")
-    .references(() => users.name, { onDelete: "cascade" })
-    .notNull(), //is this the correct reference?-should there even be a reference(historical data?)
-  doctorID: integer("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
+  doctorID: integer("doctor_id")
+    .references(() => doctor.id, { onDelete: "cascade" })
     .notNull(),
 });
 
-export const procedureRelations = relations(patient, ({ many, one }) => ({
-  patient: one(patient),
-  procedures: many(patientProcedure),
-}));
+export const patientProcedureRelations = relations(
+  patientProcedure,
+  ({ one }) => ({
+    patient: one(patient),
+    procedures: one(procedure),
+  }),
+);

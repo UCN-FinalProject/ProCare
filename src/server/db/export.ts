@@ -5,3 +5,4 @@ export * from "./schema/healthCondition";
 export * from "./schema/doctor";
 export * from "./schema/user";
 export * from "./schema/patient";
+export * from "./schema/procedure";
