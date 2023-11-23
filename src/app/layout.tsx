@@ -4,8 +4,9 @@ import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "~/providers/ThemeProvider";
-import { GeistSans } from "geist/font";
+import { GeistSans } from "geist/font/sans";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata = {
   title: "ProCare",
@@ -23,7 +24,10 @@ export default function RootLayout({
       <body className={GeistSans.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Toaster closeButton />
-          <TRPCReactProvider headers={headers()}>{children}</TRPCReactProvider>
+          <TRPCReactProvider headers={headers()}>
+            {children}
+            <Analytics />
+          </TRPCReactProvider>
         </ThemeProvider>
       </body>
     </html>
