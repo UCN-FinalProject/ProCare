@@ -1,5 +1,5 @@
 import TennantService from "~/server/service/TennantService";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { tennantInput } from "~/server/service/validation/TennantValidation";
 import { parseErrorMessage } from "~/lib/parseError";
@@ -18,11 +18,11 @@ export const tennantRouter = createTRPCRouter({
   }),
 
   // POST (CREATE)
-  createTennant: protectedProcedure
+  createTennant: publicProcedure
     .input(tennantInput)
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       try {
-        return await TennantService.createTennant({ input, ctx });
+        return await TennantService.createTennant({ input });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",

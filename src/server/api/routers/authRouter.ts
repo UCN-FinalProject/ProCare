@@ -120,6 +120,7 @@ export const authRouter = createTRPCRouter({
           hmacCreateSecret: z.boolean().optional(),
         }),
         type: z.enum(["public-key"]),
+        browserDetails: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -173,6 +174,7 @@ export const authRouter = createTRPCRouter({
         userId: user.id,
         counter: registrationInfo.counter,
         transports: transports,
+        browserDetails: input.browserDetails,
       });
     }),
 

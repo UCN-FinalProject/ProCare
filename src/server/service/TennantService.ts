@@ -10,6 +10,7 @@ import { type TennantInput } from "./validation/TennantValidation";
 import { TRPCError } from "@trpc/server";
 import { type TRPCContext } from "../api/trpc";
 import { parseErrorMessage } from "~/lib/parseError";
+import { db } from "~/server/db";
 
 export default {
   async getTennant({ ctx }: { ctx: TRPCContext }) {
@@ -145,18 +146,16 @@ export default {
     });
   },
 
-  async createTennant({
-    input,
-    ctx,
-  }: {
-    input: TennantInput;
-    ctx: TRPCContext;
-  }) {
-    const currentTennant = await ctx.db.select().from(tennant).limit(1);
-    if (currentTennant.length > 0) throw new Error("Tennant already exists");
+  async createTennant({ input }: { input: TennantInput }) {
+    const currentTennant = await db.select().from(tennant).limit(1);
+    if (currentTennant.length > 0)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Tennant already exists.",
+      });
 
     // TRANSACTION
-    const transaction = await ctx.db.transaction(async (tx) => {
+    const transaction = await db.transaction(async (tx) => {
       // create tennant
       const createTennant = await tx
         .insert(tennant)
@@ -260,7 +259,7 @@ export default {
             }),
           });
         });
-      return await this.getTennant({ ctx });
+      return true;
     });
     if (transaction) return transaction;
     throw new TRPCError({
