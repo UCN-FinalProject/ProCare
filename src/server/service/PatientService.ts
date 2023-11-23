@@ -1,18 +1,11 @@
-import { TRPCContext } from "../api/trpc";
+import { type TRPCContext } from "../api/trpc";
 import { TRPCError } from "@trpc/server";
+import { patient, patientConditions } from "../db/export";
+import { eq } from "drizzle-orm";
 import {
-  healthInsurance,
-  patient,
-  patientConditions,
-  patientProcedure,
-} from "../db/export";
-import { asc, eq } from "drizzle-orm";
-import {
-  GetPatientInput,
-  CreatePatientInput,
-  UpdatePatientInput,
-  AddPatientConditionInput,
-  AddPatientProcedureInput,
+  type CreatePatientInput,
+  type UpdatePatientInput,
+  type AddPatientConditionInput,
 } from "./validation/PatientValidation";
 
 export default {
@@ -24,6 +17,15 @@ export default {
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "No patient was found for provided ID: " + id,
+    });
+  },
+
+  async getMany({ ctx }: { ctx: TRPCContext }) {
+    const res = await ctx.db.query.patient.findMany();
+    if (res) return res;
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "No patients were found.",
     });
   },
 
@@ -57,12 +59,31 @@ export default {
           code: "INTERNAL_SERVER_ERROR",
           message: "Patient could not be created",
         });
-      input.patientConditions?.forEach(async (condition) => {
-        await tx.insert(patientConditions).values({
-          conditionID: condition.conditionID,
-          patientID: condition.patientID,
-        });
+
+      if (input.patientConditions && input.patientConditions.length > 0) {
+        for (const condition of input.patientConditions) {
+          await tx.insert(patientConditions).values({
+            conditionID: condition.conditionID,
+            patientID: insert.at(0)!.id,
+          });
+        }
+      }
+
+      return tx.query.patient.findFirst({
+        where: (patient, { eq }) => eq(patient.id, insert.at(0)!.id),
+        with: {
+          conditions: true,
+          doctor: true,
+          healthInsurance: true,
+        },
       });
+    });
+
+    if (transaction) return transaction;
+
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Patient could not be created",
     });
   },
 
@@ -111,29 +132,4 @@ export default {
         message: "Condition could not be added to patient.",
       });
   },
-
-  async addPatientProcedure({
-    input,
-    ctx,
-  }: {
-    input: AddPatientProcedureInput;
-    ctx: TRPCContext;
-  }) {
-    const insert = await ctx.db
-      .insert(patientProcedure)
-      .values({
-        patientID: input.patientID,
-        procedureID: input.procedureID,
-        date: input.date,
-        doctorName: input.doctorName,
-        doctorID: input.doctorID,
-      })
-      .returning({ id: patientProcedure.id });
-    if (insert.length !== 1 && !insert.at(0)?.id)
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Procedure could not be added to patient.",
-      });
-  },
-  //POSSIBLE methods to consider: getPatientsByCity, getPatientsByConditions
-};
+} as const;

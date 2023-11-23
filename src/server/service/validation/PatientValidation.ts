@@ -14,19 +14,7 @@ export const createPatientInput = z.object({
   patientConditions: z
     .array(
       z.object({
-        patientID: z.number(),
         conditionID: z.number(),
-      }),
-    )
-    .optional(),
-  patientProcedures: z
-    .array(
-      z.object({
-        patientID: z.number(),
-        procedureID: z.number(),
-        date: z.date(),
-        doctorName: z.string(),
-        doctorID: z.number(),
       }),
     )
     .optional(),

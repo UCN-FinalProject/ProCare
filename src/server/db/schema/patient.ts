@@ -1,5 +1,5 @@
 import { integer, pgTable, serial, varchar } from "drizzle-orm/pg-core";
-import { healthcareProviderDoctors } from "./healthcareProvider";
+// import { healthcareProviderDoctors } from "./healthcareProvider";
 import { relations } from "drizzle-orm";
 import { healthInsurance } from "./healthInsurance";
 import { healthCondition } from "./healthCondition";
@@ -11,7 +11,7 @@ export const patient = pgTable("patient", {
   address: varchar("address").notNull(),
   personalDoctorID: integer("personal_doctor_id")
     .notNull()
-    .references(() => healthcareProviderDoctors.id, { onDelete: "cascade" }),
+    .references(() => doctor.id, { onDelete: "cascade" }),
   healthInsuranceID: integer("health_insurance_id")
     .notNull()
     .references(() => healthInsurance.id, { onDelete: "cascade" }),

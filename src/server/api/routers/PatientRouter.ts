@@ -4,9 +4,9 @@ import { z } from "zod";
 import PatientService from "~/server/service/PatientService";
 import {
   createPatientInput,
-  updatePatientInput,
-  addPatientCondition,
-  addPatientProcedure,
+  // updatePatientInput,
+  // addPatientCondition,
+  // addPatientProcedure,
 } from "~/server/service/validation/PatientValidation";
 import { parseErrorMessage } from "~/lib/parseError";
 
@@ -26,6 +26,20 @@ export const patientRouter = createTRPCRouter({
         });
       }
     }),
+
+  getMany: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      return await PatientService.getMany({ ctx });
+    } catch (error) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: parseErrorMessage({
+          error,
+          defaultMessage: "Not found",
+        }),
+      });
+    }
+  }),
 
   createPatient: protectedProcedure
     .input(createPatientInput)
