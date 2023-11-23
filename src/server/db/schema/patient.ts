@@ -22,10 +22,11 @@ export const patient = pgTable("patient", {
     .references(() => healthcareProviderDoctors.id),
   healthInsuranceID: integer("health_insurance_id")
     .notNull()
-    .references(() => healthInsurance.insuranceID),
+    .references(() => healthInsurance.id),
 });
 
 export const patientConditions = pgTable("patientConditions", {
+  id: serial("id").primaryKey(),
   patientID: integer("patientID")
     .notNull()
     .references(() => patient.id),

@@ -7,7 +7,6 @@ export const getPatientInput = z.object({
 export type GetPatientInput = z.infer<typeof getPatientInput>;
 
 export const createPatientInput = z.object({
-  id: z.number(),
   fullName: z.string(),
   address: z.string(),
   personalDoctorID: z.number(), // do we want these as optinal? maybe you link them afterwards?
