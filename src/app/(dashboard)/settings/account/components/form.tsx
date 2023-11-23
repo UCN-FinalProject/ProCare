@@ -27,56 +27,55 @@ import { toast } from "sonner";
 import { revalidatePathClient } from "~/app/revalidate";
 import { type User } from "~/server/db/export";
 import { useRouter } from "next/navigation";
-import { type Session } from "next-auth";
 import { trimOrNull } from "~/lib/trimOrNull";
 
 const formSchema = z.object({
-  name: z.string().min(1, {
-    message: "Name cannot be empty.",
+  fullName: z.string().min(1, {
+    message: "Full name cannot be empty.",
   }),
-  email: z.string().email(),
+  email: z
+    .string()
+    .email({
+      message: "Please enter a valid email.",
+    })
+    .min(1, {
+      message: "Email cannot be empty.",
+    }),
+  createdAt: z.date(),
   role: z.enum(["admin", "user"]),
-  doctorID: z.string().optional(),
+  doctorId: z.string(),
 });
 
-export default function UpdateUserForm({
-  data,
-  session,
-}: {
-  data: User;
-  session: Session;
-}) {
+export default function AccountForm({ data }: { data: User }) {
   const router = useRouter();
-  const isAdmin = session.user.role === "admin";
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      fullName: data.name,
       email: data.email,
-      name: data.name,
-      doctorID: trimOrNull(data.doctorID) ?? undefined,
+      createdAt: data.emailVerified!,
       role: data.role,
+      doctorId: data.doctorID ?? "",
     },
   });
 
-  const createUser = api.user.update.useMutation();
+  const updateAccount = api.user.update.useMutation();
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!isAdmin) {
-      toast.error("Only administrators are able to perform this action.");
-      return;
-    }
-    await createUser.mutateAsync(
+    await updateAccount.mutateAsync(
       {
         id: data.id,
-        name: values.name,
+        name: values.fullName.trim(),
         role: values.role,
-        doctorID: values.doctorID ?? undefined,
+        doctorID: trimOrNull(values.doctorId) ?? undefined,
       },
       {
         // eslint-disable-next-line
         onSuccess: async (res) => {
-          toast.success("User was updated successfully created");
+          toast.success(
+            "Account updated. Please log out and log in again to see changes.",
+          );
           await revalidatePathClient();
           router.refresh();
         },
@@ -90,16 +89,13 @@ export default function UpdateUserForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="name"
+          name="fullName"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Full name</FormLabel>
               <FormControl>
-                <Input placeholder="Full name" {...field} disabled={!isAdmin} />
+                <Input placeholder="Full name" {...field} />
               </FormControl>
-              <FormDescription>
-                Full name of the user (including titles).
-              </FormDescription>
 
               <FormMessage />
             </FormItem>
@@ -114,9 +110,6 @@ export default function UpdateUserForm({
               <FormControl>
                 <Input placeholder="Email" {...field} disabled />
               </FormControl>
-              <FormDescription>
-                Email of the user. This will be used to log in.
-              </FormDescription>
 
               <FormMessage />
             </FormItem>
@@ -124,16 +117,14 @@ export default function UpdateUserForm({
         />
         <FormField
           control={form.control}
-          name="doctorID"
+          name="createdAt"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Doctor ID</FormLabel>
+              <FormLabel>Created at</FormLabel>
               <FormControl>
-                <Input placeholder="Doctor ID" {...field} disabled={!isAdmin} />
+                {/* @ts-expect-error onChange param displays an error, but this field is disabled anyways  */}
+                <Input placeholder="Created at" {...field} disabled />
               </FormControl>
-              <FormDescription>
-                ID of the doctor registered in the National Health Service.
-              </FormDescription>
 
               <FormMessage />
             </FormItem>
@@ -148,7 +139,7 @@ export default function UpdateUserForm({
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
-                disabled={!isAdmin}
+                disabled={data.role !== "admin"}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -168,12 +159,24 @@ export default function UpdateUserForm({
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="doctorId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Doctor ID</FormLabel>
+              <FormControl>
+                <Input placeholder="Doctor ID" {...field} />
+              </FormControl>
 
-        {isAdmin && (
-          <Button type="submit" isLoading={createUser.isLoading}>
-            Submit
-          </Button>
-        )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" isLoading={updateAccount.isLoading}>
+          Submit
+        </Button>
       </form>
     </Form>
   );

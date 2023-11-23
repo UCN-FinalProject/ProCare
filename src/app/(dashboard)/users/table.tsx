@@ -11,6 +11,7 @@ import ID from "~/components/ID";
 import CopyToClipboard from "~/components/util/CopyToClipboard";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
+import NullOrUndefined from "~/components/util/NullOrUndefined";
 
 export default function TableDemo({ data }: { data: User[] }) {
   return (
@@ -61,7 +62,9 @@ export default function TableDemo({ data }: { data: User[] }) {
                   {!!user.emailVerified === true ? "Verified" : "Unverified"}
                 </Badge>
               </TableCell>
-              <TableCell>{user.doctorID}</TableCell>
+              <TableCell>
+                {user.doctorID ?? <NullOrUndefined>None</NullOrUndefined>}
+              </TableCell>
               <TableCell align="center">
                 <Badge variant="outline">{user.role}</Badge>
               </TableCell>
