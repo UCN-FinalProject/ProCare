@@ -1,17 +1,45 @@
 import { z } from "zod";
 
-export const getPatientInput = z.object({
-  name: z.string(),
-  address: z.string().optional(),
+const disabilities = [
+  "limited_physical",
+  "physical",
+  "mental",
+  "none",
+] as const;
+
+export const getPatientsInput = z.object({
+  limit: z.number(),
+  offset: z.number(),
+  isActive: z.boolean().optional(),
 });
-export type GetPatientInput = z.infer<typeof getPatientInput>;
+export type GetPatientsInput = z.infer<typeof getPatientsInput>;
 
 export const createPatientInput = z.object({
   fullName: z.string(),
-  address: z.string(),
-  personalDoctorID: z.number(), // do we want these as optinal? maybe you link them afterwards?
+  isActive: z.boolean(),
+  biologicalSex: z.enum(["male", "female"]),
+  dateOfBirth: z.date(),
+  ssn: z.string(),
+  startDate: z.date(),
+  expectedEndOfTreatment: z.date(),
+  endDate: z.date().optional(),
+  insuredID: z.string(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  disability: z.enum(disabilities),
+  alergies: z.string().optional(),
+  note: z.string().optional(),
+  // address
+  address1: z.string(),
+  address2: z.string().optional(),
+  city: z.string(),
+  zip: z.string(),
+  // healthcare info
   healthInsuranceID: z.number(),
-  patientConditions: z
+  doctorID: z.number(),
+  healthcareProviderID: z.number(),
+  // conditions
+  conditions: z
     .array(
       z.object({
         conditionID: z.number(),
@@ -22,25 +50,38 @@ export const createPatientInput = z.object({
 export type CreatePatientInput = z.infer<typeof createPatientInput>;
 
 export const updatePatientInput = z.object({
-  id: z.number(),
+  id: z.string(),
   fullName: z.string(),
-  address: z.string(),
-  personalDoctorID: z.number(), // do we want these as optinal? maybe you link them afterwards?
+  expectedEndOfTreatment: z.date(),
+  insuredID: z.string(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  disability: z.enum(disabilities),
+  alergies: z.string().optional(),
+  note: z.string().optional(),
+  // address
+  address1: z.string(),
+  address2: z.string().optional(),
+  city: z.string(),
+  zip: z.string(),
+  // healthcare info
   healthInsuranceID: z.number(),
+  doctorID: z.number(),
+  healthcareProviderID: z.number(),
 });
 export type UpdatePatientInput = z.infer<typeof updatePatientInput>;
 
-export const addPatientCondition = z.object({
-  patientID: z.number(),
+export const addPatientConditionInput = z.object({
+  patientID: z.string(),
   conditionID: z.number(),
 });
-export type AddPatientConditionInput = z.infer<typeof addPatientCondition>;
+export type AddPatientConditionInput = z.infer<typeof addPatientConditionInput>;
 
-export const addPatientProcedure = z.object({
-  patientID: z.number(),
+export const addPatientProcedureInput = z.object({
+  patientID: z.string(),
   procedureID: z.number(),
   date: z.date(),
   doctorName: z.string(),
   doctorID: z.number(),
 });
-export type AddPatientProcedureInput = z.infer<typeof addPatientProcedure>;
+export type AddPatientProcedureInput = z.infer<typeof addPatientProcedureInput>;

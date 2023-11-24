@@ -1,53 +1,117 @@
-import { integer, pgTable, serial, varchar } from "drizzle-orm/pg-core";
-// import { healthcareProviderDoctors } from "./healthcareProvider";
+import {
+  boolean,
+  integer,
+  pgEnum,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { healthInsurance } from "./healthInsurance";
-import { healthCondition } from "./healthCondition";
-import { doctor } from "./doctor";
+import { createId } from "@paralleldrive/cuid2";
+import {
+  externalHealthcareProvider,
+  patientConditions,
+  doctor,
+  healthInsurance,
+} from "../export";
+
+export const biologicalSex = pgEnum("biological_sex", ["male", "female"]);
+export const disability = pgEnum("disability", [
+  "limited_physical",
+  "physical",
+  "mental",
+  "none",
+]);
 
 export const patient = pgTable("patient", {
-  id: serial("id").primaryKey(),
+  id: text("id")
+    .notNull()
+    .primaryKey()
+    .$default(() => createId()),
   fullName: varchar("full_name").notNull(),
-  address: varchar("address").notNull(),
-  personalDoctorID: integer("personal_doctor_id")
+  isActive: boolean("is_active")
     .notNull()
-    .references(() => doctor.id, { onDelete: "cascade" }),
-  healthInsuranceID: integer("health_insurance_id")
-    .notNull()
-    .references(() => healthInsurance.id, { onDelete: "cascade" }),
+    .$default(() => true),
+  biologicalSex: biologicalSex("biological_sex").notNull(),
+  dateOfBirth: timestamp("date_of_birth").notNull(),
+  ssn: varchar("ssn").notNull().unique(),
+  startDate: timestamp("start_date").notNull(),
+  expectedEndOfTreatment: timestamp("expected_end_of_treatment").notNull(),
+  endDate: timestamp("end_date"),
+  insuredID: varchar("insured_id").notNull().unique(),
+  email: varchar("email"),
+  phone: varchar("phone"),
+  disability: disability("disability").notNull(),
+  alergies: varchar("alergies"),
+  note: varchar("note"),
 });
 export const patientRelations = relations(patient, ({ many, one }) => ({
   conditions: many(patientConditions),
-  doctor: one(doctor, {
-    fields: [patient.personalDoctorID],
-    references: [doctor.id],
+  healthcareInfo: one(patientHealthcareInfo, {
+    fields: [patient.id],
+    references: [patientHealthcareInfo.patientID],
   }),
-  healthInsurance: one(healthInsurance, {
-    fields: [patient.healthInsuranceID],
-    references: [healthInsurance.id],
+  address: one(patientAddress, {
+    fields: [patient.id],
+    references: [patientAddress.patientID],
   }),
 }));
 export type Patient = typeof patient.$inferInsert;
 
-export const patientConditions = pgTable("patientConditions", {
+// patient healthcare info
+export const patientHealthcareInfo = pgTable("patient_healthcare_info", {
   id: serial("id").primaryKey(),
-  patientID: integer("patientID")
+  patientID: text("patient_id")
     .notNull()
-    .references(() => patient.id, { onDelete: "cascade" }),
-  conditionID: integer("conditionID")
+    .references(() => patient.id),
+  healthInsuranceID: integer("health_insurance_id")
     .notNull()
-    .references(() => healthCondition.id, { onDelete: "cascade" }),
+    .references(() => healthInsurance.id),
+  doctorID: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id),
+  healthcareProviderID: integer("healthcare_provider_id")
+    .notNull()
+    .references(() => externalHealthcareProvider.id),
 });
-export const patientConditionsRelations = relations(
-  patientConditions,
+export const patienthealthcareInfoRelations = relations(
+  patientHealthcareInfo,
   ({ one }) => ({
     patient: one(patient, {
-      fields: [patientConditions.patientID],
+      fields: [patientHealthcareInfo.patientID],
       references: [patient.id],
     }),
-    condition: one(healthCondition, {
-      fields: [patientConditions.conditionID],
-      references: [healthCondition.id],
+    doctor: one(doctor, {
+      fields: [patientHealthcareInfo.doctorID],
+      references: [doctor.id],
+    }),
+    healthCareProvider: one(externalHealthcareProvider, {
+      fields: [patientHealthcareInfo.healthcareProviderID],
+      references: [externalHealthcareProvider.id],
+    }),
+    healthInsurance: one(healthInsurance, {
+      fields: [patientHealthcareInfo.healthInsuranceID],
+      references: [healthInsurance.id],
     }),
   }),
 );
+
+// patient address
+export const patientAddress = pgTable("patient_address", {
+  id: serial("id").primaryKey(),
+  patientID: text("patient_id")
+    .notNull()
+    .references(() => patient.id),
+  address1: varchar("address1").notNull(),
+  address2: varchar("address2"),
+  city: varchar("city").notNull(),
+  zipCode: varchar("zip_code").notNull(),
+});
+export const patientAddressRelations = relations(patientAddress, ({ one }) => ({
+  patient: one(patient, {
+    fields: [patientAddress.patientID],
+    references: [patient.id],
+  }),
+}));

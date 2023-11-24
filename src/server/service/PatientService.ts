@@ -1,28 +1,60 @@
 import { type TRPCContext } from "../api/trpc";
 import { TRPCError } from "@trpc/server";
-import { patient, patientConditions } from "../db/export";
-import { eq } from "drizzle-orm";
+import {
+  patient,
+  patientAddress,
+  patientConditions,
+  patientHealthcareInfo,
+} from "../db/export";
+import { asc, eq } from "drizzle-orm";
 import {
   type CreatePatientInput,
   type UpdatePatientInput,
   type AddPatientConditionInput,
+  type GetPatientsInput,
 } from "./validation/PatientValidation";
 
 export default {
-  async getByPatientID({ id, ctx }: { id: number; ctx: TRPCContext }) {
+  async getByPatientID({ id, ctx }: { id: string; ctx: TRPCContext }) {
     const res = await ctx.db.query.patient.findFirst({
       where: (patient, { eq }) => eq(patient.id, id),
+      with: {
+        conditions: true,
+        address: true,
+        healthcareInfo: true,
+      },
     });
     if (res) return res;
     throw new TRPCError({
       code: "NOT_FOUND",
-      message: "No patient was found for provided ID: " + id,
+      message: "No patient was found.",
     });
   },
 
-  async getMany({ ctx }: { ctx: TRPCContext }) {
-    const res = await ctx.db.query.patient.findMany();
-    if (res) return res;
+  async getMany({ input, ctx }: { input: GetPatientsInput; ctx: TRPCContext }) {
+    const res = await ctx.db.query.patient.findMany({
+      limit: input.limit,
+      offset: input.offset,
+      where: (patient, { eq }) =>
+        input.isActive !== undefined
+          ? eq(patient.isActive, input.isActive)
+          : undefined,
+      orderBy: [asc(patient.id)],
+    });
+    const total = await ctx.db.query.patient.findMany({
+      columns: { id: true },
+      where: (patient, { eq }) =>
+        input.isActive !== undefined
+          ? eq(patient.isActive, input.isActive)
+          : undefined,
+    });
+    if (res)
+      return {
+        result: res,
+        offset: input.offset,
+        limit: input.limit,
+        total: total.length,
+      };
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "No patients were found.",
@@ -37,13 +69,23 @@ export default {
     ctx: TRPCContext;
   }) {
     const transaction = await ctx.db.transaction(async (tx) => {
-      const insert = await tx
+      const patientInsert = await tx
         .insert(patient)
         .values({
           fullName: input.fullName,
-          address: input.address,
-          healthInsuranceID: input.healthInsuranceID,
-          personalDoctorID: input.personalDoctorID,
+          isActive: input.isActive,
+          biologicalSex: input.biologicalSex,
+          dateOfBirth: input.dateOfBirth,
+          ssn: input.ssn,
+          startDate: input.startDate,
+          expectedEndOfTreatment: input.expectedEndOfTreatment,
+          endDate: input.endDate ?? null,
+          insuredID: input.insuredID,
+          email: input.email ?? null,
+          phone: input.phone ?? null,
+          disability: input.disability,
+          alergies: input.alergies ?? null,
+          note: input.note ?? null,
         })
         .returning({ id: patient.id })
         .catch((err) => {
@@ -54,33 +96,56 @@ export default {
           });
         });
 
-      if (insert.length !== 1 && !insert.at(0)?.id)
+      if (patientInsert.length !== 1 && !patientInsert.at(0)?.id)
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Patient could not be created",
         });
 
-      if (input.patientConditions && input.patientConditions.length > 0) {
-        for (const condition of input.patientConditions) {
-          await tx.insert(patientConditions).values({
-            conditionID: condition.conditionID,
-            patientID: insert.at(0)!.id,
+      await tx
+        .insert(patientAddress)
+        .values({
+          patientID: patientInsert.at(0)!.id,
+          address1: input.address1,
+          address2: input.address2 ?? null,
+          city: input.city,
+          zipCode: input.zip,
+        })
+        .catch((err) => {
+          tx.rollback();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: String(err),
           });
-        }
-      }
+        });
 
-      return tx.query.patient.findFirst({
-        where: (patient, { eq }) => eq(patient.id, insert.at(0)!.id),
+      await tx
+        .insert(patientHealthcareInfo)
+        .values({
+          patientID: patientInsert.at(0)!.id,
+          healthInsuranceID: input.healthInsuranceID,
+          doctorID: input.doctorID,
+          healthcareProviderID: input.healthcareProviderID,
+        })
+        .catch((err) => {
+          tx.rollback();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: String(err),
+          });
+        });
+
+      return await tx.query.patient.findFirst({
+        where: (patient, { eq }) => eq(patient.id, patientInsert.at(0)!.id),
         with: {
           conditions: true,
-          doctor: true,
-          healthInsurance: true,
+          address: true,
+          healthcareInfo: true,
         },
       });
     });
 
     if (transaction) return transaction;
-
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Patient could not be created",
@@ -94,21 +159,55 @@ export default {
     input: UpdatePatientInput;
     ctx: TRPCContext;
   }) {
-    const update = await ctx.db
-      .update(patient)
-      .set({
-        fullName: input.fullName,
-        address: input.address,
-        personalDoctorID: input.personalDoctorID,
-        healthInsuranceID: input.healthInsuranceID,
-      })
-      .where(eq(patient.id, input.id));
-    if (update.rowCount < 1)
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Patient could not be updated",
+    const transaction = await ctx.db.transaction(async (tx) => {
+      await tx
+        .update(patient)
+        .set({
+          fullName: input.fullName,
+          expectedEndOfTreatment: input.expectedEndOfTreatment,
+          insuredID: input.insuredID,
+          email: input.email ?? null,
+          phone: input.phone ?? null,
+          disability: input.disability,
+          alergies: input.alergies ?? null,
+          note: input.note ?? null,
+        })
+        .where(eq(patient.id, input.id));
+
+      await tx
+        .update(patientAddress)
+        .set({
+          address1: input.address1,
+          address2: input.address2 ?? null,
+          city: input.city,
+          zipCode: input.zip,
+        })
+        .where(eq(patientAddress.patientID, input.id));
+
+      await tx
+        .update(patientHealthcareInfo)
+        .set({
+          healthInsuranceID: input.healthInsuranceID,
+          doctorID: input.doctorID,
+          healthcareProviderID: input.healthcareProviderID,
+        })
+        .where(eq(patientHealthcareInfo.patientID, input.id));
+
+      return await tx.query.patient.findFirst({
+        where: (patient, { eq }) => eq(patient.id, input.id),
+        with: {
+          conditions: true,
+          address: true,
+          healthcareInfo: true,
+        },
       });
-    return this.getByPatientID({ id: input.id, ctx });
+    });
+
+    if (transaction) return transaction;
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Patient could not be updated",
+    });
   },
 
   async addPatientCondition({
