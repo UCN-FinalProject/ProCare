@@ -30,6 +30,7 @@ export const healthCareProviderRelation = relations(
     patients: many(patientHealthcareInfo),
   }),
 );
+export type HealthcareProvider = typeof externalHealthcareProvider.$inferSelect;
 
 export const healthcareProviderDoctors = pgTable(
   "healthcare_provider_doctors",

@@ -18,6 +18,8 @@ declare module "nextjs-routes" {
     | DynamicRoute<"/doctors/[id]", { "id": string }>
     | StaticRoute<"/doctors/create">
     | StaticRoute<"/doctors">
+    | DynamicRoute<"/healthcare-providers/[id]", { "id": string }>
+    | StaticRoute<"/healthcare-providers/create">
     | StaticRoute<"/healthcare-providers">
     | DynamicRoute<"/insurance-providers/[id]", { "id": string }>
     | StaticRoute<"/insurance-providers/create">

@@ -13,8 +13,13 @@ export default function Loading() {
         <ID className="text-3xl text-slate-400">{id}</ID>
         <Skeleton className="w-[300px] h-7" />
       </div>
+      <FormFieldLoader />
       <FormFieldLoader hasDescription />
       <FormFieldLoader hasDescription />
+      <FormFieldLoader />
+      <FormFieldLoader hasDescription />
+      <FormFieldLoader />
+      <FormFieldLoader />
       <TextAreaLoader />
     </div>
   );
