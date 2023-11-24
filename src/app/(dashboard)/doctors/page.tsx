@@ -8,7 +8,6 @@ import { api } from "~/trpc/server";
 import Table from "./table";
 
 export default async function page() {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
   const session = await getServerAuthSession();
   const doctors = await api.doctor.getMany.query({
     limit: 10,
