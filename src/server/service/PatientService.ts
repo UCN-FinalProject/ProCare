@@ -99,7 +99,7 @@ export default {
       if (patientInsert.length !== 1 && !patientInsert.at(0)?.id)
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Patient could not be created",
+          message: "Patient could not be created.",
         });
 
       await tx
@@ -148,7 +148,7 @@ export default {
     if (transaction) return transaction;
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be created",
+      message: "Patient could not be created.",
     });
   },
 
@@ -206,7 +206,7 @@ export default {
     if (transaction) return transaction;
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be updated",
+      message: "Patient could not be updated.",
     });
   },
 
@@ -228,7 +228,7 @@ export default {
     if (insert.length !== 1 && !insert.at(0)?.id)
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Condition could not be added to patient.",
+        message: "Condition could not be added.",
       });
   },
 } as const;
