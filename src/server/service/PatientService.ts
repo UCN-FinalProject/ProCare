@@ -77,6 +77,8 @@ export default {
           biologicalSex: input.biologicalSex,
           dateOfBirth: input.dateOfBirth,
           ssn: input.ssn,
+          recommendationDate: input.recommendationDate ?? null,
+          acceptanceDate: input.acceptanceDate ?? null,
           startDate: input.startDate,
           expectedEndOfTreatment: input.expectedEndOfTreatment,
           endDate: input.endDate ?? null,
@@ -87,7 +89,7 @@ export default {
           alergies: input.alergies ?? null,
           note: input.note ?? null,
         })
-        .returning({ id: patient.id })
+        .returning()
         .catch((err) => {
           tx.rollback();
           throw new TRPCError({
@@ -96,16 +98,18 @@ export default {
           });
         });
 
-      if (patientInsert.length !== 1 && !patientInsert.at(0)?.id)
+      if (!patientInsert[0])
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Patient could not be created.",
         });
 
+      const newUserID = patientInsert[0].id;
+
       await tx
         .insert(patientAddress)
         .values({
-          patientID: patientInsert.at(0)!.id,
+          patientID: newUserID,
           address1: input.address1,
           address2: input.address2 ?? null,
           city: input.city,
@@ -122,7 +126,7 @@ export default {
       await tx
         .insert(patientHealthcareInfo)
         .values({
-          patientID: patientInsert.at(0)!.id,
+          patientID: newUserID,
           healthInsuranceID: input.healthInsuranceID,
           doctorID: input.doctorID,
           healthcareProviderID: input.healthcareProviderID,
@@ -164,6 +168,8 @@ export default {
         .update(patient)
         .set({
           fullName: input.fullName,
+          recommendationDate: input.recommendationDate ?? null,
+          acceptanceDate: input.acceptanceDate ?? null,
           expectedEndOfTreatment: input.expectedEndOfTreatment,
           insuredID: input.insuredID,
           email: input.email ?? null,
@@ -172,7 +178,14 @@ export default {
           alergies: input.alergies ?? null,
           note: input.note ?? null,
         })
-        .where(eq(patient.id, input.id));
+        .where(eq(patient.id, input.id))
+        .catch((err) => {
+          tx.rollback();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: String(err),
+          });
+        });
 
       await tx
         .update(patientAddress)
@@ -182,7 +195,14 @@ export default {
           city: input.city,
           zipCode: input.zip,
         })
-        .where(eq(patientAddress.patientID, input.id));
+        .where(eq(patientAddress.patientID, input.id))
+        .catch((err) => {
+          tx.rollback();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: String(err),
+          });
+        });
 
       await tx
         .update(patientHealthcareInfo)
@@ -191,7 +211,14 @@ export default {
           doctorID: input.doctorID,
           healthcareProviderID: input.healthcareProviderID,
         })
-        .where(eq(patientHealthcareInfo.patientID, input.id));
+        .where(eq(patientHealthcareInfo.patientID, input.id))
+        .catch((err) => {
+          tx.rollback();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: String(err),
+          });
+        });
 
       return await tx.query.patient.findFirst({
         where: (patient, { eq }) => eq(patient.id, input.id),

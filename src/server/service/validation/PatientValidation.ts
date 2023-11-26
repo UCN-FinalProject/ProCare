@@ -20,6 +20,8 @@ export const createPatientInput = z.object({
   biologicalSex: z.enum(["male", "female"]),
   dateOfBirth: z.date(),
   ssn: z.string(),
+  recommendationDate: z.date().optional(),
+  acceptanceDate: z.date().optional(),
   startDate: z.date(),
   expectedEndOfTreatment: z.date(),
   endDate: z.date().optional(),
@@ -52,6 +54,8 @@ export type CreatePatientInput = z.infer<typeof createPatientInput>;
 export const updatePatientInput = z.object({
   id: z.string(),
   fullName: z.string(),
+  recommendationDate: z.date().optional(),
+  acceptanceDate: z.date().optional(),
   expectedEndOfTreatment: z.date(),
   insuredID: z.string(),
   email: z.string().optional(),
