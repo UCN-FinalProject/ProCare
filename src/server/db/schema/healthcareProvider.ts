@@ -5,8 +5,8 @@ import {
   serial,
   integer,
 } from "drizzle-orm/pg-core";
-import { doctor } from "./doctor";
 import { relations } from "drizzle-orm";
+import { doctor, patientHealthcareInfo } from "../export";
 
 export const externalHealthcareProvider = pgTable(
   "external_healthcare_provider",
@@ -27,6 +27,7 @@ export const healthCareProviderRelation = relations(
   externalHealthcareProvider,
   ({ many }) => ({
     doctors: many(healthcareProviderDoctors),
+    patients: many(patientHealthcareInfo),
   }),
 );
 export type HealthcareProvider = typeof externalHealthcareProvider.$inferSelect;

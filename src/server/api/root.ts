@@ -8,6 +8,7 @@ import { healthInsuranceRouter } from "./routers/healthInsurance";
 import { healthConditionRouter } from "./routers/healthCondition";
 import { doctorRouter } from "./routers/doctorRouter";
 import { userRouter } from "./routers/userRouter";
+import { patientRouter } from "./routers/PatientRouter";
 
 /**
  * This is the primary router for your server.
@@ -23,6 +24,7 @@ export const appRouter = createTRPCRouter({
   healthCondition: healthConditionRouter,
   doctor: doctorRouter,
   user: userRouter,
+  patient: patientRouter,
 });
 
 // export type definition of API

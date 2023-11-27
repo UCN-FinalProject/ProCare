@@ -7,6 +7,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { patientHealthcareInfo } from "./patient";
 
 // healthinsurance table & relations
 export const healthInsurance = pgTable("health_insurance", {
@@ -19,7 +20,7 @@ export const healthInsurance = pgTable("health_insurance", {
 });
 export const HealthInsuranceRelations = relations(
   healthInsurance,
-  ({ one }) => ({
+  ({ one, many }) => ({
     healthInsuranceAddress: one(healthInsuranceAddress, {
       fields: [healthInsurance.id],
       references: [healthInsuranceAddress.insuranceID],
@@ -28,6 +29,7 @@ export const HealthInsuranceRelations = relations(
       fields: [healthInsurance.id],
       references: [healthInsuranceVAT.insuranceID],
     }),
+    patients: many(patientHealthcareInfo),
   }),
 );
 
