@@ -1,5 +1,5 @@
 {
-  "id": "872e77f8-be1a-49e5-b5d0-7b47dfed89e7",
+  "id": "1a30b434-6a32-4fbf-8471-955402a6a59b",
   "prevId": "e92a3f48-3238-43f8-83e9-568f6eedc384",
   "version": "5",
   "dialect": "pg",
@@ -850,6 +850,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "recommendation_date": {
+          "name": "recommendation_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "acceptance_date": {
+          "name": "acceptance_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
         "start_date": {
           "name": "start_date",
           "type": "timestamp",
@@ -966,7 +978,15 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "patient_address_patient_id_idx": {
+          "name": "patient_address_patient_id_idx",
+          "columns": [
+            "patient_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "patient_address_patient_id_patient_id_fk": {
           "name": "patient_address_patient_id_patient_id_fk",
@@ -978,7 +998,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -1020,7 +1040,36 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "patient_healthcare_info_patient_id_idx": {
+          "name": "patient_healthcare_info_patient_id_idx",
+          "columns": [
+            "patient_id"
+          ],
+          "isUnique": false
+        },
+        "patient_healthcare_info_health_insurance_id_idx": {
+          "name": "patient_healthcare_info_health_insurance_id_idx",
+          "columns": [
+            "health_insurance_id"
+          ],
+          "isUnique": false
+        },
+        "patient_healthcare_info_doctor_id_idx": {
+          "name": "patient_healthcare_info_doctor_id_idx",
+          "columns": [
+            "doctor_id"
+          ],
+          "isUnique": false
+        },
+        "patient_healthcare_info_healthcare_provider_id_idx": {
+          "name": "patient_healthcare_info_healthcare_provider_id_idx",
+          "columns": [
+            "healthcare_provider_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "patient_healthcare_info_patient_id_patient_id_fk": {
           "name": "patient_healthcare_info_patient_id_patient_id_fk",
@@ -1032,7 +1081,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "patient_healthcare_info_health_insurance_id_health_insurance_id_fk": {
@@ -1045,7 +1094,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "patient_healthcare_info_doctor_id_doctor_ID_fk": {
@@ -1058,7 +1107,7 @@
           "columnsTo": [
             "ID"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "patient_healthcare_info_healthcare_provider_id_external_healthcare_provider_ID_fk": {
@@ -1071,7 +1120,7 @@
           "columnsTo": [
             "ID"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },

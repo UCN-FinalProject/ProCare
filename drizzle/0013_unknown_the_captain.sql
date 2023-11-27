@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS "patient" (
 	"biological_sex" "biological_sex" NOT NULL,
 	"date_of_birth" timestamp NOT NULL,
 	"ssn" varchar NOT NULL,
+	"recommendation_date" timestamp,
+	"acceptance_date" timestamp,
 	"start_date" timestamp NOT NULL,
 	"expected_end_of_treatment" timestamp NOT NULL,
 	"end_date" timestamp,
@@ -53,32 +55,37 @@ CREATE TABLE IF NOT EXISTS "patientConditions" (
 	"conditionID" integer NOT NULL
 );
 --> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "patient_address_patient_id_idx" ON "patient_address" ("patient_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "patient_healthcare_info_patient_id_idx" ON "patient_healthcare_info" ("patient_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "patient_healthcare_info_health_insurance_id_idx" ON "patient_healthcare_info" ("health_insurance_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "patient_healthcare_info_doctor_id_idx" ON "patient_healthcare_info" ("doctor_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "patient_healthcare_info_healthcare_provider_id_idx" ON "patient_healthcare_info" ("healthcare_provider_id");--> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "patient_address" ADD CONSTRAINT "patient_address_patient_id_patient_id_fk" FOREIGN KEY ("patient_id") REFERENCES "patient"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "patient_address" ADD CONSTRAINT "patient_address_patient_id_patient_id_fk" FOREIGN KEY ("patient_id") REFERENCES "patient"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "patient_healthcare_info" ADD CONSTRAINT "patient_healthcare_info_patient_id_patient_id_fk" FOREIGN KEY ("patient_id") REFERENCES "patient"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "patient_healthcare_info" ADD CONSTRAINT "patient_healthcare_info_patient_id_patient_id_fk" FOREIGN KEY ("patient_id") REFERENCES "patient"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "patient_healthcare_info" ADD CONSTRAINT "patient_healthcare_info_health_insurance_id_health_insurance_id_fk" FOREIGN KEY ("health_insurance_id") REFERENCES "health_insurance"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "patient_healthcare_info" ADD CONSTRAINT "patient_healthcare_info_health_insurance_id_health_insurance_id_fk" FOREIGN KEY ("health_insurance_id") REFERENCES "health_insurance"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "patient_healthcare_info" ADD CONSTRAINT "patient_healthcare_info_doctor_id_doctor_ID_fk" FOREIGN KEY ("doctor_id") REFERENCES "doctor"("ID") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "patient_healthcare_info" ADD CONSTRAINT "patient_healthcare_info_doctor_id_doctor_ID_fk" FOREIGN KEY ("doctor_id") REFERENCES "doctor"("ID") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "patient_healthcare_info" ADD CONSTRAINT "patient_healthcare_info_healthcare_provider_id_external_healthcare_provider_ID_fk" FOREIGN KEY ("healthcare_provider_id") REFERENCES "external_healthcare_provider"("ID") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "patient_healthcare_info" ADD CONSTRAINT "patient_healthcare_info_healthcare_provider_id_external_healthcare_provider_ID_fk" FOREIGN KEY ("healthcare_provider_id") REFERENCES "external_healthcare_provider"("ID") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
