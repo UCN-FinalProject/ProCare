@@ -80,3 +80,9 @@ export const addPatientConditionInput = z.object({
   conditionID: z.number(),
 });
 export type AddPatientConditionInput = z.infer<typeof addPatientConditionInput>;
+
+export const addPatientProcedureInput = z.object({
+  patientID: z.string(),
+  procedureID: z.number(),
+});
+export type AddPatientProcedureInput = z.infer<typeof addPatientProcedureInput>;
