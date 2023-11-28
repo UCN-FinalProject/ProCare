@@ -48,7 +48,7 @@ export default {
     ctx,
   }: {
     input: CreateProcedureInput;
-    pricingInput: CreateProcedurePricingInput[];
+    pricingInput?: CreateProcedurePricingInput[];
     ctx: TRPCContext;
   }) {
     const transaction = await ctx.db.transaction(async (tx) => {
@@ -75,20 +75,22 @@ export default {
 
       const createdProcedureID = createdProcedure[0].id;
 
-      // create procedure pricing for each health insurance
-      for (const pricing of pricingInput) {
-        await tx
-          .insert(procedurePricing)
-          .values({
-            procedureId: createdProcedureID,
-            healthInsuranceId: pricing.healthInsuranceId,
-            credits: pricing.credits,
-            price: pricing.price,
-          })
-          .catch((err) => {
-            tx.rollback();
-            throw err;
-          });
+      if (pricingInput) {
+        // create procedure pricing for each health insurance
+        for (const pricing of pricingInput) {
+          await tx
+            .insert(procedurePricing)
+            .values({
+              procedureId: createdProcedureID,
+              healthInsuranceId: pricing.healthInsuranceId,
+              credits: pricing.credits,
+              price: pricing.price,
+            })
+            .catch((err) => {
+              tx.rollback();
+              throw err;
+            });
+        }
       }
 
       return await tx.query.procedures.findFirst({
