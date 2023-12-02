@@ -12,6 +12,7 @@ import {
   type UpdatePatientInput,
   type AddPatientConditionInput,
   type GetPatientsInput,
+  type SetStatusPatientInput,
 } from "./validation/PatientValidation";
 
 export default {
@@ -234,6 +235,33 @@ export default {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Patient could not be updated.",
+    });
+  },
+
+  async setStatus({
+    input,
+    ctx,
+  }: {
+    input: SetStatusPatientInput;
+    ctx: TRPCContext;
+  }) {
+    const update = await ctx.db
+      .update(patient)
+      .set({
+        isActive: input.isActive,
+      })
+      .where(eq(patient.id, input.id))
+      .returning()
+      .catch((error) => {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: error instanceof Error ? error.message : String(error),
+        });
+      });
+    if (update) return update;
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Patient could not be updated",
     });
   },
 

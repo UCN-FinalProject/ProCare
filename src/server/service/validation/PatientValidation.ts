@@ -80,3 +80,9 @@ export const addPatientConditionInput = z.object({
   conditionID: z.number(),
 });
 export type AddPatientConditionInput = z.infer<typeof addPatientConditionInput>;
+
+export const setStatusPatientInput = z.object({
+  id: z.string(),
+  isActive: z.boolean(),
+});
+export type SetStatusPatientInput = z.infer<typeof setStatusPatientInput>;
