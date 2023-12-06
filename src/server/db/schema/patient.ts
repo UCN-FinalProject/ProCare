@@ -16,6 +16,7 @@ import {
   patientConditions,
   doctor,
   healthInsurance,
+  patientProcedures,
 } from "../export";
 
 export const biologicalSex = pgEnum("biological_sex", ["male", "female"]);
@@ -52,6 +53,7 @@ export const patient = pgTable("patient", {
 });
 export const patientRelations = relations(patient, ({ many, one }) => ({
   conditions: many(patientConditions),
+  procedures: many(patientProcedures),
   healthcareInfo: one(patientHealthcareInfo, {
     fields: [patient.id],
     references: [patientHealthcareInfo.patientID],

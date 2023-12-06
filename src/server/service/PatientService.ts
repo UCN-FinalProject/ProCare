@@ -7,12 +7,14 @@ import {
   patientHealthcareInfo,
 } from "../db/export";
 import { asc, eq } from "drizzle-orm";
-import {
-  type CreatePatientInput,
-  type UpdatePatientInput,
-  type AddPatientConditionInput,
-  type GetPatientsInput,
+import type {
+  CreatePatientInput,
+  UpdatePatientInput,
+  AddPatientConditionInput,
+  GetPatientsInput,
+  AddPatientProcedureInput,
 } from "./validation/PatientValidation";
+import { patientProcedures } from "../db/schema/patientProcedures";
 
 export default {
   async getByPatientID({ id, ctx }: { id: string; ctx: TRPCContext }) {
@@ -63,9 +65,11 @@ export default {
 
   async createPatient({
     input,
+    inputConditions,
     ctx,
   }: {
     input: CreatePatientInput;
+    inputConditions?: AddPatientConditionInput[];
     ctx: TRPCContext;
   }) {
     const transaction = await ctx.db.transaction(async (tx) => {
@@ -92,10 +96,7 @@ export default {
         .returning()
         .catch((err) => {
           tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
+          throw err;
         });
 
       if (!patientInsert[0])
@@ -117,10 +118,7 @@ export default {
         })
         .catch((err) => {
           tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
+          throw err;
         });
 
       await tx
@@ -133,11 +131,24 @@ export default {
         })
         .catch((err) => {
           tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
+          throw err;
         });
+
+      // create patient conditions
+      if (inputConditions) {
+        for (const condition of inputConditions) {
+          await tx
+            .insert(patientConditions)
+            .values({
+              patientID: newUserID,
+              conditionID: condition.conditionID,
+            })
+            .catch((err) => {
+              tx.rollback();
+              throw err;
+            });
+        }
+      }
 
       return await tx.query.patient.findFirst({
         where: (patient, { eq }) => eq(patient.id, patientInsert.at(0)!.id),
@@ -181,10 +192,7 @@ export default {
         .where(eq(patient.id, input.id))
         .catch((err) => {
           tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
+          throw err;
         });
 
       await tx
@@ -198,10 +206,7 @@ export default {
         .where(eq(patientAddress.patientID, input.id))
         .catch((err) => {
           tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
+          throw err;
         });
 
       await tx
@@ -214,10 +219,7 @@ export default {
         .where(eq(patientHealthcareInfo.patientID, input.id))
         .catch((err) => {
           tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
+          throw err;
         });
 
       return await tx.query.patient.findFirst({
@@ -250,12 +252,34 @@ export default {
         patientID: input.patientID,
         conditionID: input.conditionID,
       })
-      .returning({ id: patientConditions.id });
+      .returning();
 
-    if (insert.length !== 1 && !insert.at(0)?.id)
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Condition could not be added.",
-      });
+    if (insert && !!insert[0]) return insert[0];
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Condition could not be added.",
+    });
+  },
+
+  async addPatientProcedure({
+    input,
+    ctx,
+  }: {
+    input: AddPatientProcedureInput;
+    ctx: TRPCContext;
+  }) {
+    const insert = await ctx.db
+      .insert(patientProcedures)
+      .values({
+        patientID: input.patientID,
+        procedureID: input.procedureID,
+      })
+      .returning();
+
+    if (insert && !!insert[0]) return insert[0];
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Procedure could not be added.",
+    });
   },
 } as const;
