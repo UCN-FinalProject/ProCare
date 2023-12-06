@@ -30,9 +30,6 @@ import {
   ] as const;
 
   const formSchema = z.object({
-    patientID: z.string().min(1, {
-      message: "Patient ID cannot be empty.",
-    }),
     fullName: z.string().min(1, {
         message: "Full name cannot be empty.",
     }),
@@ -93,41 +90,37 @@ export default function UpdatePatientForm({
       disability: patient.disability,
       alergies: patient.alergies ?? undefined,
       note: patient.note ?? undefined,
-      address1: patient.patientAddress.address1,
-      address2: patient.patientAddress.address2 ?? undefined,
-      city: patient.patientAddress.city,
-      zip: patient.patientAddress.zipCode,
-      healthInsuranceID: patient.patientHealthcareInfo.healthInsuranceID,
-      doctorID: patient.patientHealthcareInfo.doctorID,
-      healthcareProviderID: patient.patientHealthcareInfo.healthcareProviderID,
+      address1: patient.address?.address1,
+      address2: patient.address?.address2 ?? undefined,
+      city: patient.address?.city,
+      zip: patient.address?.zipCode,
+      healthInsuranceID: patient.healthcareInfo?.healthInsuranceID,
+      doctorID: patient.healthcareInfo?.doctorID,
+      healthcareProviderID: patient.healthcareInfo?.healthcareProviderID,
     }
   })
   const updatePatient = api.patient.update.useMutation();
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await updatePatient.mutateAsync(
       {
-      id: patient.id,
+      id: patient.id!,
       fullName: values.fullName,
       recommendationDate: values.recommendationDate,
       acceptanceDate: values.acceptanceDate,
-      expectedEndOfTreatment: values.expectedEndOfTreatment,
+      expectedEndOfTreatment: values.expectedEndOfTreatment!,
       insuredID: values.insuredID,
       email: values.email,
       phone: values.phone,
       disability: values.disability,
       alergies: values.alergies,
       note: values.note,
-      address: {
-        address1: values.address1,
-        address2: values.address2,
-        city: values.city,
-        zip: values.zipCode ?? undefined,
-      },
-      healthcareInfo: {
-        healthInsuranceID: values.healthInsuranceID,
-        doctorID: values.doctorID,
-        healthcareProviderID: values.healthcareProviderID,
-      },
+      address1: values.address1,
+      address2: values.address2,
+      city: values.city,
+      zip: values.zip ?? undefined,
+      healthInsuranceID: values.healthInsuranceID,
+      doctorID: values.doctorID,
+      healthcareProviderID: values.healthcareProviderID,
     },
     {
       //eslint-disable-next-line
@@ -143,19 +136,6 @@ export default function UpdatePatientForm({
 return (
   <Form {...form}>
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-    <FormField
-    control={form.control}
-    name="patientID"
-    render={({field}) => (
-      <FormItem>
-        <FormLabel>PatientID</FormLabel>
-        <FormControl>
-          <Input placeholder="PatientID" {...field} disabled={!isAdmin} />
-        </FormControl>
-
-        <FormMessage />
-      </FormItem>
-  )}/>
       <FormField
     control={form.control}
     name="fullName"
@@ -181,7 +161,7 @@ return (
 
         <FormMessage />
       </FormItem>
-  )}/> Not sure how to handle dates, maybe toString?*/}
+  )}/> TODO: Not sure how to handle dates, maybe toString? */}
       <FormField
     control={form.control}
     name="insuredID"
