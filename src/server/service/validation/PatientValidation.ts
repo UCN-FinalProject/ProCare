@@ -54,9 +54,9 @@ export type CreatePatientInput = z.infer<typeof createPatientInput>;
 export const updatePatientInput = z.object({
   id: z.string(),
   fullName: z.string(),
-  recommendationDate: z.date().optional(),
+  recommendationDate: z.date(),
   acceptanceDate: z.date().optional(),
-  expectedEndOfTreatment: z.date(),
+  expectedEndOfTreatment: z.date().optional(),
   insuredID: z.string(),
   email: z.string().optional(),
   phone: z.string().optional(),

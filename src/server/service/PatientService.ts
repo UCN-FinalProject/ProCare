@@ -36,6 +36,10 @@ export default {
     const res = await ctx.db.query.patient.findMany({
       limit: input.limit,
       offset: input.offset,
+      with: {
+        address: true,
+        healthcareInfo: true,
+      },
       where: (patient, { eq }) =>
         input.isActive !== undefined
           ? eq(patient.isActive, input.isActive)

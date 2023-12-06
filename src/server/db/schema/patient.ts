@@ -16,6 +16,7 @@ import {
   patientConditions,
   doctor,
   healthInsurance,
+  type PatientConditions,
 } from "../export";
 
 export const biologicalSex = pgEnum("biological_sex", ["male", "female"]);
@@ -61,7 +62,15 @@ export const patientRelations = relations(patient, ({ many, one }) => ({
     references: [patientAddress.patientID],
   }),
 }));
-export type Patient = typeof patient.$inferInsert;
+export type Patient = typeof patient.$inferInsert & {
+  patientConditions: PatientConditions;
+  patientAddress: typeof patientAddress.$inferInsert;
+  patientHealthcareInfo: typeof patientHealthcareInfo.$inferInsert;
+};
+export type PatientWithoutCondition = typeof patient.$inferInsert & {
+  patientAddress: typeof patientAddress.$inferInsert | null;
+  patientHealthcareInfo: typeof patientHealthcareInfo.$inferInsert | null;
+};
 
 // patient healthcare info
 export const patientHealthcareInfo = pgTable(
