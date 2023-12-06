@@ -16,6 +16,7 @@ import {
   patientConditions,
   doctor,
   healthInsurance,
+  patientProcedures,
   type PatientConditions,
 } from "../export";
 
@@ -53,6 +54,7 @@ export const patient = pgTable("patient", {
 });
 export const patientRelations = relations(patient, ({ many, one }) => ({
   conditions: many(patientConditions),
+  procedures: many(patientProcedures),
   healthcareInfo: one(patientHealthcareInfo, {
     fields: [patient.id],
     references: [patientHealthcareInfo.patientID],

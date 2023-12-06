@@ -6,3 +6,5 @@ export * from "./schema/doctor";
 export * from "./schema/user";
 export * from "./schema/patient";
 export * from "./schema/patientCondition";
+export * from "./schema/procedures";
+export * from "./schema/patientProcedures";

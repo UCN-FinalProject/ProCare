@@ -54,9 +54,9 @@ export type CreatePatientInput = z.infer<typeof createPatientInput>;
 export const updatePatientInput = z.object({
   id: z.string(),
   fullName: z.string(),
-  recommendationDate: z.date(),
+  recommendationDate: z.date().optional(),
   acceptanceDate: z.date().optional(),
-  expectedEndOfTreatment: z.date().optional(),
+  expectedEndOfTreatment: z.date(),
   insuredID: z.string(),
   email: z.string().optional(),
   phone: z.string().optional(),
@@ -86,3 +86,8 @@ export const setStatusPatientInput = z.object({
   isActive: z.boolean(),
 });
 export type SetStatusPatientInput = z.infer<typeof setStatusPatientInput>;
+export const addPatientProcedureInput = z.object({
+  patientID: z.string(),
+  procedureID: z.number(),
+});
+export type AddPatientProcedureInput = z.infer<typeof addPatientProcedureInput>;
