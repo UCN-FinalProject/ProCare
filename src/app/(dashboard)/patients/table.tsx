@@ -19,8 +19,7 @@ import {
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-[100px]">ID</TableHead>
-              <TableHead>Patient ID</TableHead>
-              <TableHead>Name</TableHead>
+              <TableHead>Full Name</TableHead>
               <TableHead>Biological Sex</TableHead>
               <TableHead>City</TableHead>
               <TableHead>ZipCode</TableHead>
@@ -47,7 +46,7 @@ import {
                   </CopyToClipboard>
                 </TableCell>
                 <TableCell className="font-medium">
-                  <Link href={`/doctors/${patient.id}`}>
+                  <Link href={`/patients/${patient.id}`}>
                     <CopyToClipboard text={patient.fullName}>
                       {patient.fullName}
                     </CopyToClipboard>
@@ -59,18 +58,18 @@ import {
                     </CopyToClipboard>
                 </TableCell>
                 <TableCell className="font-medium">
-                    <CopyToClipboard text={patient.patientAddress.city}>
-                      {patient.patientAddress.city}
+                    <CopyToClipboard text={patient.address?.city ?? ""}>
+                      {patient.address?.city}
                     </CopyToClipboard>
                 </TableCell>
                 <TableCell className="font-medium">
-                    <CopyToClipboard text={patient.patientAddress.zipCode}>
-                      {patient.patientAddress.zipCode}
+                    <CopyToClipboard text={patient.address?.zipCode ?? ""}>
+                      {patient.address?.zipCode}
                     </CopyToClipboard>
                 </TableCell>
                 <TableCell className="font-medium">
-                    <CopyToClipboard text={patient.patientAddress.address1}>
-                      {patient.patientAddress.address1}
+                    <CopyToClipboard text={patient.address?.address1 ?? ""}>
+                      {patient.address?.address1}
                     </CopyToClipboard>
                 </TableCell>
                 <TableCell align="right">

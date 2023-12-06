@@ -63,14 +63,11 @@ export const patientRelations = relations(patient, ({ many, one }) => ({
   }),
 }));
 export type Patient = typeof patient.$inferInsert & {
-  patientConditions: PatientConditions;
-  patientAddress: typeof patientAddress.$inferInsert;
-  patientHealthcareInfo: typeof patientHealthcareInfo.$inferInsert;
+  conditions: PatientConditions;
+  address: typeof patientAddress.$inferInsert;
+  healthcareInfo: typeof patientHealthcareInfo.$inferInsert;
 };
-export type PatientWithoutCondition = typeof patient.$inferInsert & {
-  patientAddress: typeof patientAddress.$inferInsert | null;
-  patientHealthcareInfo: typeof patientHealthcareInfo.$inferInsert | null;
-};
+export type PatientWithoutCondition = Omit<Patient, "conditions">;
 
 // patient healthcare info
 export const patientHealthcareInfo = pgTable(
