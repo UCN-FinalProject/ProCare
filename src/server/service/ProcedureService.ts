@@ -34,8 +34,19 @@ export default {
       limit: input.limit,
       offset: input.offset,
     });
+    const total = await ctx.db.query.procedures.findMany({
+      columns: {
+        id: true,
+      },
+    });
 
-    if (procedures) return procedures;
+    if (procedures)
+      return {
+        result: procedures,
+        limit: input.limit,
+        offset: input.offset,
+        total: total.length,
+      };
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "Procedures not found.",
