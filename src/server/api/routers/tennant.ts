@@ -1,5 +1,10 @@
 import TennantService from "~/server/service/TennantService";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { tennantInput } from "~/server/service/validation/TennantValidation";
 import { parseErrorMessage } from "~/lib/parseError";
@@ -32,7 +37,7 @@ export const tennantRouter = createTRPCRouter({
     }),
 
   // UPDATE
-  updateTenant: protectedProcedure
+  updateTenant: adminProcedure
     .input(tennantInput)
     .mutation(async ({ input, ctx }) => {
       try {
