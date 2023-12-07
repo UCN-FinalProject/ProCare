@@ -132,3 +132,22 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+
+/**
+ * Admin procedure
+ *
+ * This is a procedure that above authentication, requires the user to be an admin.
+ */
+const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
+  if (ctx.session?.user.role !== "admin") {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
+export const adminProcedure = t.procedure.use(enforceUserIsAdmin);
