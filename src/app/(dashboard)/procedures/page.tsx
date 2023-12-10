@@ -10,7 +10,7 @@ import { getServerAuthSession } from "~/server/auth";
 export default async function page() {
   const session = await getServerAuthSession();
   const procedures = await api.procedure.getMany.query({
-    limit: 10,
+    limit: 100,
     offset: 0,
   });
 

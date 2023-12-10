@@ -4,6 +4,7 @@ import {
   numeric,
   pgTable,
   serial,
+  timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
 import { healthInsurance } from "../export";
@@ -28,6 +29,7 @@ export const procedurePricing = pgTable("procedure_pricing", {
     .references(() => healthInsurance.id),
   credits: integer("credits").notNull(),
   price: numeric("price").notNull(),
+  created: timestamp("created").$defaultFn(() => new Date()),
 });
 export const procedurePricingRelations = relations(
   procedurePricing,

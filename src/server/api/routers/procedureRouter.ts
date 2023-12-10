@@ -7,7 +7,7 @@ import {
   createProcedureInput,
   createProcedurePricingInput,
   updateProcedureInput,
-  updateProcedurePricingInput,
+  createProcedurePricingWithoutProcedureID,
 } from "~/server/service/validation/ProcedureValidation";
 import ProcedureService from "~/server/service/ProcedureService";
 
@@ -48,7 +48,7 @@ export const procedureRouter = createTRPCRouter({
     .input(
       z.object({
         data: createProcedureInput,
-        pricingInput: z.array(createProcedurePricingInput).optional(),
+        pricingInput: z.array(createProcedurePricingWithoutProcedureID),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -73,14 +73,31 @@ export const procedureRouter = createTRPCRouter({
     .input(
       z.object({
         data: updateProcedureInput,
-        pricingInput: z.array(updateProcedurePricingInput).optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       try {
         return await ProcedureService.update({
           input: input.data,
-          pricingInput: input.pricingInput,
+          ctx,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Not found",
+          }),
+        });
+      }
+    }),
+
+  addPricing: protectedProcedure
+    .input(createProcedurePricingInput)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await ProcedureService.addPricing({
+          input,
           ctx,
         });
       } catch (error) {
