@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import UserService from "~/server/service/UserService";
 import {
@@ -56,7 +56,7 @@ export const userRouter = createTRPCRouter({
     }
   }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(createUserInput)
     .mutation(async ({ input, ctx }) => {
       try {

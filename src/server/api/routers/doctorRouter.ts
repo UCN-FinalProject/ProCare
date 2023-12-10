@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import DoctorService from "~/server/service/DoctorService";
 import { TRPCError } from "@trpc/server";
 import { parseErrorMessage } from "~/lib/parseError";
@@ -44,7 +44,7 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(createDoctorInput)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -60,7 +60,7 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(updateDoctorInput)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -76,7 +76,7 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  setActive: protectedProcedure
+  setActive: adminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       try {
@@ -98,7 +98,7 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  setInactive: protectedProcedure
+  setInactive: adminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       try {
@@ -139,7 +139,7 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  addHealthCareProvider: protectedProcedure
+  addHealthCareProvider: adminProcedure
     .input(addDoctorInput)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -155,7 +155,7 @@ export const doctorRouter = createTRPCRouter({
       }
     }),
 
-  removeHealthCareProvider: protectedProcedure
+  removeHealthCareProvider: adminProcedure
     .input(removeDoctorInput)
     .mutation(async ({ input, ctx }) => {
       try {

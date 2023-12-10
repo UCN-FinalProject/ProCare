@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import HealthConditionService from "~/server/service/HealthConditionService";
 import { TRPCError } from "@trpc/server";
 import {
@@ -41,7 +41,7 @@ export const healthConditionRouter = createTRPCRouter({
       }
     }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(createHealthConditionInput)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -57,7 +57,7 @@ export const healthConditionRouter = createTRPCRouter({
       }
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(z.object({ id: z.number() }).merge(createHealthConditionInput))
     .mutation(async ({ input, ctx }) => {
       try {

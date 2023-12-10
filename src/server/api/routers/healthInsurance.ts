@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import HealthInsuranceService from "~/server/service/HealthInsuranceService";
 import { z } from "zod";
 import {
@@ -41,7 +41,7 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // POST (create)
-  create: protectedProcedure
+  create: adminProcedure
     .input(createHealthInsuranceInput)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -65,7 +65,7 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // PUT (update)
-  update: protectedProcedure
+  update: adminProcedure
     .input(updateHealthInsuranceInput)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -89,7 +89,7 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // POST (set active)
-  setActive: protectedProcedure
+  setActive: adminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       try {
@@ -113,7 +113,7 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // POST (set inactive)
-  setInactive: protectedProcedure
+  setInactive: adminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       try {

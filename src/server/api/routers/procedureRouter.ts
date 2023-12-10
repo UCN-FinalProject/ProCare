@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { parseErrorMessage } from "~/lib/parseError";
 import {
@@ -44,7 +44,7 @@ export const procedureRouter = createTRPCRouter({
       }
     }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(
       z.object({
         data: createProcedureInput,
@@ -69,7 +69,7 @@ export const procedureRouter = createTRPCRouter({
       }
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(
       z.object({
         data: updateProcedureInput,
@@ -92,7 +92,7 @@ export const procedureRouter = createTRPCRouter({
       }
     }),
 
-  addPricing: protectedProcedure
+  addPricing: adminProcedure
     .input(createProcedurePricingInput)
     .mutation(async ({ input, ctx }) => {
       try {
