@@ -106,6 +106,13 @@
       "when": 1701204632688,
       "tag": "0014_furry_may_parker",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1702225411356,
+      "tag": "0015_curvy_puff_adder",
+      "breakpoints": true
     }
   ]
 }

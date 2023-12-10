@@ -9,11 +9,10 @@ import { getServerAuthSession } from "~/server/auth";
 
 export default async function page() {
   const session = await getServerAuthSession();
-  const insuranceProviders =
-    await api.healthInsurance.getHealthInsurances.query({
-      limit: 10,
-      offset: 0,
-    });
+  const insuranceProviders = await api.healthInsurance.getMany.query({
+    limit: 10,
+    offset: 0,
+  });
 
   return (
     <div className="flex flex-col gap-4 overflow-hidden">

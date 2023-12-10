@@ -5,6 +5,7 @@ import { api } from "~/trpc/server";
 import ID from "~/components/ID";
 import Form from "./form";
 import { getServerAuthSession } from "~/server/auth";
+import ProcedurePricing from "../components/ProcedurePricing";
 
 export default async function page({ params }: { params: { id: string } }) {
   const id = Number(params.id);
@@ -21,8 +22,16 @@ export default async function page({ params }: { params: { id: string } }) {
           <PageHeader>{procedure.name}</PageHeader>
         </div>
       </div>
-      <div className="flex flex-col lg:max-w-lg">
+      <div className="flex flex-col lg:max-w-lg gap-y-6">
         <Form procedure={procedure} session={session!} />
+
+        {/* display pricing only for admin users */}
+        {session?.user?.role === "admin" && (
+          <ProcedurePricing
+            variant="update"
+            procedurePricing={procedure.procedurePricing}
+          />
+        )}
       </div>
     </div>
   );

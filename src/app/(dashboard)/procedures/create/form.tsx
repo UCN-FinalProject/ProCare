@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { api } from "~/trpc/react";
-
 import Button from "~/components/Button";
 import {
   Form,
@@ -17,9 +16,9 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { useState } from "react";
 import Link from "next/link";
+import { useProcedurePricing } from "../hooks/useProcedurePricing";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -37,6 +36,8 @@ export default function CreateProcedureForm() {
     },
   });
 
+  const { array } = useProcedurePricing();
+
   const createProcedure = api.procedure.create.useMutation();
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await createProcedure.mutateAsync(
@@ -44,13 +45,12 @@ export default function CreateProcedureForm() {
         data: {
           name: values.name.trim(),
         },
+        pricingInput: array,
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
+        onSuccess: (res) => {
           setProcedureID(res.id);
           toast.success("Procedure successfully created.");
-          await revalidatePathClient();
         },
         onError: (err) => toast.error(err.message),
       },
@@ -82,7 +82,7 @@ export default function CreateProcedureForm() {
           </Button>
           {createProcedure.isSuccess && (
             <Button variant="outline">
-              {/* @ts-expect-error type defs a bit broken */}
+              {/* @ts-expect-error type defs a bit broken  */}
               <Link href={`/procedures/${procedureID}`}>View procedure</Link>
             </Button>
           )}

@@ -10,7 +10,7 @@ import {
 
 export const healthInsuranceRouter = createTRPCRouter({
   // GET (single)
-  getHealthInsuranceByID: protectedProcedure
+  getByByID: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input, ctx }) => {
       try {
@@ -27,7 +27,7 @@ export const healthInsuranceRouter = createTRPCRouter({
     }),
 
   // GET (multiple)
-  getHealthInsurances: protectedProcedure
+  getMany: protectedProcedure
     .input(getHealthInsurancesInput)
     .query(async ({ input, ctx }) => {
       try {
