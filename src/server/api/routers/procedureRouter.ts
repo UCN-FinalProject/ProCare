@@ -51,7 +51,7 @@ export const procedureRouter = createTRPCRouter({
         pricingInput: z.array(createProcedurePricingInput).optional(),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         return await ProcedureService.create({
           input: input.data,
@@ -76,7 +76,7 @@ export const procedureRouter = createTRPCRouter({
         pricingInput: z.array(updateProcedurePricingInput).optional(),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         return await ProcedureService.update({
           input: input.data,
