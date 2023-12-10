@@ -11,7 +11,6 @@ declare module "nextjs-routes" {
   } from "next";
 
   export type Route =
-    | StaticRoute<"/account">
     | DynamicRoute<"/diagnoses/[id]", { "id": string }>
     | StaticRoute<"/diagnoses/create">
     | StaticRoute<"/diagnoses">
@@ -26,6 +25,8 @@ declare module "nextjs-routes" {
     | StaticRoute<"/insurance-providers">
     | StaticRoute<"/">
     | StaticRoute<"/patients">
+    | DynamicRoute<"/procedures/[id]", { "id": string }>
+    | StaticRoute<"/procedures/create">
     | StaticRoute<"/procedures">
     | StaticRoute<"/settings/account">
     | StaticRoute<"/settings">
