@@ -3,6 +3,7 @@ export { default } from "next-auth/middleware";
 export const config = {
   matcher: [
     "/",
+    "/api/reports/:parh*",
     "/patients/:path*",
     "/doctors/:path*",
     "/healthcare-providers/:path*",
