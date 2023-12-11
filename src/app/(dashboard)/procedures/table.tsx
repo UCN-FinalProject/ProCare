@@ -16,10 +16,10 @@ import Pagination from "~/components/Pagination";
 export default async function ProceduresTable({
   name,
   page,
-}: {
+}: Readonly<{
   name?: string;
   page: number;
-}) {
+}>) {
   const procedures = await api.procedure.getMany.query({
     limit: 15,
     offset: (page - 1) * 15,

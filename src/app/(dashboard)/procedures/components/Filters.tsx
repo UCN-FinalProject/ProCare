@@ -4,7 +4,9 @@ import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Input } from "~/components/ui/input";
 import { useDebouncedCallback } from "use-debounce";
 
-export default function Filters({ isLoading }: { isLoading?: boolean }) {
+export default function Filters({
+  isLoading,
+}: Readonly<{ isLoading?: boolean }>) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   // eslint-disable-next-line @typescript-eslint/unbound-method

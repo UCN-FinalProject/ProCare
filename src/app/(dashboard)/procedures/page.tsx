@@ -9,12 +9,12 @@ import TableLoader from "./components/TableLoader";
 
 export default async function Page({
   searchParams,
-}: {
+}: Readonly<{
   searchParams?: {
     name?: string;
     page?: string;
   };
-}) {
+}>) {
   const session = await getServerAuthSession();
   const name = searchParams?.name ?? undefined;
   const page = Number(searchParams?.page) > 0 ? Number(searchParams?.page) : 1;

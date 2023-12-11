@@ -10,8 +10,7 @@ type Props = {
   result: number;
 };
 
-export default function Pagination(props: Props) {
-  //   console.log(props);
+export default function Pagination(props: Readonly<Props>) {
   const { limit, offset, total, result } = props;
 
   const searchParams = useSearchParams();
@@ -30,7 +29,7 @@ export default function Pagination(props: Props) {
   };
 
   return (
-    <div className="flex w-full justify-between gap-x-4">
+    <div className="flex w-full justify-between items-center gap-x-4">
       {result > 0 ? (
         <p className="text-primary opacity-80 text-sm">
           Showing {result > 0 ? 1 : offset + 1} to{" "}
