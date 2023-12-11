@@ -94,8 +94,13 @@ export default {
     const procedures = await ctx.db.query.procedures.findMany({
       limit: input.limit,
       offset: input.offset,
+      where: (procedure, { like }) =>
+        input.name !== undefined ? like(procedure.name, input.name) : undefined,
+      orderBy: (procedure, { asc }) => asc(procedure.id),
     });
     const total = await ctx.db.query.procedures.findMany({
+      where: (procedure, { like }) =>
+        input.name !== undefined ? like(procedure.name, input.name) : undefined,
       columns: {
         id: true,
       },
