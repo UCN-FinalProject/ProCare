@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 import { users } from "../db/export";
 import type {
   UpdateUserInput,
@@ -46,30 +46,14 @@ export default {
     const res = await ctx.db.query.users.findMany({
       limit: input.limit,
       offset: input.offset,
-      where: (user, { eq, like }) => {
-        let where = undefined;
-        if (input.role !== undefined) where = eq(user.role, input.role);
-        if (input.name !== undefined)
-          where = like(user.name, `%${input.name}%`);
-        if (input.email !== undefined)
-          where = like(user.email, `%${input.email}%`);
-        return where;
-      },
+      where: () => findManyWhere(input),
       orderBy: (users, { asc }) => asc(users.role),
     });
     const total = await ctx.db.query.users.findMany({
       columns: { id: true },
       limit: input.limit,
       offset: input.offset,
-      where: (user, { eq, like }) => {
-        let where = undefined;
-        if (input.role !== undefined) where = eq(user.role, input.role);
-        if (input.name !== undefined)
-          where = like(user.name, `%${input.name}%`);
-        if (input.email !== undefined)
-          where = like(user.email, `%${input.email}%`);
-        return where;
-      },
+      where: () => findManyWhere(input),
     });
 
     if (res)
@@ -138,3 +122,11 @@ export default {
     });
   },
 } as const;
+
+const findManyWhere = (input: GetManyUsersInput) => {
+  let where = undefined;
+  if (input.role !== undefined) where = eq(users.role, input.role);
+  if (input.name !== undefined) where = like(users.name, `%${input.name}%`);
+  if (input.email !== undefined) where = like(users.email, `%${input.email}%`);
+  return where;
+};
