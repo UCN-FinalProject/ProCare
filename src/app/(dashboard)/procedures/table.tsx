@@ -53,7 +53,6 @@ export default async function ProceduresTable({
                   <ID>{procedure.id}</ID>
                 </TableCell>
                 <TableCell className="font-medium">
-                  {/* @ts-expect-error this route package aint paerfect */}
                   <Link href={`/procedures/${String(procedure.id)}`}>
                     <CopyToClipboard text={procedure.name}>
                       {procedure.name}
