@@ -1,11 +1,13 @@
 import { TRPCError } from "@trpc/server";
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { users } from "../db/export";
-import {
-  type UpdateUserInput,
-  type CreateUserInput,
+import type {
+  UpdateUserInput,
+  CreateUserInput,
+  GetManyUsersInput,
 } from "../service/validation/UserValidation";
 import { type TRPCContext } from "../api/trpc";
+import type { ReturnMany } from "./validation/util";
 
 export default {
   async getByID({ id, ctx }: { id: string; ctx: TRPCContext }) {
@@ -34,12 +36,31 @@ export default {
     });
   },
 
-  async getMany(ctx: TRPCContext) {
+  async getMany({
+    input,
+    ctx,
+  }: {
+    input: GetManyUsersInput;
+    ctx: TRPCContext;
+  }) {
     const res = await ctx.db.query.users.findMany({
-      orderBy: [desc(users.emailVerified)],
+      limit: input.limit,
+      offset: input.offset,
+      orderBy: (users, { asc }) => asc(users.role),
+    });
+    const total = await ctx.db.query.users.findMany({
+      limit: input.limit,
+      offset: input.offset,
+      columns: { id: true },
     });
 
-    if (res) return res;
+    if (res)
+      return {
+        limit: input.limit,
+        offset: input.offset,
+        result: res,
+        total: total.length,
+      } satisfies ReturnMany<typeof res>;
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Users not found.",
@@ -66,7 +87,7 @@ export default {
         role: input.role,
         doctorID: input.doctorID,
       })
-      .returning({ id: users.id });
+      .returning();
 
     if (user.length !== 1 && !user.at(0)?.id)
       throw new TRPCError({
@@ -82,22 +103,17 @@ export default {
   },
 
   async update({ input, ctx }: { input: UpdateUserInput; ctx: TRPCContext }) {
-    const transaction = await ctx.db.transaction(async (trx) => {
-      await trx
-        .update(users)
-        .set({
-          name: input.name,
-          role: input.role,
-          doctorID: input.doctorID ?? null,
-        })
-        .where(eq(users.id, input.id));
+    const user = await ctx.db
+      .update(users)
+      .set({
+        name: input.name,
+        role: input.role,
+        doctorID: input.doctorID ?? null,
+      })
+      .where(eq(users.id, input.id))
+      .returning();
 
-      return await trx.query.users.findFirst({
-        where: (user, { eq }) => eq(user.id, input.id),
-      });
-    });
-
-    if (transaction) return transaction;
+    if (user) return user;
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "User could not be updated.",

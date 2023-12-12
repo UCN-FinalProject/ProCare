@@ -29,13 +29,7 @@ export default {
     });
   },
 
-  async updateTennant({
-    input,
-    ctx,
-  }: {
-    input: TennantInput;
-    ctx: TRPCContext;
-  }) {
+  async update({ input, ctx }: { input: TennantInput; ctx: TRPCContext }) {
     // fetch current tennant
     const currentTennant = await this.getTennant({ ctx });
 
@@ -146,7 +140,7 @@ export default {
     });
   },
 
-  async createTennant({ input }: { input: TennantInput }) {
+  async create({ input }: { input: TennantInput }) {
     const currentTennant = await db.select().from(tennant).limit(1);
     if (currentTennant.length > 0)
       throw new TRPCError({

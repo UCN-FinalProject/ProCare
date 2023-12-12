@@ -7,6 +7,7 @@ import {
 import { type TRPCContext } from "../api/trpc";
 import { healthCondition } from "../db/export";
 import { eq } from "drizzle-orm";
+import type { ReturnMany } from "./validation/util";
 
 export default {
   async getByID({ id, ctx }: { id: number; ctx: TRPCContext }) {
@@ -49,7 +50,7 @@ export default {
         offset: input.offset,
         limit: input.limit,
         total: total.length,
-      };
+      } satisfies ReturnMany<typeof res>;
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "Health conditions not found",

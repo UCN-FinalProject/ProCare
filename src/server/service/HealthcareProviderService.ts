@@ -13,6 +13,7 @@ import {
 } from "../db/export";
 import { type TRPCContext } from "../api/trpc";
 import { asc, eq } from "drizzle-orm";
+import type { ReturnMany } from "./validation/util";
 
 export default {
   async getByID({ id, ctx }: { id: number; ctx: TRPCContext }) {
@@ -83,7 +84,7 @@ export default {
       offset: input.offset,
       limit: input.limit,
       total: total.length,
-    };
+    } satisfies ReturnMany<typeof res>;
   },
 
   async create({
