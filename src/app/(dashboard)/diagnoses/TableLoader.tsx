@@ -23,8 +23,8 @@ export default function TableLoader() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: 10 }).map((_, index) => (
-            <RowLoading key={index} />
+          {Array.from({ length: 10 }).map((_) => (
+            <RowLoading key={crypto.randomUUID()} />
           ))}
         </TableBody>
       </Table>
