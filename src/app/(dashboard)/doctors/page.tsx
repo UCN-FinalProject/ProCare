@@ -7,7 +7,7 @@ import { getServerAuthSession } from "~/server/auth";
 import Table from "./table";
 import TableLoader from "./TableLoader";
 
-export default async function page({
+export default async function Page({
   searchParams,
 }: Readonly<{
   searchParams?: {
