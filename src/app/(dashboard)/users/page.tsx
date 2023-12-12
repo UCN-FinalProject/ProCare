@@ -9,7 +9,10 @@ import { getServerAuthSession } from "~/server/auth";
 
 export default async function page() {
   const session = await getServerAuthSession();
-  const users = await api.user.getMany.query();
+  const users = await api.user.getMany.query({
+    limit: 10,
+    offset: 0,
+  });
 
   return (
     <div className="flex flex-col gap-4 overflow-hidden">
@@ -24,7 +27,7 @@ export default async function page() {
           </Button>
         )}
       </div>
-      <Table data={users} />
+      <Table data={users.result} />
     </div>
   );
 }

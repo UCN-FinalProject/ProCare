@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import UserService from "~/server/service/UserService";
 import {
   createUserInput,
+  getManyUsersInput,
   updateUserInput,
 } from "~/server/service/validation/UserValidation";
 import EmailService from "~/server/service/EmailService";
@@ -42,19 +43,24 @@ export const userRouter = createTRPCRouter({
       }
     }),
 
-  getMany: protectedProcedure.query(async ({ ctx }) => {
-    try {
-      return await UserService.getMany(ctx);
-    } catch (error) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: parseErrorMessage({
-          error,
-          defaultMessage: "Users not found",
-        }),
-      });
-    }
-  }),
+  getMany: protectedProcedure
+    .input(getManyUsersInput)
+    .query(async ({ ctx, input }) => {
+      try {
+        return await UserService.getMany({
+          input,
+          ctx,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Users not found",
+          }),
+        });
+      }
+    }),
 
   create: adminProcedure
     .input(createUserInput)

@@ -54,3 +54,9 @@ export const updateHealthInsuranceInput = z.object({
 export type UpdateHealthInsuranceInput = z.infer<
   typeof updateHealthInsuranceInput
 >;
+
+export const setHealthInsuranceStatus = z.object({
+  id: z.number(),
+  isActive: z.boolean(),
+});
+export type SetHealthInsuranceStatus = z.infer<typeof setHealthInsuranceStatus>;

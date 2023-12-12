@@ -4,7 +4,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
 import { healthcareProviderRouter } from "~/server/api/routers/healthcareProviderRouter";
 
 import { tennantRouter } from "./routers/tennant";
-import { healthInsuranceRouter } from "./routers/healthInsurance";
+import { healthInsuranceRouter } from "./routers/healthInsuranceRouter";
 import { healthConditionRouter } from "./routers/healthCondition";
 import { doctorRouter } from "./routers/doctorRouter";
 import { userRouter } from "./routers/userRouter";

@@ -15,6 +15,7 @@ import type {
   AddPatientProcedureInput,
 } from "./validation/PatientValidation";
 import { patientProcedures } from "../db/schema/patientProcedures";
+import type { ReturnMany } from "./validation/util";
 
 export default {
   async getByPatientID({ id, ctx }: { id: string; ctx: TRPCContext }) {
@@ -56,7 +57,7 @@ export default {
         offset: input.offset,
         limit: input.limit,
         total: total.length,
-      };
+      } satisfies ReturnMany<typeof res>;
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "No patients were found.",
