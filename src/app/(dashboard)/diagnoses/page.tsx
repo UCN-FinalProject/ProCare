@@ -1,18 +1,23 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 import PageHeader from "~/components/Headers/PageHeader";
 import Table from "./table";
 import { Button } from "~/components/ui/button";
-import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
+import TableLoader from "./TableLoader";
 
-export default async function page() {
+export default async function Page({
+  searchParams,
+}: Readonly<{
+  searchParams?: {
+    name?: string;
+    page?: string;
+  };
+}>) {
   const session = await getServerAuthSession();
-  const healthConditions = await api.healthCondition.getMany.query({
-    limit: 10,
-    offset: 0,
-  });
+  const name = searchParams?.name ?? undefined;
+  const page = Number(searchParams?.page) > 0 ? Number(searchParams?.page) : 1;
 
   return (
     <div className="flex flex-col gap-4 overflow-hidden">
@@ -27,7 +32,9 @@ export default async function page() {
           </Button>
         )}
       </div>
-      <Table data={healthConditions.result} />
+      <Suspense fallback={<TableLoader />}>
+        <Table page={page} name={name} />
+      </Suspense>
     </div>
   );
 }

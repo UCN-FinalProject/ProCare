@@ -32,9 +32,9 @@ export default function Pagination(props: Readonly<Props>) {
     <div className="flex w-full justify-between items-center gap-x-4">
       {result > 0 ? (
         <p className="text-primary opacity-80 text-sm">
-          Showing {result > 0 ? 1 : offset + 1} to{" "}
-          {currentPage * limit > total ? total : currentPage * limit} of {total}{" "}
-          results
+          Showing {result === 0 ? 1 : offset + 1} to{" "}
+          {currentPage * limit > total ? total : currentPage * limit} out of{" "}
+          {total} results
         </p>
       ) : (
         <p className="text-primary opacity-80 text-sm">No results</p>
