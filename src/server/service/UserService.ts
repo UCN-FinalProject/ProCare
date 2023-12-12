@@ -46,12 +46,30 @@ export default {
     const res = await ctx.db.query.users.findMany({
       limit: input.limit,
       offset: input.offset,
+      where: (user, { eq, like }) => {
+        let where = undefined;
+        if (input.role !== undefined) where = eq(user.role, input.role);
+        if (input.name !== undefined)
+          where = like(user.name, `%${input.name}%`);
+        if (input.email !== undefined)
+          where = like(user.email, `%${input.email}%`);
+        return where;
+      },
       orderBy: (users, { asc }) => asc(users.role),
     });
     const total = await ctx.db.query.users.findMany({
+      columns: { id: true },
       limit: input.limit,
       offset: input.offset,
-      columns: { id: true },
+      where: (user, { eq, like }) => {
+        let where = undefined;
+        if (input.role !== undefined) where = eq(user.role, input.role);
+        if (input.name !== undefined)
+          where = like(user.name, `%${input.name}%`);
+        if (input.email !== undefined)
+          where = like(user.email, `%${input.email}%`);
+        return where;
+      },
     });
 
     if (res)
