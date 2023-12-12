@@ -14,7 +14,6 @@ import { api } from "~/trpc/server";
 import Filters from "./Filters";
 import Pagination from "~/components/Pagination";
 import type { Session } from "next-auth";
-import { parseStatus } from "~/lib/parseStatus";
 
 export default async function TableDoctors({
   name,
@@ -36,6 +35,17 @@ export default async function TableDoctors({
     doctorID: doctorid,
     isActive: session.user.role === "admin" ? parseStatus(status) : true,
   });
+
+  function parseStatus(status: string | undefined) {
+    switch (status) {
+      case "active":
+        return true;
+      case "inactive":
+        return false;
+      default:
+        return undefined;
+    }
+  }
 
   return (
     <div className="space-y-4">

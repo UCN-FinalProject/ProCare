@@ -11,7 +11,6 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { useSession } from "next-auth/react";
-import { statusArr, type Status } from "~/lib/parseStatus";
 
 export default function Filters({
   isLoading,
@@ -24,6 +23,9 @@ export default function Filters({
   const pathname = usePathname();
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { replace } = useRouter();
+
+  type Status = "active" | "inactive" | "all";
+  const statusArr = ["active", "inactive", "all"] as const;
 
   const onSubmit = useDebouncedCallback(
     ({

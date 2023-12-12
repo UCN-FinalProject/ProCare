@@ -13,7 +13,6 @@ import {
   addDoctorInput,
   removeDoctorInput,
 } from "~/server/service/validation/HealthCareProviderValidation";
-import { parseErrorMessage } from "~/lib/parseError";
 
 export const healthcareProviderRouter = createTRPCRouter({
   getByID: protectedProcedure
@@ -22,13 +21,17 @@ export const healthcareProviderRouter = createTRPCRouter({
       try {
         return await ExternalHealthcareService.getByID({ id: input.id, ctx });
       } catch (error) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: parseErrorMessage({
-            defaultMessage: "Not Found.",
-            error,
-          }),
-        });
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            message: error instanceof Error ? error.message : "Not Found",
+            code: "NOT_FOUND",
+          });
+        }
       }
     }),
 
@@ -38,13 +41,17 @@ export const healthcareProviderRouter = createTRPCRouter({
       try {
         return await ExternalHealthcareService.getMany({ input, ctx });
       } catch (error) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: parseErrorMessage({
-            defaultMessage: "Not Found.",
-            error,
-          }),
-        });
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            message: error instanceof Error ? error.message : "Not Found",
+            code: "NOT_FOUND",
+          });
+        }
       }
     }),
 
@@ -54,13 +61,17 @@ export const healthcareProviderRouter = createTRPCRouter({
       try {
         return await ExternalHealthcareService.create({ input, ctx });
       } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: parseErrorMessage({
-            defaultMessage: "Could not create healthcare provider.",
-            error,
-          }),
-        });
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            message: error instanceof Error ? error.message : "Not Found",
+            code: "NOT_FOUND",
+          });
+        }
       }
     }),
 
@@ -70,13 +81,17 @@ export const healthcareProviderRouter = createTRPCRouter({
       try {
         return await ExternalHealthcareService.update({ input, ctx });
       } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: parseErrorMessage({
-            defaultMessage: "Could not update healthcare provider.",
-            error,
-          }),
-        });
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            message: error instanceof Error ? error.message : "Not Found",
+            code: "NOT_FOUND",
+          });
+        }
       }
     }),
 
@@ -92,13 +107,17 @@ export const healthcareProviderRouter = createTRPCRouter({
           ctx,
         });
       } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: parseErrorMessage({
-            defaultMessage: "Could not activate healthcare provider.",
-            error,
-          }),
-        });
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            message: error instanceof Error ? error.message : "Not Found",
+            code: "NOT_FOUND",
+          });
+        }
       }
     }),
 
@@ -114,13 +133,17 @@ export const healthcareProviderRouter = createTRPCRouter({
           ctx,
         });
       } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: parseErrorMessage({
-            defaultMessage: "Could not deactivate healthcare provider.",
-            error,
-          }),
-        });
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            message: error instanceof Error ? error.message : "Not Found",
+            code: "NOT_FOUND",
+          });
+        }
       }
     }),
 
@@ -133,13 +156,17 @@ export const healthcareProviderRouter = createTRPCRouter({
           ctx,
         });
       } catch (error) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: parseErrorMessage({
-            defaultMessage: "Not Found.",
-            error,
-          }),
-        });
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            message: error instanceof Error ? error.message : "Not Found",
+            code: "NOT_FOUND",
+          });
+        }
       }
     }),
 
@@ -149,13 +176,17 @@ export const healthcareProviderRouter = createTRPCRouter({
       try {
         return await ExternalHealthcareService.addDoctor({ input, ctx });
       } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: parseErrorMessage({
-            defaultMessage: "Could not add doctor.",
-            error,
-          }),
-        });
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            message: error instanceof Error ? error.message : "Not Found",
+            code: "NOT_FOUND",
+          });
+        }
       }
     }),
 
@@ -165,13 +196,17 @@ export const healthcareProviderRouter = createTRPCRouter({
       try {
         return await ExternalHealthcareService.removeDoctor({ input, ctx });
       } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: parseErrorMessage({
-            defaultMessage: "Could not remove doctor.",
-            error,
-          }),
-        });
+        if (error instanceof TRPCError) {
+          throw new TRPCError({
+            code: error.code,
+            message: error.message,
+          });
+        } else {
+          throw new TRPCError({
+            message: error instanceof Error ? error.message : "Not Found",
+            code: "NOT_FOUND",
+          });
+        }
       }
     }),
 });
