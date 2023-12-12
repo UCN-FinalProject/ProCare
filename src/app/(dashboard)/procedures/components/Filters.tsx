@@ -26,7 +26,7 @@ export default function Filters({
     <Input
       disabled={isLoading}
       placeholder="Name"
-      className="max-w-[200px] h-1/3"
+      className="w-[200px] h-1/3"
       onChange={(e) => onSubmit(e.target.value.trim())}
       defaultValue={searchParams.get("name")?.toString()}
     />
