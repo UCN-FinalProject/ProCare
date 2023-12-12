@@ -4,6 +4,8 @@ export const getHealthInsurancesInput = z.object({
   limit: z.number(),
   offset: z.number(),
   isActive: z.boolean().optional(),
+  name: z.string().optional(),
+  registeredID: z.number().optional(),
 });
 export type GetHealthInsurancesInput = z.infer<typeof getHealthInsurancesInput>;
 

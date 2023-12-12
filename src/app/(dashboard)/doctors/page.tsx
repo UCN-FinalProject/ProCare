@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import { getServerAuthSession } from "~/server/auth";
 import Table from "./table";
 import TableLoader from "./TableLoader";
+import { statusArr, type Status } from "~/lib/parseStatus";
 
 export default async function Page({
   searchParams,
@@ -17,9 +18,6 @@ export default async function Page({
     page?: string;
   };
 }>) {
-  const statusArr = ["active", "inactive", "all"] as const;
-  type Status = (typeof statusArr)[number];
-
   const session = await getServerAuthSession();
   const name = searchParams?.name ?? undefined;
   const doctorid = searchParams?.doctorid ?? undefined;
