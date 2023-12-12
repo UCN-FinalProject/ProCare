@@ -28,11 +28,11 @@ export default function Filters({
   const onSubmit = useDebouncedCallback(
     ({
       name,
-      doctorID,
+      providerID,
       status,
     }: {
       name?: string;
-      doctorID?: string;
+      providerID?: string;
       status?: string;
     }) => {
       const params = new URLSearchParams(searchParams);
@@ -46,8 +46,8 @@ export default function Filters({
       if (name) params.set("name", name);
       else params.delete("name");
 
-      if (doctorID) params.set("doctorid", doctorID);
-      else params.delete("doctorid");
+      if (providerID) params.set("providerid", providerID);
+      else params.delete("providerid");
 
       replace(`${pathname}?${params.toString()}`);
     },
@@ -61,9 +61,9 @@ export default function Filters({
         placeholder="Name"
         className="w-[200px] h-1/3"
         onChange={(e) => {
-          const doctorID = searchParams.get("doctorid")?.toString();
+          const providerID = searchParams.get("providerid")?.toString();
           const status = searchParams.get("status")?.toString();
-          onSubmit({ name: e.target.value.trim(), doctorID, status });
+          onSubmit({ name: e.target.value.trim(), providerID, status });
         }}
         defaultValue={searchParams.get("name")?.toString()}
       />
@@ -74,17 +74,17 @@ export default function Filters({
         onChange={(e) => {
           const name = searchParams.get("name")?.toString();
           const status = searchParams.get("status")?.toString();
-          onSubmit({ name, doctorID: e.target.value.trim(), status });
+          onSubmit({ name, providerID: e.target.value.trim(), status });
         }}
-        defaultValue={searchParams.get("doctorid")?.toString()}
+        defaultValue={searchParams.get("providerid")?.toString()}
       />
       {isAdmin === "admin" && (
         <Select
           disabled={isLoading}
           onValueChange={(value) => {
             const name = searchParams.get("name")?.toString();
-            const doctorID = searchParams.get("doctorid")?.toString();
-            onSubmit({ name, doctorID, status: value });
+            const providerID = searchParams.get("providerid")?.toString();
+            onSubmit({ name, providerID, status: value });
           }}
           defaultValue={
             searchParams.get("status")?.toString() ?? isAdmin === "admin"
