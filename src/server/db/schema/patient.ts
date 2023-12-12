@@ -65,7 +65,7 @@ export const patientRelations = relations(patient, ({ many, one }) => ({
   }),
 }));
 export type Patient = typeof patient.$inferInsert & {
-  conditions: PatientConditions;
+  conditions: PatientConditions[];
   address: typeof patientAddress.$inferInsert;
   healthcareInfo: typeof patientHealthcareInfo.$inferInsert;
 };

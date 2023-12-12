@@ -27,6 +27,7 @@ export default {
         healthcareInfo: true,
       },
     });
+
     if (res) return res;
     throw new TRPCError({
       code: "NOT_FOUND",
