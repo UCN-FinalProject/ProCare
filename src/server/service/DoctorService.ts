@@ -33,18 +33,33 @@ export default {
     const res = await ctx.db.query.doctor.findMany({
       limit: input.limit,
       offset: input.offset,
-      where: (doctor, { eq }) =>
-        input.isActive !== undefined
-          ? eq(doctor.isActive, input.isActive)
-          : undefined,
+      where(doctor, { eq, like }) {
+        let where = undefined;
+        if (input.isActive !== undefined)
+          where = eq(doctor.isActive, input.isActive);
+        if (input.name !== undefined)
+          where = like(doctor.fullName, `%${input.name}%`);
+        if (input.doctorID !== undefined)
+          where = like(doctor.doctorID, `%${input.doctorID}%`);
+        return where;
+      },
       orderBy: [asc(doctor.id)],
     });
     const total = await ctx.db.query.doctor.findMany({
       columns: { id: true },
-      where: (doctor, { eq }) =>
-        input.isActive !== undefined
-          ? eq(doctor.isActive, input.isActive)
-          : undefined,
+      limit: input.limit,
+      offset: input.offset,
+      where(doctor, { eq, like }) {
+        let where = undefined;
+        if (input.isActive !== undefined)
+          where = eq(doctor.isActive, input.isActive);
+        if (input.name !== undefined)
+          where = like(doctor.fullName, `%${input.name}%`);
+        if (input.doctorID !== undefined)
+          where = like(doctor.doctorID, `%${input.doctorID}%`);
+        return where;
+      },
+      orderBy: [asc(doctor.id)],
     });
 
     if (res)
