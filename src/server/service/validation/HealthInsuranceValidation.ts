@@ -1,5 +1,20 @@
 import { z } from "zod";
 
+const addressValidation = z.object({
+  address1: z.string(),
+  address2: z.string().optional().nullable(),
+  city: z.string(),
+  zip: z.string(),
+  phoneNumber: z.string().optional().nullable(),
+  email: z.string().nullable().optional(),
+});
+
+const vatValidation = z.object({
+  VAT1: z.string(),
+  VAT2: z.string(),
+  VAT3: z.string().optional().nullable(),
+});
+
 export const getHealthInsurancesInput = z.object({
   limit: z.number(),
   offset: z.number(),
@@ -16,17 +31,10 @@ export const createHealthInsuranceInput = z.object({
   name: z.string(),
   pricePerCredit: z.string(),
   address: z.object({
-    address1: z.string(),
-    address2: z.string().optional().nullable(),
-    city: z.string(),
-    zip: z.string(),
-    phoneNumber: z.string().optional().nullable(),
-    email: z.string().nullable().optional(),
+    ...addressValidation.shape,
   }),
   vat: z.object({
-    VAT1: z.string(),
-    VAT2: z.string(),
-    VAT3: z.string().optional().nullable(),
+    ...vatValidation.shape,
   }),
 });
 export type HealthInsuranceInput = z.infer<typeof createHealthInsuranceInput>;
@@ -37,18 +45,9 @@ export const updateHealthInsuranceInput = z.object({
   registeredID: z.number(),
   name: z.string(),
   pricePerCredit: z.number(),
-  address: z.object({
-    address1: z.string(),
-    address2: z.string().optional().nullable(),
-    city: z.string(),
-    zip: z.string(),
-    phoneNumber: z.string().optional().nullable(),
-    email: z.string().nullable().optional(),
-  }),
+  address: z.object({ ...addressValidation.shape }),
   vat: z.object({
-    VAT1: z.string(),
-    VAT2: z.string(),
-    VAT3: z.string().optional().nullable(),
+    ...vatValidation.shape,
   }),
 });
 export type UpdateHealthInsuranceInput = z.infer<
