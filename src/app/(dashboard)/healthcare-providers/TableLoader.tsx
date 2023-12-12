@@ -1,5 +1,4 @@
 import React from "react";
-import PageHeader from "~/components/Headers/PageHeader";
 import { Skeleton } from "~/components/ui/skeleton";
 import {
   Table,
@@ -9,16 +8,13 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import Filters from "./Filters";
 
-export default function Loading() {
+export default function TableLoader() {
   return (
-    <div className="flex flex-col gap-4 overflow-hidden">
-      <div className="flex justify-between">
-        <PageHeader>Healthcare providers</PageHeader>
-        <Skeleton className="w-28 h-8" />
-      </div>
+    <div className="space-y-4">
       <div className="rounded-md border">
-        <Table>
+        <Table filters={<Filters isLoading />}>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-[100px]">ID</TableHead>
