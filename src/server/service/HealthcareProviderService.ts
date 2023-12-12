@@ -12,7 +12,7 @@ import {
   healthcareProviderDoctors,
 } from "../db/export";
 import { type TRPCContext } from "../api/trpc";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, like } from "drizzle-orm";
 import type { ReturnMany } from "./validation/util";
 
 export default {
@@ -38,19 +38,7 @@ export default {
     const res = await ctx.db.query.externalHealthcareProvider.findMany({
       limit: input.limit,
       offset: input.offset,
-      where: (healthCareProvider, { eq, like }) => {
-        let where = undefined;
-        if (input.isActive !== undefined)
-          where = eq(healthCareProvider.isActive, input.isActive);
-        if (input.name !== undefined)
-          where = like(healthCareProvider.name, `%${input.name}%`);
-        if (input.providerId !== undefined)
-          where = like(
-            healthCareProvider.healthcareProviderCode,
-            `%${input.providerId}%`,
-          );
-        return where;
-      },
+      where: findManyWhere(input),
       orderBy: (healthcareProviderDoctors, { asc }) =>
         asc(healthcareProviderDoctors.id),
     });
@@ -58,19 +46,7 @@ export default {
       columns: { id: true },
       limit: input.limit,
       offset: input.offset,
-      where: (healthCareProvider, { eq, like }) => {
-        let where = undefined;
-        if (input.isActive !== undefined)
-          where = eq(healthCareProvider.isActive, input.isActive);
-        if (input.name !== undefined)
-          where = like(healthCareProvider.name, `%${input.name}%`);
-        if (input.providerId !== undefined)
-          where = like(
-            healthCareProvider.healthcareProviderCode,
-            `%${input.providerId}%`,
-          );
-        return where;
-      },
+      where: findManyWhere(input),
       orderBy: (healthcareProviderDoctors, { asc }) =>
         asc(healthcareProviderDoctors.id),
     });
@@ -290,3 +266,17 @@ export default {
     if (transaction) return transaction;
   },
 } as const;
+
+const findManyWhere = (input: GetManyHealthCareProvidersInput) => {
+  let where = undefined;
+  if (input.isActive !== undefined)
+    where = eq(externalHealthcareProvider.isActive, input.isActive);
+  if (input.name !== undefined)
+    where = like(externalHealthcareProvider.name, `%${input.name}%`);
+  if (input.providerId !== undefined)
+    where = like(
+      externalHealthcareProvider.healthcareProviderCode,
+      `%${input.providerId}%`,
+    );
+  return where;
+};
