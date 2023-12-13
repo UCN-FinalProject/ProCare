@@ -12,7 +12,8 @@ import {
   healthcareProviderDoctors,
 } from "../db/export";
 import { type TRPCContext } from "../api/trpc";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, like } from "drizzle-orm";
+import type { ReturnMany } from "./validation/util";
 
 export default {
   async getByID({ id, ctx }: { id: number; ctx: TRPCContext }) {
@@ -37,17 +38,17 @@ export default {
     const res = await ctx.db.query.externalHealthcareProvider.findMany({
       limit: input.limit,
       offset: input.offset,
-      where: (healthCareProvider, { eq }) =>
-        input.isActive !== undefined
-          ? eq(healthCareProvider.isActive, input.isActive)
-          : undefined,
+      where: findManyWhere(input),
+      orderBy: (healthcareProviderDoctors, { asc }) =>
+        asc(healthcareProviderDoctors.id),
     });
     const total = await ctx.db.query.externalHealthcareProvider.findMany({
       columns: { id: true },
-      where: (healthCareProvider, { eq }) =>
-        input.isActive !== undefined
-          ? eq(healthCareProvider.isActive, input.isActive)
-          : undefined,
+      limit: input.limit,
+      offset: input.offset,
+      where: findManyWhere(input),
+      orderBy: (healthcareProviderDoctors, { asc }) =>
+        asc(healthcareProviderDoctors.id),
     });
     if (!res)
       throw new TRPCError({
@@ -59,7 +60,7 @@ export default {
       offset: input.offset,
       limit: input.limit,
       total: total.length,
-    };
+    } satisfies ReturnMany<typeof res>;
   },
 
   async create({
@@ -265,3 +266,17 @@ export default {
     if (transaction) return transaction;
   },
 } as const;
+
+const findManyWhere = (input: GetManyHealthCareProvidersInput) => {
+  let where = undefined;
+  if (input.isActive !== undefined)
+    where = eq(externalHealthcareProvider.isActive, input.isActive);
+  if (input.name !== undefined)
+    where = like(externalHealthcareProvider.name, `%${input.name}%`);
+  if (input.providerId !== undefined)
+    where = like(
+      externalHealthcareProvider.healthcareProviderCode,
+      `%${input.providerId}%`,
+    );
+  return where;
+};

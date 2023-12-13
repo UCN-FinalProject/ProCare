@@ -1,15 +1,32 @@
-import React from "react";
+import React, { Suspense } from "react";
 import PageHeader from "~/components/Headers/PageHeader";
 import Table from "./table";
-import { api } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { getServerAuthSession } from "~/server/auth";
+import TableLoader from "./TableLoader";
+import { roleArr, type Role } from "~/lib/parseUserRole";
 
-export default async function page() {
+export default async function Page({
+  searchParams,
+}: Readonly<{
+  searchParams?: {
+    name?: string;
+    email?: string;
+    role?: string;
+    page?: string;
+  };
+}>) {
   const session = await getServerAuthSession();
-  const users = await api.user.getMany.query();
+
+  const name = searchParams?.name ?? undefined;
+  const email = searchParams?.email ?? undefined;
+  const page = Number(searchParams?.page) > 0 ? Number(searchParams?.page) : 1;
+  const role =
+    searchParams?.role && roleArr.includes(searchParams?.role as Role)
+      ? searchParams?.role
+      : undefined;
 
   return (
     <div className="flex flex-col gap-4 overflow-hidden">
@@ -24,7 +41,9 @@ export default async function page() {
           </Button>
         )}
       </div>
-      <Table data={users} />
+      <Suspense fallback={<TableLoader />}>
+        <Table page={page} name={name} email={email} role={role as Role} />
+      </Suspense>
     </div>
   );
 }

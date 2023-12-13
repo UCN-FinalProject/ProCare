@@ -7,9 +7,10 @@ import {
   type AddDoctorInput,
   type RemoveDoctorInput,
 } from "./validation/DoctorValidation";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, like } from "drizzle-orm";
 import { doctor, healthcareProviderDoctors } from "../db/export";
 import { type TRPCContext } from "../api/trpc";
+import type { ReturnMany } from "./validation/util";
 
 export default {
   async getByID({ id, ctx }: { id: number; ctx: TRPCContext }) {
@@ -33,18 +34,15 @@ export default {
     const res = await ctx.db.query.doctor.findMany({
       limit: input.limit,
       offset: input.offset,
-      where: (doctor, { eq }) =>
-        input.isActive !== undefined
-          ? eq(doctor.isActive, input.isActive)
-          : undefined,
+      where: findManyWhere(input),
       orderBy: [asc(doctor.id)],
     });
     const total = await ctx.db.query.doctor.findMany({
       columns: { id: true },
-      where: (doctor, { eq }) =>
-        input.isActive !== undefined
-          ? eq(doctor.isActive, input.isActive)
-          : undefined,
+      limit: input.limit,
+      offset: input.offset,
+      where: findManyWhere(input),
+      orderBy: [asc(doctor.id)],
     });
 
     if (res)
@@ -53,7 +51,7 @@ export default {
         offset: input.offset,
         limit: input.limit,
         total: total.length,
-      };
+      } satisfies ReturnMany<typeof res>;
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "Doctors not found",
@@ -248,3 +246,13 @@ export default {
     });
   },
 } as const;
+
+const findManyWhere = (input: GetManyDoctorsInput) => {
+  let where = undefined;
+  if (input.isActive !== undefined) where = eq(doctor.isActive, input.isActive);
+  if (input.name !== undefined)
+    where = like(doctor.fullName, `%${input.name}%`);
+  if (input.doctorID !== undefined)
+    where = like(doctor.doctorID, `%${input.doctorID}%`);
+  return where;
+};

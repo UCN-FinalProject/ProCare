@@ -3,6 +3,7 @@ import z from "zod";
 export const getManyProceduresInput = z.object({
   limit: z.number(),
   offset: z.number(),
+  name: z.string().optional(),
 });
 export type GetManyProceduresInput = z.infer<typeof getManyProceduresInput>;
 

@@ -6,7 +6,8 @@ import {
 } from "./validation/HealthConditionValidation";
 import { type TRPCContext } from "../api/trpc";
 import { healthCondition } from "../db/export";
-import { asc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+import type { ReturnMany } from "./validation/util";
 
 export default {
   async getByID({ id, ctx }: { id: number; ctx: TRPCContext }) {
@@ -30,11 +31,18 @@ export default {
     const res = await ctx.db.query.healthCondition.findMany({
       limit: input.limit,
       offset: input.offset,
-      orderBy: [asc(healthCondition.id)],
+      where: (healthCondition, { like }) =>
+        input.name ? like(healthCondition.name, `%${input.name}%`) : undefined,
+      orderBy: (healthCondition, { asc }) => asc(healthCondition.id),
     });
-    const total = await ctx.db
-      .select({ id: healthCondition.id })
-      .from(healthCondition);
+    const total = await ctx.db.query.healthCondition.findMany({
+      limit: input.limit,
+      offset: input.offset,
+      where: (healthCondition, { like }) =>
+        input.name ? like(healthCondition.name, `%${input.name}%`) : undefined,
+      orderBy: (healthCondition, { asc }) => asc(healthCondition.id),
+      columns: { id: true },
+    });
 
     if (res)
       return {
@@ -42,7 +50,7 @@ export default {
         offset: input.offset,
         limit: input.limit,
         total: total.length,
-      };
+      } satisfies ReturnMany<typeof res>;
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "Health conditions not found",

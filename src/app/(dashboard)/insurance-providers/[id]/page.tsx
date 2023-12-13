@@ -11,7 +11,7 @@ import { getServerAuthSession } from "~/server/auth";
 export default async function page({ params }: { params: { id: string } }) {
   const session = await getServerAuthSession();
   const id = Number(params.id);
-  const healthInsuranceProvider = await api.healthInsurance.getByByID
+  const healthInsuranceProvider = await api.healthInsurance.getByID
     .query({ id })
     .catch(() => notFound());
   return (

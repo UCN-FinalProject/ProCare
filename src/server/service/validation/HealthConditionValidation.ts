@@ -4,6 +4,7 @@ import { z } from "zod";
 export const getManyHealthConditionsInput = z.object({
   limit: z.number(),
   offset: z.number(),
+  name: z.string().optional(),
 });
 export type GetManyHealthConditionsInput = z.infer<
   typeof getManyHealthConditionsInput
