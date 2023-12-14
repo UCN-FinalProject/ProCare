@@ -6,6 +6,8 @@ export default defineConfig({
   test: {
     coverage: {
       provider: "v8",
+      include: ["src/server/service*"],
+      exclude: ["src/server/service/validation*"],
     },
   },
   resolve: {
