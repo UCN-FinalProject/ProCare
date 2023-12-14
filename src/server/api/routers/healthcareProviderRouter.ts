@@ -1,6 +1,10 @@
 import { z } from "zod";
 import ExternalHealthcareService from "~/server/service/HealthcareProviderService";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  protectedProcedure,
+} from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import {
   createHealthCareProviderInput,
@@ -9,6 +13,7 @@ import {
   addDoctorInput,
   removeDoctorInput,
 } from "~/server/service/validation/HealthCareProviderValidation";
+import { parseErrorMessage } from "~/lib/parseError";
 
 export const healthcareProviderRouter = createTRPCRouter({
   getByID: protectedProcedure
@@ -17,17 +22,13 @@ export const healthcareProviderRouter = createTRPCRouter({
       try {
         return await ExternalHealthcareService.getByID({ id: input.id, ctx });
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw new TRPCError({
-            code: error.code,
-            message: error.message,
-          });
-        } else {
-          throw new TRPCError({
-            message: error instanceof Error ? error.message : "Not Found",
-            code: "NOT_FOUND",
-          });
-        }
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            defaultMessage: "Not Found.",
+            error,
+          }),
+        });
       }
     }),
 
@@ -37,61 +38,49 @@ export const healthcareProviderRouter = createTRPCRouter({
       try {
         return await ExternalHealthcareService.getMany({ input, ctx });
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw new TRPCError({
-            code: error.code,
-            message: error.message,
-          });
-        } else {
-          throw new TRPCError({
-            message: error instanceof Error ? error.message : "Not Found",
-            code: "NOT_FOUND",
-          });
-        }
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            defaultMessage: "Not Found.",
+            error,
+          }),
+        });
       }
     }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(createHealthCareProviderInput)
     .mutation(async ({ input, ctx }) => {
       try {
         return await ExternalHealthcareService.create({ input, ctx });
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw new TRPCError({
-            code: error.code,
-            message: error.message,
-          });
-        } else {
-          throw new TRPCError({
-            message: error instanceof Error ? error.message : "Not Found",
-            code: "NOT_FOUND",
-          });
-        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            defaultMessage: "Could not create healthcare provider.",
+            error,
+          }),
+        });
       }
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(updateHealthCareProviderInput)
     .mutation(async ({ input, ctx }) => {
       try {
         return await ExternalHealthcareService.update({ input, ctx });
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw new TRPCError({
-            code: error.code,
-            message: error.message,
-          });
-        } else {
-          throw new TRPCError({
-            message: error instanceof Error ? error.message : "Not Found",
-            code: "NOT_FOUND",
-          });
-        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            defaultMessage: "Could not update healthcare provider.",
+            error,
+          }),
+        });
       }
     }),
 
-  setActive: protectedProcedure
+  setActive: adminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       try {
@@ -103,21 +92,17 @@ export const healthcareProviderRouter = createTRPCRouter({
           ctx,
         });
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw new TRPCError({
-            code: error.code,
-            message: error.message,
-          });
-        } else {
-          throw new TRPCError({
-            message: error instanceof Error ? error.message : "Not Found",
-            code: "NOT_FOUND",
-          });
-        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            defaultMessage: "Could not activate healthcare provider.",
+            error,
+          }),
+        });
       }
     }),
 
-  setInactive: protectedProcedure
+  setInactive: adminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       try {
@@ -129,17 +114,13 @@ export const healthcareProviderRouter = createTRPCRouter({
           ctx,
         });
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw new TRPCError({
-            code: error.code,
-            message: error.message,
-          });
-        } else {
-          throw new TRPCError({
-            message: error instanceof Error ? error.message : "Not Found",
-            code: "NOT_FOUND",
-          });
-        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            defaultMessage: "Could not deactivate healthcare provider.",
+            error,
+          }),
+        });
       }
     }),
 
@@ -152,57 +133,45 @@ export const healthcareProviderRouter = createTRPCRouter({
           ctx,
         });
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw new TRPCError({
-            code: error.code,
-            message: error.message,
-          });
-        } else {
-          throw new TRPCError({
-            message: error instanceof Error ? error.message : "Not Found",
-            code: "NOT_FOUND",
-          });
-        }
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            defaultMessage: "Not Found.",
+            error,
+          }),
+        });
       }
     }),
 
-  addDoctor: protectedProcedure
+  addDoctor: adminProcedure
     .input(addDoctorInput)
     .mutation(async ({ input, ctx }) => {
       try {
         return await ExternalHealthcareService.addDoctor({ input, ctx });
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw new TRPCError({
-            code: error.code,
-            message: error.message,
-          });
-        } else {
-          throw new TRPCError({
-            message: error instanceof Error ? error.message : "Not Found",
-            code: "NOT_FOUND",
-          });
-        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            defaultMessage: "Could not add doctor.",
+            error,
+          }),
+        });
       }
     }),
 
-  removeDoctor: protectedProcedure
+  removeDoctor: adminProcedure
     .input(removeDoctorInput)
     .mutation(async ({ input, ctx }) => {
       try {
         return await ExternalHealthcareService.removeDoctor({ input, ctx });
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw new TRPCError({
-            code: error.code,
-            message: error.message,
-          });
-        } else {
-          throw new TRPCError({
-            message: error instanceof Error ? error.message : "Not Found",
-            code: "NOT_FOUND",
-          });
-        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            defaultMessage: "Could not remove doctor.",
+            error,
+          }),
+        });
       }
     }),
 });

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { parseErrorMessage } from "~/lib/parseError";
 import {
@@ -7,7 +7,7 @@ import {
   createProcedureInput,
   createProcedurePricingInput,
   updateProcedureInput,
-  updateProcedurePricingInput,
+  createProcedurePricingWithoutProcedureID,
 } from "~/server/service/validation/ProcedureValidation";
 import ProcedureService from "~/server/service/ProcedureService";
 
@@ -44,14 +44,14 @@ export const procedureRouter = createTRPCRouter({
       }
     }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(
       z.object({
         data: createProcedureInput,
-        pricingInput: z.array(createProcedurePricingInput).optional(),
+        pricingInput: z.array(createProcedurePricingWithoutProcedureID),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         return await ProcedureService.create({
           input: input.data,
@@ -69,18 +69,35 @@ export const procedureRouter = createTRPCRouter({
       }
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(
       z.object({
         data: updateProcedureInput,
-        pricingInput: z.array(updateProcedurePricingInput).optional(),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         return await ProcedureService.update({
           input: input.data,
-          pricingInput: input.pricingInput,
+          ctx,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Not found",
+          }),
+        });
+      }
+    }),
+
+  addPricing: adminProcedure
+    .input(createProcedurePricingInput)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await ProcedureService.addPricing({
+          input,
           ctx,
         });
       } catch (error) {

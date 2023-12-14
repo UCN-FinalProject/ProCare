@@ -3,6 +3,7 @@ import z from "zod";
 export const getManyProceduresInput = z.object({
   limit: z.number(),
   offset: z.number(),
+  name: z.string().optional(),
 });
 export type GetManyProceduresInput = z.infer<typeof getManyProceduresInput>;
 
@@ -17,23 +18,20 @@ export const updateProcedureInput = z.object({
 });
 export type UpdateProcedureInput = z.infer<typeof updateProcedureInput>;
 
-export const createProcedurePricingInput = z.object({
-  procedureId: z.number(),
+export const createProcedurePricingWithoutProcedureID = z.object({
   healthInsuranceId: z.number(),
   credits: z.number(),
   price: z.string(),
+});
+export type CreateProcedurePricingWithoutProcedureID = Omit<
+  CreateProcedurePricingInput,
+  "procedureId"
+>;
+
+export const createProcedurePricingInput = z.object({
+  ...createProcedurePricingWithoutProcedureID.shape,
+  procedureId: z.number(),
 });
 export type CreateProcedurePricingInput = z.infer<
   typeof createProcedurePricingInput
->;
-
-export const updateProcedurePricingInput = z.object({
-  id: z.number(),
-  procedureId: z.number(),
-  healthInsuranceId: z.number(),
-  credits: z.number(),
-  price: z.string(),
-});
-export type UpdateProcedurePricingInput = z.infer<
-  typeof updateProcedurePricingInput
 >;

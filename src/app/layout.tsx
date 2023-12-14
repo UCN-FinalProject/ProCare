@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import { getSession } from "next-auth/react";
 import ClientSessionProvider from "~/providers/SessionProvider";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata = {
   title: "ProCare",
@@ -32,6 +33,7 @@ export default function RootLayout({
             <TRPCReactProvider headers={headers()}>
               {children}
               <Analytics />
+              <SpeedInsights />
             </TRPCReactProvider>
           </ClientSessionProvider>
         </ThemeProvider>

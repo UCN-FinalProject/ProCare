@@ -4,6 +4,8 @@ export const getManyDoctorsInput = z.object({
   limit: z.number(),
   offset: z.number(),
   isActive: z.boolean().optional(),
+  name: z.string().optional(),
+  doctorID: z.string().optional(),
 });
 export type GetManyDoctorsInput = z.infer<typeof getManyDoctorsInput>;
 

@@ -4,6 +4,8 @@ export const getManyHealthCareProvidersInput = z.object({
   limit: z.number(),
   offset: z.number(),
   isActive: z.boolean().optional(),
+  name: z.string().optional(),
+  providerId: z.string().optional(),
 });
 export type GetManyHealthCareProvidersInput = z.infer<
   typeof getManyHealthCareProvidersInput
