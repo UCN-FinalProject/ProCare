@@ -4,8 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { api } from "~/trpc/react";
-
-import Button from "~/components/Button";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "~/components/ui/calendar";
+import SubmitButton from "~/components/Button";
+import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
@@ -22,12 +24,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
 import { revalidatePathClient } from "~/app/revalidate";
 import { useState } from "react";
 import Link from "next/link";
 import { Textarea } from "~/components/ui/textarea";
+import { cn } from "~/lib/utils";
+import { format } from "date-fns";
 
 const disabilities = [
   "limited_physical",
@@ -69,13 +78,13 @@ const formSchema = z.object({
     message: "Zip code is required.",
   }),
   // healthcare info
-  healthInsuranceID: z.number().min(1, {
+  healthInsuranceID: z.coerce.number().min(1, {
     message: "Patient's health insurance id is required",
   }),
-  doctorID: z.number().min(1, {
+  doctorID: z.coerce.number().min(1, {
     message: "Patient's personal doctor's id is required.",
   }),
-  healthcareProviderID: z.number().min(1, {
+  healthcareProviderID: z.coerce.number().min(1, {
     message: "ID of the health insurance provider is required.",
   }),
   conditions: z
@@ -96,11 +105,8 @@ export default function CreatePatientForm() {
       fullName: "",
       isActive: true,
       biologicalSex: "male",
-      dateOfBirth: new Date(Date.now()),
-      recommendationDate: new Date(Date.now()),
-      acceptanceDate: new Date(Date.now()),
-      startDate: new Date(Date.now()),
-      expectedEndOfTreatment: new Date(Date.now()),
+      ssn: "",
+      startDate: new Date(),
       insuredID: "",
       email: "",
       phone: "",
@@ -129,7 +135,7 @@ export default function CreatePatientForm() {
         recommendationDate: values.recommendationDate,
         acceptanceDate: values.acceptanceDate,
         startDate: values.startDate,
-        expectedEndOfTreatment: values.expectedEndOfTreatment!,
+        expectedEndOfTreatment: new Date(),
         insuredID: values.insuredID,
         email: values.email,
         phone: values.phone,
@@ -206,7 +212,7 @@ export default function CreatePatientForm() {
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select biological sec" />
+                    <SelectValue placeholder="Select biological sex" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -232,19 +238,189 @@ export default function CreatePatientForm() {
             </FormItem>
           )}
         />
-        {/* <FormField
-    control={form.control}
-    name="recommendationDate"
-    render={({field}) => (
-      <FormItem>
-        <FormLabel>Recommendation Date</FormLabel>
-        <FormControl>
-          <Input placeholder="Recommendation Date" {...field} disabled={!isAdmin} />
-        </FormControl>
+        <FormField
+          control={form.control}
+          name="dateOfBirth"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Date of Birth </FormLabel>
+              <FormControl>
+                <div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </FormControl>
 
-        <FormMessage />
-      </FormItem>
-  )}/> TODO: Not sure how to handle dates, maybe toString? */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="recommendationDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Recommendation Date</FormLabel>
+              <FormControl>
+                <div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="startDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Start Date</FormLabel>
+              <FormControl>
+                <div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="acceptanceDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Acceptance Date</FormLabel>
+              <FormControl>
+                <div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="insuredID"
@@ -401,7 +577,7 @@ export default function CreatePatientForm() {
             <FormItem>
               <FormLabel>HealthInsuranceID</FormLabel>
               <FormControl>
-                <Input placeholder="ID" {...field} />
+                <Input type="number" placeholder="ID" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -414,7 +590,7 @@ export default function CreatePatientForm() {
             <FormItem>
               <FormLabel>DoctorId</FormLabel>
               <FormControl>
-                <Input placeholder="ID" {...field} />
+                <Input type="number" placeholder="ID" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -427,20 +603,20 @@ export default function CreatePatientForm() {
             <FormItem>
               <FormLabel>healthCareProviderID</FormLabel>
               <FormControl>
-                <Input placeholder="ID" {...field} />
+                <Input type="number" placeholder="ID" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <div className="flex gap-1">
-          <Button type="submit" isLoading={createPatient.isLoading}>
+          <SubmitButton type="submit" isLoading={createPatient.isLoading}>
             Submit
-          </Button>
+          </SubmitButton>
           {createPatient.isSuccess && (
-            <Button variant="outline">
+            <SubmitButton variant="outline">
               <Link href={"/patients/" + setPatientID}>View Patient</Link>
-            </Button>
+            </SubmitButton>
           )}
         </div>
       </form>
