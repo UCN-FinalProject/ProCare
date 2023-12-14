@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { type TRPCContext } from "../api/trpc";
 import type {
   GetManyProceduresInput,
@@ -26,11 +25,7 @@ export default {
       },
     });
 
-    if (!procedure)
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Procedure not found.",
-      });
+    if (!procedure) throw new Error("Procedure not found.");
 
     // sort the procedurePricing array by created date and return only the latest one for each health insurance
     const latestProcedurePricing = procedure.procedurePricing.reduce(
@@ -118,10 +113,7 @@ export default {
         offset: input.offset,
         total: total.length,
       } satisfies ReturnMany<typeof procedures>;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Procedures not found.",
-    });
+    throw new Error("Procedures not found.");
   },
 
   async create({
@@ -149,10 +141,7 @@ export default {
         !createdProcedure[0]
       ) {
         tx.rollback();
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Procedure could not be created.",
-        });
+        throw new Error("Procedure could not be created.");
       }
 
       const createdProcedureID = createdProcedure[0].id;
@@ -172,17 +161,11 @@ export default {
             throw err;
           });
       }
-
-      return await tx.query.procedures.findFirst({
-        where: (procedure, { eq }) => eq(procedure.id, createdProcedureID),
-      });
+      return createdProcedure[0];
     });
 
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Procedure could not be created.",
-    });
+    throw new Error("Procedure could not be created.");
   },
 
   async update({
@@ -209,10 +192,7 @@ export default {
         !updatedProcedure[0]
       ) {
         tx.rollback();
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Procedure could not be updated.",
-        });
+        throw new Error("Procedure could not be updated.");
       }
 
       const updatedProcedureID = updatedProcedure[0].id;
@@ -223,10 +203,7 @@ export default {
     });
 
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Procedure could not be updated.",
-    });
+    throw new Error("Procedure could not be updated.");
   },
 
   async addPricing({
@@ -247,9 +224,6 @@ export default {
       .returning();
 
     if (createdPricing) return createdPricing;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Procedure pricing could not be created.",
-    });
+    throw new Error("Procedure pricing could not be created.");
   },
 } as const;
