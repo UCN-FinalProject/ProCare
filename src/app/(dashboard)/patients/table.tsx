@@ -1,21 +1,44 @@
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from "~/components/ui/table";
-  import { type PatientWithoutCondition } from "~/server/db/export";
-  import ID from "~/components/ID";
-  import CopyToClipboard from "~/components/util/CopyToClipboard";
-  import Link from "next/link";
-  import { Badge } from "~/components/ui/badge";
-  
-  export default function TableDoctors({ data }: { data: PatientWithoutCondition[] }) {
-    return (
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import ID from "~/components/ID";
+import CopyToClipboard from "~/components/util/CopyToClipboard";
+import Link from "next/link";
+import { Badge } from "~/components/ui/badge";
+import { api } from "~/trpc/server";
+import type { Session } from "next-auth";
+import { parseStatus } from "~/lib/parseStatus";
+import Filters from "./Filters";
+import Pagination from "~/components/Pagination";
+
+export default async function TableDoctors({
+  name,
+  status,
+  page,
+  session,
+}: Readonly<{
+  name?: string;
+  status?: string;
+  page: number;
+  session: Session;
+}>) {
+  const isAdmin = session.user.role === "admin";
+  const patients = await api.patient.getMany.query({
+    limit: 15,
+    offset: (page - 1) * 15,
+    name,
+    isActive: isAdmin ? status === parseStatus(status) : true,
+  });
+
+  return (
+    <div className="space-y-4">
       <div className="rounded-md border">
-        <Table>
+        <Table filters={<Filters />}>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-[100px]">ID</TableHead>
@@ -24,23 +47,23 @@ import {
               <TableHead>City</TableHead>
               <TableHead>ZipCode</TableHead>
               <TableHead>Main Address</TableHead>
-              <TableHead className="text-right">Status</TableHead>
+              {isAdmin && <TableHead className="text-right">Status</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length === 0 && (
+            {patients.result.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={4}
+                  colSpan={isAdmin ? 7 : 6}
                   className="text-center h-32 text-muted-foreground"
                 >
                   No patients
                 </TableCell>
               </TableRow>
             )}
-            {data.map((patient) => (
+            {patients.result.map((patient) => (
               <TableRow key={patient.id}>
-                <TableCell className="w-fit">
+                <TableCell className="max-w-[100px] overflow-hidden">
                   <CopyToClipboard text={String(patient.id)}>
                     <ID>{patient.id}</ID>
                   </CopyToClipboard>
@@ -53,37 +76,47 @@ import {
                   </Link>
                 </TableCell>
                 <TableCell className="font-medium">
-                    <CopyToClipboard text={patient.biologicalSex}>
-                      {patient.biologicalSex}
-                    </CopyToClipboard>
+                  <CopyToClipboard text={patient.biologicalSex}>
+                    {patient.biologicalSex}
+                  </CopyToClipboard>
                 </TableCell>
                 <TableCell className="font-medium">
-                    <CopyToClipboard text={patient.address?.city ?? ""}>
-                      {patient.address?.city}
-                    </CopyToClipboard>
+                  <CopyToClipboard text={patient.address?.city ?? ""}>
+                    {patient.address?.city}
+                  </CopyToClipboard>
                 </TableCell>
                 <TableCell className="font-medium">
-                    <CopyToClipboard text={patient.address?.zipCode ?? ""}>
-                      {patient.address?.zipCode}
-                    </CopyToClipboard>
+                  <CopyToClipboard text={patient.address?.zipCode ?? ""}>
+                    {patient.address?.zipCode}
+                  </CopyToClipboard>
                 </TableCell>
                 <TableCell className="font-medium">
-                    <CopyToClipboard text={patient.address?.address1 ?? ""}>
-                      {patient.address?.address1}
-                    </CopyToClipboard>
+                  <CopyToClipboard text={patient.address?.address1 ?? ""}>
+                    {patient.address?.address1}
+                  </CopyToClipboard>
                 </TableCell>
-                <TableCell align="right">
-                  <Badge
-                    variant={patient.isActive === true ? "active" : "inactive"}
-                  >
-                    {patient.isActive === true ? "Active" : "Inactive"}
-                  </Badge>
-                </TableCell>
+                {isAdmin && (
+                  <TableCell align="right">
+                    <Badge
+                      variant={
+                        patient.isActive === true ? "active" : "inactive"
+                      }
+                    >
+                      {patient.isActive === true ? "Active" : "Inactive"}
+                    </Badge>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
-    );
-  }
-  
+      <Pagination
+        limit={patients.limit}
+        offset={patients.offset}
+        total={patients.total}
+        result={patients.result.length}
+      />
+    </div>
+  );
+}

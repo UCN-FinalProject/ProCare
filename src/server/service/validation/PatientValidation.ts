@@ -11,6 +11,7 @@ export const getPatientsInput = z.object({
   limit: z.number(),
   offset: z.number(),
   isActive: z.boolean().optional(),
+  name: z.string().optional(),
 });
 export type GetPatientsInput = z.infer<typeof getPatientsInput>;
 

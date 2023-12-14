@@ -4,18 +4,30 @@ import React from "react";
 import PageHeader from "~/components/Headers/PageHeader";
 import { Button } from "~/components/ui/button";
 import { getServerAuthSession } from "~/server/auth";
-import { api } from "~/trpc/server";
 import Table from "./table";
+import { statusArr, type Status } from "~/lib/parseStatus";
 
-export default async function page() {
+export default async function Page({
+  searchParams,
+}: Readonly<{
+  searchParams?: {
+    name?: string;
+    doctorid?: string;
+    status?: string;
+    page?: string;
+  };
+}>) {
   const session = await getServerAuthSession();
-  const patients = await api.patient.getMany.query({
-    limit: 10,
-    offset: 0,
-  });
+
+  const name = searchParams?.name ?? undefined;
+  const page = Number(searchParams?.page) > 0 ? Number(searchParams?.page) : 1;
+  const status =
+    searchParams?.status && statusArr.includes(searchParams?.status as Status)
+      ? searchParams?.status
+      : undefined;
 
   return (
- <div className="flex flex-col gap-4 overflow-hidden">
+    <div className="flex flex-col gap-4 overflow-hidden">
       <div className="flex justify-between">
         <PageHeader>Patients</PageHeader>
         {session?.user.role === "admin" && (
@@ -27,8 +39,7 @@ export default async function page() {
           </Button>
         )}
       </div>
-      {/* {JSON.stringify(patients.result)} */}
-      <Table data={patients.result} />
+      <Table page={page} name={name} status={status} session={session!} />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import {
   patientConditions,
   patientHealthcareInfo,
 } from "../db/export";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, like } from "drizzle-orm";
 import type {
   SetStatusPatientInput,
   CreatePatientInput,
@@ -44,18 +44,12 @@ export default {
         address: true,
         healthcareInfo: true,
       },
-      where: (patient, { eq }) =>
-        input.isActive !== undefined
-          ? eq(patient.isActive, input.isActive)
-          : undefined,
+      where: findManyWhere(input),
       orderBy: [asc(patient.id)],
     });
     const total = await ctx.db.query.patient.findMany({
       columns: { id: true },
-      where: (patient, { eq }) =>
-        input.isActive !== undefined
-          ? eq(patient.isActive, input.isActive)
-          : undefined,
+      where: findManyWhere(input),
     });
     if (res)
       return {
@@ -317,3 +311,12 @@ export default {
     });
   },
 } as const;
+
+const findManyWhere = (input: GetPatientsInput) => {
+  let where = undefined;
+  if (input.isActive !== undefined)
+    where = eq(patient.isActive, input.isActive);
+  if (input.name !== undefined)
+    where = like(patient.fullName, `%${input.name}%`);
+  return where;
+};
