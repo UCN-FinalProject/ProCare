@@ -37,6 +37,11 @@ import Link from "next/link";
 import { Textarea } from "~/components/ui/textarea";
 import { cn } from "~/lib/utils";
 import { format } from "date-fns";
+import type {
+  Doctor,
+  HealthInsuranceList,
+  HealthcareProvider,
+} from "~/server/db/export";
 
 const disabilities = [
   "limited_physical",
@@ -49,7 +54,6 @@ const formSchema = z.object({
   fullName: z.string().min(1, {
     message: "Full name cannot be empty.",
   }),
-  isActive: z.boolean(),
   biologicalSex: z.enum(["male", "female"]),
   dateOfBirth: z.date(),
   ssn: z.string(),
@@ -87,26 +91,24 @@ const formSchema = z.object({
   healthcareProviderID: z.coerce.number().min(1, {
     message: "ID of the health insurance provider is required.",
   }),
-  conditions: z
-    .array(
-      z.object({
-        conditionID: z.number(),
-      }),
-    )
-    .optional(),
 });
 
-export default function CreatePatientForm() {
+export default function CreatePatientForm({
+  doctors,
+  healthcareProviders,
+  healthInsurances,
+}: {
+  doctors: Doctor[];
+  healthcareProviders: HealthcareProvider[];
+  healthInsurances: HealthInsuranceList[];
+}) {
   const [setPatientID] = useState<number | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: "",
-      isActive: true,
-      biologicalSex: "male",
       ssn: "",
-      startDate: new Date(),
       insuredID: "",
       email: "",
       phone: "",
@@ -128,7 +130,7 @@ export default function CreatePatientForm() {
     await createPatient.mutateAsync(
       {
         fullName: values.fullName,
-        isActive: values.isActive,
+        isActive: true,
         biologicalSex: values.biologicalSex,
         dateOfBirth: values.dateOfBirth,
         ssn: values.ssn,
@@ -149,7 +151,6 @@ export default function CreatePatientForm() {
         healthInsuranceID: values.healthInsuranceID,
         doctorID: values.doctorID,
         healthcareProviderID: values.healthcareProviderID,
-        conditions: values.conditions,
       },
       {
         //eslint-disable-next-line
@@ -170,7 +171,7 @@ export default function CreatePatientForm() {
           name="fullName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel>Full name</FormLabel>
               <FormControl>
                 <Input placeholder="Patient's full name" {...field} />
               </FormControl>
@@ -181,35 +182,11 @@ export default function CreatePatientForm() {
         />
         <FormField
           control={form.control}
-          name="isActive"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Currently Active?</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value.toString()}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select field" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="true">True</SelectItem>
-                  <SelectItem value="false">False</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
           name="biologicalSex"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Bilogical Sex</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select biological sex" />
@@ -265,15 +242,20 @@ export default function CreatePatientForm() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
+                    {/* @ts-expect-error some prop error? */}
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
-                        mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }
                         initialFocus
+                        mode="single"
+                        captionLayout="dropdown-buttons"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        className="rounded-md border"
                       />
                     </PopoverContent>
                   </Popover>
@@ -311,15 +293,20 @@ export default function CreatePatientForm() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
+                    {/* @ts-expect-error some prop error? */}
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
-                        mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }
                         initialFocus
+                        mode="single"
+                        captionLayout="dropdown-buttons"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        className="rounded-md border"
                       />
                     </PopoverContent>
                   </Popover>
@@ -357,15 +344,20 @@ export default function CreatePatientForm() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
+                    {/* @ts-expect-error some prop error? */}
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
-                        mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }
                         initialFocus
+                        mode="single"
+                        captionLayout="dropdown-buttons"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        className="rounded-md border"
                       />
                     </PopoverContent>
                   </Popover>
@@ -403,15 +395,20 @@ export default function CreatePatientForm() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
+                    {/* @ts-expect-error some prop error? */}
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
-                        mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }
                         initialFocus
+                        mode="single"
+                        captionLayout="dropdown-buttons"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        className="rounded-md border"
                       />
                     </PopoverContent>
                   </Popover>
@@ -575,10 +572,27 @@ export default function CreatePatientForm() {
           name="healthInsuranceID"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>HealthInsuranceID</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="ID" {...field} />
-              </FormControl>
+              <FormLabel>Health insurance</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                // defaultValue={field.value.toString()}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a health insurance" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {healthInsurances.map((healthInsurance) => (
+                    <SelectItem
+                      key={healthInsurance.id}
+                      value={String(healthInsurance.id)}
+                    >
+                      {healthInsurance.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -588,10 +602,24 @@ export default function CreatePatientForm() {
           name="doctorID"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>DoctorId</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="ID" {...field} />
-              </FormControl>
+              <FormLabel>Doctor</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                // defaultValue={field.value.toString()}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a doctor" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {doctors.map((doctor) => (
+                    <SelectItem key={doctor.id} value={String(doctor.id)}>
+                      {doctor.fullName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -601,10 +629,27 @@ export default function CreatePatientForm() {
           name="healthcareProviderID"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>healthCareProviderID</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="ID" {...field} />
-              </FormControl>
+              <FormLabel>Healthcare provider</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                // defaultValue={field.value.toString()}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select healthcare Provider" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {healthcareProviders.map((healthcareProvider) => (
+                    <SelectItem
+                      key={healthcareProvider.id}
+                      value={String(healthcareProvider.id)}
+                    >
+                      {healthcareProvider.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
