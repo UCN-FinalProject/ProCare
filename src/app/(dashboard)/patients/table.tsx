@@ -32,7 +32,7 @@ export default async function TableDoctors({
     limit: 15,
     offset: (page - 1) * 15,
     name,
-    isActive: isAdmin ? status === parseStatus(status) : true,
+    isActive: isAdmin ? parseStatus(status) : true,
   });
 
   return (

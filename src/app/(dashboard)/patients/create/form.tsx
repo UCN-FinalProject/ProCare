@@ -31,7 +31,6 @@ import {
 } from "~/components/ui/popover";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { useState } from "react";
 import Link from "next/link";
 import { Textarea } from "~/components/ui/textarea";
@@ -42,6 +41,7 @@ import type {
   HealthInsuranceList,
   HealthcareProvider,
 } from "~/server/db/export";
+import { Separator } from "~/components/ui/separator";
 
 const disabilities = [
   "limited_physical",
@@ -60,7 +60,7 @@ const formSchema = z.object({
   recommendationDate: z.date(),
   acceptanceDate: z.date().optional(),
   startDate: z.date(),
-  expectedEndOfTreatment: z.date().optional(),
+  expectedEndOfTreatment: z.date(),
   endDate: z.date().optional(),
   insuredID: z.string().min(1, {
     message: "Patient's insured id is required..",
@@ -102,7 +102,7 @@ export default function CreatePatientForm({
   healthcareProviders: HealthcareProvider[];
   healthInsurances: HealthInsuranceList[];
 }) {
-  const [setPatientID] = useState<number | null>(null);
+  const [patientID, setPatientID] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -129,23 +129,23 @@ export default function CreatePatientForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await createPatient.mutateAsync(
       {
-        fullName: values.fullName,
+        fullName: values.fullName.trim(),
         isActive: true,
         biologicalSex: values.biologicalSex,
         dateOfBirth: values.dateOfBirth,
-        ssn: values.ssn,
+        ssn: values.ssn.trim(),
         recommendationDate: values.recommendationDate,
-        acceptanceDate: values.acceptanceDate,
+        acceptanceDate: values.acceptanceDate ?? undefined,
         startDate: values.startDate,
-        expectedEndOfTreatment: new Date(),
+        expectedEndOfTreatment: values.expectedEndOfTreatment,
         insuredID: values.insuredID,
-        email: values.email,
-        phone: values.phone,
+        email: values.email ?? undefined,
+        phone: values.phone ?? undefined,
         disability: values.disability,
-        alergies: values.alergies,
-        note: values.note,
+        alergies: values.alergies ?? undefined,
+        note: values.note ?? undefined,
         address1: values.address1,
-        address2: values.address2,
+        address2: values.address2 ?? undefined,
         city: values.city,
         zip: values.zip ?? undefined,
         healthInsuranceID: values.healthInsuranceID,
@@ -153,10 +153,9 @@ export default function CreatePatientForm({
         healthcareProviderID: values.healthcareProviderID,
       },
       {
-        //eslint-disable-next-line
-        onSuccess: async () => {
-          toast.success("Patient successfully created");
-          await revalidatePathClient();
+        onSuccess: (res) => {
+          setPatientID(res.id);
+          toast.success("Patient successfully created.");
         },
         onError: (err) => toast.error(err.message),
       },
@@ -182,10 +181,24 @@ export default function CreatePatientForm({
         />
         <FormField
           control={form.control}
+          name="ssn"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>SSN</FormLabel>
+              <FormControl>
+                <Input placeholder="SSN" {...field} />
+              </FormControl>
+              <FormDescription>Social security number</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="biologicalSex"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bilogical Sex</FormLabel>
+              <FormLabel>Bilogical sex</FormLabel>
               <Select onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
@@ -203,24 +216,10 @@ export default function CreatePatientForm({
         />
         <FormField
           control={form.control}
-          name="ssn"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>SSN</FormLabel>
-              <FormControl>
-                <Input placeholder="SSN" {...field} />
-              </FormControl>
-              <FormDescription>Social security number</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
           name="dateOfBirth"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Date of Birth </FormLabel>
+              <FormLabel>Date of birth </FormLabel>
               <FormControl>
                 <div>
                   <Popover>
@@ -266,6 +265,174 @@ export default function CreatePatientForm({
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="disability"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Disability</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a disabillity" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="limited_physical">
+                    Limited Physical
+                  </SelectItem>
+                  <SelectItem value="physical">Physical</SelectItem>
+                  <SelectItem value="mental">Mental</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Separator />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Patient email</FormLabel>
+              <FormControl>
+                <Input placeholder="Patient's email" {...field} />
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Patient phone number</FormLabel>
+              <FormControl>
+                <Input placeholder="Patient's phone number" {...field} />
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Separator />
+
+        <FormField
+          control={form.control}
+          name="healthInsuranceID"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Health insurance</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                // defaultValue={field.value.toString()}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a health insurance" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {healthInsurances.map((healthInsurance) => (
+                    <SelectItem
+                      key={healthInsurance.id}
+                      value={String(healthInsurance.id)}
+                    >
+                      {healthInsurance.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="insuredID"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Insured ID</FormLabel>
+              <FormControl>
+                <Input placeholder="InsuredID" {...field} />
+              </FormControl>
+              <FormDescription>
+                The ID of the patient from their health insurance
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Separator />
+
+        <FormField
+          control={form.control}
+          name="healthcareProviderID"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Healthcare provider</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                // defaultValue={field.value.toString()}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select healthcare Provider" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {healthcareProviders.map((healthcareProvider) => (
+                    <SelectItem
+                      key={healthcareProvider.id}
+                      value={String(healthcareProvider.id)}
+                    >
+                      {healthcareProvider.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="doctorID"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Doctor</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                // defaultValue={field.value.toString()}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a doctor" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {doctors.map((doctor) => (
+                    <SelectItem key={doctor.id} value={String(doctor.id)}>
+                      {doctor.fullName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Separator />
+
         <FormField
           control={form.control}
           name="recommendationDate"
@@ -420,109 +587,65 @@ export default function CreatePatientForm({
         />
         <FormField
           control={form.control}
-          name="insuredID"
+          name="expectedEndOfTreatment"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>InsuredID</FormLabel>
+              <FormLabel>Expected end of treatment</FormLabel>
               <FormControl>
-                <Input placeholder="InsuredID" {...field} />
+                <div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    {/* @ts-expect-error some prop error? */}
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                        mode="single"
+                        captionLayout="dropdown-buttons"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        className="rounded-md border"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </FormControl>
-              <FormDescription>
-                The ID of the patient from their health insurance
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Patient Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Patient's email" {...field} />
-              </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Patient phone number</FormLabel>
-              <FormControl>
-                <Input placeholder="Patient's phone number" {...field} />
-              </FormControl>
+        <Separator />
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />{" "}
-        <FormField
-          control={form.control}
-          name="note"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Any notes regarding the patient</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Note" {...field} />
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="alergies"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Alergies</FormLabel>
-              <FormControl>
-                <Input placeholder="Alergies" {...field} />
-              </FormControl>
-              <FormDescription>Any alergies the patient has.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="disability"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Disability</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a disabillity" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="limited_physical">
-                    Limited Physical
-                  </SelectItem>
-                  <SelectItem value="physical">Physical</SelectItem>
-                  <SelectItem value="mental">Mental</SelectItem>
-                  <SelectItem value="none">None</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <FormField
           control={form.control}
           name="address1"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Main address</FormLabel>
+              <FormLabel>Address 1</FormLabel>
               <FormControl>
-                <Input placeholder="Address" {...field} />
+                <Input placeholder="Address 1" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -533,9 +656,9 @@ export default function CreatePatientForm({
           name="address2"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Secondary address</FormLabel>
+              <FormLabel>Address 2</FormLabel>
               <FormControl>
-                <Input placeholder="Address" {...field} />
+                <Input placeholder="Address 2" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -559,108 +682,55 @@ export default function CreatePatientForm({
           name="zip"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Zipcode</FormLabel>
+              <FormLabel>Zip code</FormLabel>
               <FormControl>
-                <Input placeholder="Address" {...field} />
+                <Input placeholder="Zip" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        <Separator />
+
         <FormField
           control={form.control}
-          name="healthInsuranceID"
+          name="alergies"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Health insurance</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                // defaultValue={field.value.toString()}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a health insurance" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {healthInsurances.map((healthInsurance) => (
-                    <SelectItem
-                      key={healthInsurance.id}
-                      value={String(healthInsurance.id)}
-                    >
-                      {healthInsurance.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormLabel>Alergies</FormLabel>
+              <FormControl>
+                <Input placeholder="Alergies" {...field} />
+              </FormControl>
+              <FormDescription>Any alergies the patient has.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
-          name="doctorID"
+          name="note"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Doctor</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                // defaultValue={field.value.toString()}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a doctor" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {doctors.map((doctor) => (
-                    <SelectItem key={doctor.id} value={String(doctor.id)}>
-                      {doctor.fullName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormLabel>Note</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Note" {...field} />
+              </FormControl>
+
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="healthcareProviderID"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Healthcare provider</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                // defaultValue={field.value.toString()}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select healthcare Provider" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {healthcareProviders.map((healthcareProvider) => (
-                    <SelectItem
-                      key={healthcareProvider.id}
-                      value={String(healthcareProvider.id)}
-                    >
-                      {healthcareProvider.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
+        <Separator />
+
         <div className="flex gap-1">
           <SubmitButton type="submit" isLoading={createPatient.isLoading}>
             Submit
           </SubmitButton>
           {createPatient.isSuccess && (
             <SubmitButton variant="outline">
-              <Link href={"/patients/" + setPatientID}>View Patient</Link>
+              <Link href={`/patients/${patientID}`}>View Patient</Link>
             </SubmitButton>
           )}
         </div>
