@@ -20,38 +20,10 @@ export default {
     // fetch the procedure with procedurePricing array
     const procedure = await ctx.db.query.procedures.findFirst({
       where: (procedure, { eq }) => eq(procedure.id, id),
-      with: {
-        procedurePricing: true,
-      },
     });
 
     if (!procedure) throw new Error("Procedure not found.");
 
-    // sort the procedurePricing array by created date and return only the latest one for each health insurance
-    const latestProcedurePricing = procedure.procedurePricing.reduce(
-      (accumulator, currentObject) => {
-        const currentHealthInsuranceId = currentObject.healthInsuranceId;
-
-        // Check if there is no object for the current healthInsuranceId or if the current object has a later created date
-        if (
-          !accumulator[currentHealthInsuranceId] ||
-          currentObject.created > accumulator[currentHealthInsuranceId].created
-        ) {
-          accumulator[currentHealthInsuranceId] = currentObject;
-        }
-
-        return accumulator;
-      },
-      {},
-    );
-
-    // Convert the result back to an array
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const resultArray = Object.values(
-      latestProcedurePricing,
-    ) as ProcedurePricing[];
-
-    // fetch all health insurances
     const healthInsurances = await HealthInsuranceService.getMany({
       ctx,
       input: {
@@ -61,8 +33,22 @@ export default {
       },
     });
 
+    const procedurePricing: ProcedurePricing[] = [];
+    for (const insurance of healthInsurances.result) {
+      const pricing = await ctx.db.query.procedurePricing.findMany({
+        limit: 1,
+        orderBy: (pricing, { desc }) => desc(pricing.created),
+        where: (pricing, { and, eq }) =>
+          and(
+            eq(pricing.procedureId, procedure.id),
+            eq(pricing.healthInsuranceId, insurance.id),
+          ),
+      });
+      if (pricing.length > 0) procedurePricing.push(pricing[0]!);
+    }
+
     // map procedure pricing with health insurance and return only the ones with the latest Date
-    const procedurePricing = resultArray.map((pricing) => {
+    const procedureWithPricing = procedurePricing.map((pricing) => {
       const healthInsurance = healthInsurances.result.find(
         (insurance) => insurance.id === pricing.healthInsuranceId,
       )!;
@@ -76,7 +62,7 @@ export default {
     return {
       id: procedure.id,
       name: procedure.name,
-      procedurePricing,
+      procedurePricing: procedureWithPricing,
     };
   },
 
