@@ -43,7 +43,7 @@ export default async function TablePatients({
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-[100px]">ID</TableHead>
               <TableHead>Full Name</TableHead>
-              <TableHead>Biological Sex</TableHead>
+              <TableHead className="text-center">Biological Sex</TableHead>
               <TableHead>City</TableHead>
               <TableHead>ZipCode</TableHead>
               <TableHead>Address</TableHead>
@@ -75,10 +75,14 @@ export default async function TablePatients({
                     </CopyToClipboard>
                   </Link>
                 </TableCell>
-                <TableCell className="font-medium">
-                  <CopyToClipboard text={patient.biologicalSex}>
+                <TableCell align="center">
+                  <Badge
+                    variant={
+                      patient.biologicalSex === "male" ? "male" : "female"
+                    }
+                  >
                     {patient.biologicalSex}
-                  </CopyToClipboard>
+                  </Badge>
                 </TableCell>
                 <TableCell className="font-medium">
                   <CopyToClipboard text={patient.address?.city ?? ""}>
