@@ -30,6 +30,7 @@ const disabilities = [
 ] as const;
 
 const formSchema = z.object({
+  id: z.string(),
   fullName: z.string().min(1, {
     message: "Full name cannot be empty.",
   }),
@@ -80,6 +81,7 @@ export default function UpdatePatientForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      id: patient.id,
       fullName: patient.fullName,
       recommendationDate: patient.recommendationDate ?? undefined,
       acceptanceDate: patient.acceptanceDate ?? undefined,
@@ -136,6 +138,20 @@ export default function UpdatePatientForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>ID</FormLabel>
+              <FormControl>
+                <Input {...field} disabled />
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="fullName"
