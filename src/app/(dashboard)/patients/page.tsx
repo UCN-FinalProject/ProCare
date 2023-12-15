@@ -1,11 +1,12 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 import PageHeader from "~/components/Headers/PageHeader";
 import { Button } from "~/components/ui/button";
 import { getServerAuthSession } from "~/server/auth";
 import Table from "./table";
 import { statusArr, type Status } from "~/lib/parseStatus";
+import TableLoader from "./TableLoader";
 
 export default async function Page({
   searchParams,
@@ -39,7 +40,9 @@ export default async function Page({
           </Button>
         )}
       </div>
-      <Table page={page} name={name} status={status} session={session!} />
+      <Suspense fallback={<TableLoader />}>
+        <Table page={page} name={name} status={status} session={session!} />
+      </Suspense>
     </div>
   );
 }

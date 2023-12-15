@@ -16,7 +16,7 @@ import { parseStatus } from "~/lib/parseStatus";
 import Filters from "./Filters";
 import Pagination from "~/components/Pagination";
 
-export default async function TableDoctors({
+export default async function TablePatients({
   name,
   status,
   page,
@@ -46,8 +46,8 @@ export default async function TableDoctors({
               <TableHead>Biological Sex</TableHead>
               <TableHead>City</TableHead>
               <TableHead>ZipCode</TableHead>
-              <TableHead>Main Address</TableHead>
-              {isAdmin && <TableHead className="text-right">Status</TableHead>}
+              <TableHead>Address</TableHead>
+              {isAdmin && <TableHead className="text-center">Status</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -96,7 +96,7 @@ export default async function TableDoctors({
                   </CopyToClipboard>
                 </TableCell>
                 {isAdmin && (
-                  <TableCell align="right">
+                  <TableCell align="center">
                     <Badge
                       variant={
                         patient.isActive === true ? "active" : "inactive"
