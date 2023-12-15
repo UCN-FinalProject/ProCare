@@ -17,6 +17,7 @@ import type {
 } from "./validation/PatientValidation";
 import { patientProcedures } from "../db/schema/patientProcedures";
 import type { ReturnMany } from "./validation/util";
+import { decryptText, encryptText } from "../encrypt";
 
 export default {
   async getByPatientID({ id, ctx }: { id: string; ctx: TRPCContext }) {
@@ -29,7 +30,9 @@ export default {
       },
     });
 
-    if (res) return res;
+    if (res) {
+      return { ...res, ssn: decryptText(res.ssn) };
+    }
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "No patient was found.",
@@ -50,6 +53,9 @@ export default {
     const total = await ctx.db.query.patient.findMany({
       columns: { id: true },
       where: findManyWhere(input),
+    });
+    res.forEach((patient) => {
+      patient.ssn = decryptText(patient.ssn);
     });
     if (res)
       return {
@@ -81,7 +87,7 @@ export default {
           isActive: input.isActive,
           biologicalSex: input.biologicalSex,
           dateOfBirth: input.dateOfBirth,
-          ssn: input.ssn,
+          ssn: encryptText(input.ssn),
           recommendationDate: input.recommendationDate ?? null,
           acceptanceDate: input.acceptanceDate ?? null,
           startDate: input.startDate,
