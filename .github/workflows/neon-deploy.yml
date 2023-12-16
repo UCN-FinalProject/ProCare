@@ -13,10 +13,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set branch name
-      id: set-branch-name
-      run: echo "::set-output name=branch_name::${GITHUB_REF#refs/heads/}"
-
     - name: Neon Database Create Branch Action
       uses: neondatabase/create-branch-action@v4.4.0
       with:
@@ -24,4 +20,4 @@ jobs:
         api_key: ${{ secrets.NEON_API_KEY }}
         username: ${{ secrets.NEON_DB_NAME }}
         prisma: false
-        branch_name: ${{ steps.set-branch-name.outputs.branch_name }}
+        branch_name: 'test' 
