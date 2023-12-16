@@ -102,13 +102,13 @@ export default function UpdatePatientForm({
   healthInsurances,
   healthcareProviders,
   session,
-}: {
+}: Readonly<{
   patient: Patient;
   doctors: Doctor[];
   healthInsurances: HealthInsuranceList[];
   healthcareProviders: HealthcareProvider[];
   session: Session;
-}) {
+}>) {
   const isAdmin = session.user.role === "admin";
   const router = useRouter();
 

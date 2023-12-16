@@ -21,10 +21,10 @@ type Variant = "active" | "inactive";
 export default function PatientAlert({
   variant,
   id,
-}: {
+}: Readonly<{
   variant: Variant;
   id: string;
-}) {
+}>) {
   const setActive = api.patient.setActive.useMutation();
   const setInactive = api.patient.setInactive.useMutation();
   const router = useRouter();

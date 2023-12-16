@@ -97,11 +97,11 @@ export default function CreatePatientForm({
   doctors,
   healthcareProviders,
   healthInsurances,
-}: {
+}: Readonly<{
   doctors: Doctor[];
   healthcareProviders: HealthcareProvider[];
   healthInsurances: HealthInsuranceList[];
-}) {
+}>) {
   const [patientID, setPatientID] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({

@@ -7,7 +7,9 @@ import { Badge } from "~/components/ui/badge";
 import PatientAlert from "./components/PatientAlert";
 import Form from "./components/Form";
 
-export default async function page({ params }: { params: { id: string } }) {
+export default async function page({
+  params,
+}: Readonly<{ params: { id: string } }>) {
   const session = await getServerAuthSession();
   const isAdmin = session?.user.role === "admin";
   const id = String(params.id);
