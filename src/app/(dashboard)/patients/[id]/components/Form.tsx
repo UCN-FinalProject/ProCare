@@ -37,7 +37,6 @@ import type {
   Doctor,
   HealthInsuranceList,
   HealthcareProvider,
-  Patient,
 } from "~/server/db/export";
 import { type Session } from "next-auth";
 import { useRouter } from "next/navigation";
@@ -45,6 +44,7 @@ import { Calendar } from "~/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { Separator } from "~/components/ui/separator";
 import { patientFormSchema } from "../../PatientFormSchema";
+import type { PatientRes } from "../page";
 
 const formSchema = z.object({
   id: z.string(),
@@ -58,7 +58,7 @@ export default function UpdatePatientForm({
   healthcareProviders,
   session,
 }: Readonly<{
-  patient: Patient;
+  patient: PatientRes;
   doctors: Doctor[];
   healthInsurances: HealthInsuranceList[];
   healthcareProviders: HealthcareProvider[];

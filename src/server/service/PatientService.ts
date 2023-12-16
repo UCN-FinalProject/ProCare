@@ -1,6 +1,7 @@
 import { type TRPCContext } from "../api/trpc";
 import { TRPCError } from "@trpc/server";
 import {
+  type HealthCondition,
   patient,
   patientAddress,
   patientConditions,
@@ -17,6 +18,7 @@ import type {
 } from "./validation/PatientValidation";
 import { patientProcedures } from "../db/schema/patientProcedures";
 import type { ReturnMany } from "./validation/util";
+import HealthConditionService from "./HealthConditionService";
 
 export default {
   async getByPatientID({ id, ctx }: { id: string; ctx: TRPCContext }) {
@@ -29,11 +31,28 @@ export default {
       },
     });
 
-    if (res) return res;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "No patient was found.",
+    if (!res) throw new Error("No patient was found.");
+
+    const conditions: HealthCondition[] = [];
+    if (res.conditions) {
+      for (const condition of res.conditions) {
+        const res = await HealthConditionService.getByID({
+          id: condition.conditionID,
+          ctx,
+        });
+        if (res) conditions.push(res);
+      }
+    }
+    const patientConditions = res.conditions.map(() => {
+      return {
+        ...conditions.find((condition) => condition.id === condition.id)!,
+      };
     });
+
+    return {
+      ...res,
+      conditions: patientConditions,
+    };
   },
 
   async getMany({ input, ctx }: { input: GetPatientsInput; ctx: TRPCContext }) {

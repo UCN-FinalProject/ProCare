@@ -7,6 +7,8 @@ import { Badge } from "~/components/ui/badge";
 import PatientAlert from "./components/PatientAlert";
 import Form from "./components/Form";
 
+export type PatientRes = Awaited<ReturnType<typeof api.patient.getByID.query>>;
+
 export default async function page({
   params,
 }: Readonly<{ params: { id: string } }>) {
