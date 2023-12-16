@@ -43,11 +43,24 @@ export default {
         if (res) conditions.push(res);
       }
     }
-    const patientConditions = res.conditions.map(() => {
-      return {
-        ...conditions.find((condition) => condition.id === condition.id)!,
-      };
-    });
+
+    const patientConditions = await Promise.all(
+      res.conditions.map(async (condition) => {
+        const details = conditions.find(
+          (condition) => condition.id === condition.id,
+        )!;
+        const user = await ctx.db.query.users.findFirst({
+          where: (user, { eq }) => eq(user.id, condition.assignedBy),
+          columns: { id: true, name: true, doctorID: true },
+        });
+
+        return {
+          ...details,
+          assignedAt: condition.assignedAt,
+          assignedBy: user,
+        };
+      }),
+    );
 
     return {
       ...res,
@@ -155,20 +168,20 @@ export default {
         });
 
       // create patient conditions
-      if (inputConditions) {
-        for (const condition of inputConditions) {
-          await tx
-            .insert(patientConditions)
-            .values({
-              patientID: newUserID,
-              conditionID: condition.conditionID,
-            })
-            .catch((err) => {
-              tx.rollback();
-              throw err;
-            });
-        }
-      }
+      // if (inputConditions) {
+      //   for (const condition of inputConditions) {
+      //     await tx
+      //       .insert(patientConditions)
+      //       .values({
+      //         patientID: newUserID,
+      //         conditionID: condition.conditionID,
+      //       })
+      //       .catch((err) => {
+      //         tx.rollback();
+      //         throw err;
+      //       });
+      //   }
+      // }
 
       return await tx.query.patient.findFirst({
         where: (patient, { eq }) => eq(patient.id, patientInsert.at(0)!.id),
@@ -293,19 +306,24 @@ export default {
     input: AddPatientConditionInput;
     ctx: TRPCContext;
   }) {
+    const patient = await this.getByPatientID({ id: input.patientID, ctx });
+    if (!patient) throw new Error("Patient was not found.");
+
+    if (patient.conditions.find((c) => c.id === input.conditionID))
+      throw new Error("Patient already has this condition.");
+
     const insert = await ctx.db
       .insert(patientConditions)
       .values({
         patientID: input.patientID,
         conditionID: input.conditionID,
+        assignedBy: input.assignedByID,
+        assignedAt: new Date(),
       })
       .returning();
 
     if (insert && !!insert[0]) return insert[0];
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Condition could not be added.",
-    });
+    throw new Error("Condition could not be added.");
   },
 
   async addPatientProcedure({

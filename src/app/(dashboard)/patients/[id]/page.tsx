@@ -1,11 +1,9 @@
 import React from "react";
 import { api } from "~/trpc/server";
 import { notFound } from "next/navigation";
-import PageHeader from "~/components/Headers/PageHeader";
 import { getServerAuthSession } from "~/server/auth";
-import { Badge } from "~/components/ui/badge";
-import PatientAlert from "./components/PatientAlert";
 import Form from "./components/Form";
+import PatientHeader from "./components/PatientHeader";
 
 export type PatientRes = Awaited<ReturnType<typeof api.patient.getByID.query>>;
 
@@ -36,20 +34,12 @@ export default async function page({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-between items-start">
-        <div className="flex gap-3 items-center">
-          <PageHeader>{patient.fullName}</PageHeader>
-          <Badge variant={patient.isActive === true ? "active" : "inactive"}>
-            {patient.isActive === true ? "active" : "inactive"}
-          </Badge>
-        </div>
-        {isAdmin && (
-          <PatientAlert
-            variant={patient.isActive === true ? "active" : "inactive"}
-            id={id}
-          />
-        )}
-      </div>
+      <PatientHeader
+        id={id}
+        fullName={patient.fullName}
+        isActive={patient.isActive}
+        isAdmin={isAdmin}
+      />
       <div className="flex flex-col lg:max-w-lg">
         <Form
           patient={patient}

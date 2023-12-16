@@ -79,6 +79,7 @@ export type UpdatePatientInput = z.infer<typeof updatePatientInput>;
 export const addPatientConditionInput = z.object({
   patientID: z.string(),
   conditionID: z.number(),
+  assignedByID: z.string(),
 });
 export type AddPatientConditionInput = z.infer<typeof addPatientConditionInput>;
 
