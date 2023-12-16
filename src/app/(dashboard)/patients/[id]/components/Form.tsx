@@ -76,22 +76,23 @@ export default function UpdatePatientForm({
       biologicalSex: patient.biologicalSex,
       dateOfBirth: patient.dateOfBirth,
       disability: patient.disability,
-      email: patient.email ?? undefined,
-      phone: patient.phone ?? undefined,
-      healthInsuranceID: patient.healthcareInfo?.healthInsuranceID,
+      email: patient.email ?? "",
+      phone: patient.phone ?? "",
+      healthInsuranceID: patient.healthcareInfo.healthInsuranceID,
       insuredID: patient.insuredID,
-      healthcareProviderID: patient.healthcareInfo?.healthcareProviderID,
-      doctorID: patient.healthcareInfo?.doctorID,
+      healthcareProviderID: patient.healthcareInfo.healthcareProviderID,
+      doctorID: patient.healthcareInfo.doctorID,
       recommendationDate: patient.recommendationDate ?? undefined,
       startDate: patient.startDate,
       acceptanceDate: patient.acceptanceDate ?? undefined,
       expectedEndOfTreatment: patient.expectedEndOfTreatment,
-      address1: patient.address?.address1,
-      address2: patient.address?.address2 ?? undefined,
-      city: patient.address?.city,
-      zip: patient.address?.zipCode,
-      alergies: patient.alergies ?? undefined,
-      note: patient.note ?? undefined,
+      endDate: patient.endDate ?? undefined,
+      address1: patient.address.address1,
+      address2: patient.address.address2 ?? "",
+      city: patient.address.city,
+      zip: patient.address.zipCode,
+      alergies: patient.alergies ?? "",
+      note: patient.note ?? "",
     },
   });
   const updatePatient = api.patient.update.useMutation();
@@ -99,23 +100,23 @@ export default function UpdatePatientForm({
     await updatePatient.mutateAsync(
       {
         id: patient.id!,
-        fullName: values.fullName,
-        disability: values.disability,
-        email: values.email,
-        phone: values.phone,
-        healthInsuranceID: values.healthInsuranceID,
-        insuredID: values.insuredID,
-        healthcareProviderID: values.healthcareProviderID,
-        doctorID: values.doctorID,
-        acceptanceDate: values.acceptanceDate,
+        fullName: values.fullName.trim(),
         recommendationDate: values.recommendationDate,
+        acceptanceDate: values.acceptanceDate,
         expectedEndOfTreatment: values.expectedEndOfTreatment,
+        insuredID: values.insuredID,
+        email: values.email ? values.email.trim() : undefined,
+        phone: values.phone ? values.phone.trim() : undefined,
+        disability: values.disability,
+        alergies: values.alergies ? values.alergies.trim() : undefined,
+        note: values.note ? values.note.trim() : undefined,
         address1: values.address1,
-        address2: values.address2,
+        address2: values.address2 ? values.address2.trim() : undefined,
         city: values.city,
         zip: values.zip,
-        alergies: values.alergies,
-        note: values.note,
+        healthInsuranceID: values.healthInsuranceID,
+        doctorID: values.doctorID,
+        healthcareProviderID: values.healthcareProviderID,
       },
       {
         //eslint-disable-next-line
@@ -148,12 +149,15 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="fullName"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Full Name</FormLabel>
               <FormControl>
-                <Input placeholder="Patient's full name" {...field} />
+                <Input
+                  disabled={!isAdmin}
+                  placeholder="Patient's full name"
+                  {...field}
+                />
               </FormControl>
 
               <FormMessage />
@@ -256,11 +260,14 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="disability"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Disability</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                disabled={!isAdmin}
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a disabillity" />
@@ -285,12 +292,11 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="email"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Email" {...field} />
+                <Input disabled={!isAdmin} placeholder="Email" {...field} />
               </FormControl>
 
               <FormMessage />
@@ -300,12 +306,15 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="phone"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Phone number</FormLabel>
               <FormControl>
-                <Input placeholder="Phone number" {...field} />
+                <Input
+                  disabled={!isAdmin}
+                  placeholder="Phone number"
+                  {...field}
+                />
               </FormControl>
 
               <FormMessage />
@@ -318,13 +327,13 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="healthInsuranceID"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Health insurance</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={String(field.value)}
+                disabled={!isAdmin}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -349,12 +358,11 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="insuredID"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Insured ID</FormLabel>
               <FormControl>
-                <Input placeholder="InsuredID" {...field} />
+                <Input disabled={!isAdmin} placeholder="InsuredID" {...field} />
               </FormControl>
               <FormDescription>
                 The ID of the patient from their health insurance
@@ -369,13 +377,13 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="healthcareProviderID"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Healthcare provider</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={String(field.value)}
+                disabled={!isAdmin}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -400,13 +408,13 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="doctorID"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Doctor</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={String(field.value)}
+                disabled={!isAdmin}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -431,7 +439,6 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="recommendationDate"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Recommendation date</FormLabel>
@@ -484,7 +491,6 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="startDate"
-          disabled
           render={({ field }) => (
             <FormItem>
               <FormLabel>Start date</FormLabel>
@@ -535,7 +541,6 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="acceptanceDate"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Acceptance date</FormLabel>
@@ -588,7 +593,6 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="expectedEndOfTreatment"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Expected end of treatment</FormLabel>
@@ -644,12 +648,11 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="address1"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Address 1</FormLabel>
               <FormControl>
-                <Input placeholder="Address 1" {...field} />
+                <Input disabled={!isAdmin} placeholder="Address 1" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -658,12 +661,11 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="address2"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Address 2</FormLabel>
               <FormControl>
-                <Input placeholder="Address 2" {...field} />
+                <Input disabled={!isAdmin} placeholder="Address 2" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -672,12 +674,11 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="city"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>City</FormLabel>
               <FormControl>
-                <Input placeholder="City" {...field} />
+                <Input disabled={!isAdmin} placeholder="City" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -686,12 +687,11 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="zip"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Zip code</FormLabel>
               <FormControl>
-                <Input placeholder="Zip" {...field} />
+                <Input disabled={!isAdmin} placeholder="Zip" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -703,12 +703,11 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="alergies"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Alergies</FormLabel>
               <FormControl>
-                <Input placeholder="Alergies" {...field} />
+                <Input disabled={!isAdmin} placeholder="Alergies" {...field} />
               </FormControl>
               <FormDescription>Any alergies the patient has.</FormDescription>
               <FormMessage />
@@ -718,12 +717,11 @@ export default function UpdatePatientForm({
         <FormField
           control={form.control}
           name="note"
-          disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Note</FormLabel>
               <FormControl>
-                <Textarea placeholder="Note" {...field} />
+                <Textarea disabled={!isAdmin} placeholder="Note" {...field} />
               </FormControl>
 
               <FormMessage />
