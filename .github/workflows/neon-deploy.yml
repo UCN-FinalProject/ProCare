@@ -1,0 +1,14 @@
+            - name: Neon Database Create Branch Action
+  # You may pin to the exact commit or the version.
+  # uses: neondatabase/create-branch-action@6cd02f534ce5b69b125ac43b7baae749caa4df52
+  uses: neondatabase/create-branch-action@v4.4.0
+  with:
+    # The project id
+    project_id: {{ secrets.NEON_PROJECT_ID }}
+    # The Neon API key
+    api_key: {{ secrets.NEON_API_KEY }}
+    # The db role name
+    username: {{ secrets.NEON_DB_NAME }}
+    # Use prisma or not
+    prisma: false
+          
