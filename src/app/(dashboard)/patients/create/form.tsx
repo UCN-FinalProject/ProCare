@@ -330,10 +330,7 @@ export default function CreatePatientForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Health insurance</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                // defaultValue={field.value.toString()}
-              >
+              <Select onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a health insurance" />
@@ -379,10 +376,7 @@ export default function CreatePatientForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Healthcare provider</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                // defaultValue={field.value.toString()}
-              >
+              <Select onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select healthcare Provider" />
@@ -409,10 +403,7 @@ export default function CreatePatientForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Doctor</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                // defaultValue={field.value.toString()}
-              >
+              <Select onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a doctor" />
@@ -438,7 +429,7 @@ export default function CreatePatientForm({
           name="recommendationDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Recommendation Date</FormLabel>
+              <FormLabel>Recommendation date</FormLabel>
               <FormControl>
                 <div>
                   <Popover>
@@ -489,7 +480,7 @@ export default function CreatePatientForm({
           name="startDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Start Date</FormLabel>
+              <FormLabel>Start date</FormLabel>
               <FormControl>
                 <div>
                   <Popover>
@@ -540,7 +531,7 @@ export default function CreatePatientForm({
           name="acceptanceDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Acceptance Date</FormLabel>
+              <FormLabel>Acceptance date</FormLabel>
               <FormControl>
                 <div>
                   <Popover>
@@ -702,7 +693,6 @@ export default function CreatePatientForm({
               <FormControl>
                 <Input placeholder="Alergies" {...field} />
               </FormControl>
-              <FormDescription>Any alergies the patient has.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

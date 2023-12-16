@@ -16,7 +16,7 @@ import { api } from "~/trpc/react";
 import { revalidatePathClient } from "~/app/revalidate";
 import { useRouter } from "next/navigation";
 
-type Variant = "DDDDDDD....DEAD" | "Chillen";
+type Variant = "active" | "inactive";
 
 export default function PatientAlert({
   variant,
@@ -30,7 +30,7 @@ export default function PatientAlert({
   const router = useRouter();
 
   const handleClick = async () => {
-    if (variant === "DDDDDDD....DEAD") {
+    if (variant === "inactive") {
       await setActive.mutateAsync(
         { id },
         {
@@ -61,16 +61,16 @@ export default function PatientAlert({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="secondary">
-          {variant === "Chillen" ? "Set inactive" : "Set active"}
+          {variant === "active" ? "Set inactive" : "Set active"}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will set patient&apos;s status to{" "}
-            {variant === "DDDDDDD....DEAD" ? "Chillen" : "DDDDDDD....DEAD"}. You
-            can revive/kill them at any time.
+            This will set patient&apos;s status to {""}
+            {variant === "active" ? "inactive" : "active"}. You can change the
+            status at any time.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

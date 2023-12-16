@@ -9,10 +9,26 @@ import Form from "./components/Form";
 
 export default async function page({ params }: { params: { id: string } }) {
   const session = await getServerAuthSession();
+  const isAdmin = session?.user.role === "admin";
   const id = String(params.id);
   const patient = await api.patient.getByID
     .query({ id })
     .catch(() => notFound());
+  const healthcareProviders = await api.healthcareProvider.getMany.query({
+    limit: 100,
+    offset: 0,
+    isActive: true,
+  });
+  const doctors = await api.doctor.getMany.query({
+    limit: 100,
+    offset: 0,
+    isActive: true,
+  });
+  const healthInsurances = await api.healthInsurance.getMany.query({
+    limit: 100,
+    offset: 0,
+    isActive: true,
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -20,18 +36,24 @@ export default async function page({ params }: { params: { id: string } }) {
         <div className="flex gap-3 items-center">
           <PageHeader>{patient.fullName}</PageHeader>
           <Badge variant={patient.isActive === true ? "active" : "inactive"}>
-            {patient.isActive === true ? "Alive" : "BannedIRL"}
+            {patient.isActive === true ? "active" : "inactive"}
           </Badge>
         </div>
-        {session?.user.role === "admin" && (
+        {isAdmin && (
           <PatientAlert
-            variant={patient.isActive === true ? "Chillen" : "DDDDDDD....DEAD"}
+            variant={patient.isActive === true ? "active" : "inactive"}
             id={id}
           />
         )}
       </div>
       <div className="flex flex-col lg:max-w-lg">
-        <Form patient={patient} session={session!} />
+        <Form
+          patient={patient}
+          doctors={doctors.result}
+          healthcareProviders={healthcareProviders.result}
+          healthInsurances={healthInsurances.result}
+          session={session!}
+        />
       </div>
     </div>
   );
