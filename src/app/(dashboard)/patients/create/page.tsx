@@ -1,6 +1,6 @@
 import React from "react";
 import PageHeader from "~/components/Headers/PageHeader";
-import Form from "./Form";
+import Form from "./form";
 import { getServerAuthSession } from "~/server/auth";
 import { notFound } from "next/navigation";
 import { api } from "~/trpc/server";
