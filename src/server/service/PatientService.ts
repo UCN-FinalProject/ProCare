@@ -6,8 +6,9 @@ import {
   patientConditions,
   patientHealthcareInfo,
 } from "../db/export";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, like } from "drizzle-orm";
 import type {
+  SetStatusPatientInput,
   CreatePatientInput,
   UpdatePatientInput,
   AddPatientConditionInput,
@@ -27,6 +28,7 @@ export default {
         healthcareInfo: true,
       },
     });
+
     if (res) return res;
     throw new TRPCError({
       code: "NOT_FOUND",
@@ -38,18 +40,16 @@ export default {
     const res = await ctx.db.query.patient.findMany({
       limit: input.limit,
       offset: input.offset,
-      where: (patient, { eq }) =>
-        input.isActive !== undefined
-          ? eq(patient.isActive, input.isActive)
-          : undefined,
+      with: {
+        address: true,
+        healthcareInfo: true,
+      },
+      where: findManyWhere(input),
       orderBy: [asc(patient.id)],
     });
     const total = await ctx.db.query.patient.findMany({
       columns: { id: true },
-      where: (patient, { eq }) =>
-        input.isActive !== undefined
-          ? eq(patient.isActive, input.isActive)
-          : undefined,
+      where: findManyWhere(input),
     });
     if (res)
       return {
@@ -240,6 +240,33 @@ export default {
     });
   },
 
+  async setStatus({
+    input,
+    ctx,
+  }: {
+    input: SetStatusPatientInput;
+    ctx: TRPCContext;
+  }) {
+    const update = await ctx.db
+      .update(patient)
+      .set({
+        isActive: input.isActive,
+      })
+      .where(eq(patient.id, input.id))
+      .returning()
+      .catch((error) => {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: error instanceof Error ? error.message : String(error),
+        });
+      });
+    if (update) return update;
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Patient could not be updated",
+    });
+  },
+
   async addPatientCondition({
     input,
     ctx,
@@ -284,3 +311,12 @@ export default {
     });
   },
 } as const;
+
+const findManyWhere = (input: GetPatientsInput) => {
+  let where = undefined;
+  if (input.isActive !== undefined)
+    where = eq(patient.isActive, input.isActive);
+  if (input.name !== undefined)
+    where = like(patient.fullName, `%${input.name}%`);
+  return where;
+};

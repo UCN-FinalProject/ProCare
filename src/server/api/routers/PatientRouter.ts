@@ -74,6 +74,49 @@ export const patientRouter = createTRPCRouter({
         });
       }
     }),
+  setActive: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await PatientService.setStatus({
+          input: {
+            id: input.id,
+            isActive: true,
+          },
+          ctx,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Not found",
+          }),
+        });
+      }
+    }),
+
+  setInactive: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await PatientService.setStatus({
+          input: {
+            id: input.id,
+            isActive: false,
+          },
+          ctx,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Not found",
+          }),
+        });
+      }
+    }),
 
   addCondition: protectedProcedure
     .input(addPatientConditionInput)
