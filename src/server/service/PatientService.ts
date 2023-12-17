@@ -109,11 +109,9 @@ export default {
 
   async createPatient({
     input,
-    // inputConditions,
     ctx,
   }: {
     input: CreatePatientInput;
-    // inputConditions?: AddPatientConditionInput[];
     ctx: TRPCContext;
   }) {
     const transaction = await ctx.db.transaction(async (tx) => {
@@ -177,22 +175,6 @@ export default {
           tx.rollback();
           throw err;
         });
-
-      // create patient conditions
-      // if (inputConditions) {
-      //   for (const condition of inputConditions) {
-      //     await tx
-      //       .insert(patientConditions)
-      //       .values({
-      //         patientID: newUserID,
-      //         conditionID: condition.conditionID,
-      //       })
-      //       .catch((err) => {
-      //         tx.rollback();
-      //         throw err;
-      //       });
-      //   }
-      // }
 
       return await tx.query.patient.findFirst({
         where: (patient, { eq }) => eq(patient.id, patientInsert.at(0)!.id),

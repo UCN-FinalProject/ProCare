@@ -41,14 +41,6 @@ export const createPatientInput = z.object({
   healthInsuranceID: z.number(),
   doctorID: z.number(),
   healthcareProviderID: z.number(),
-  // conditions
-  conditions: z
-    .array(
-      z.object({
-        conditionID: z.number(),
-      }),
-    )
-    .optional(),
 });
 export type CreatePatientInput = z.infer<typeof createPatientInput>;
 
