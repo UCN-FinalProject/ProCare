@@ -10,7 +10,9 @@ export type PatientConditionRes = Awaited<
   ReturnType<typeof api.patient.getByID.query>
 >["procedures"][number];
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({
+  params,
+}: Readonly<{ params: { id: string } }>) {
   const { id } = params;
   const patient = await api.patient.getByID.query({ id });
   const session = await getServerAuthSession();

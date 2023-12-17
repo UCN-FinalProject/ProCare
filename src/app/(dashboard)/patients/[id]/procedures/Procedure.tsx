@@ -6,9 +6,9 @@ import NullOrUndefined from "~/components/util/NullOrUndefined";
 
 export default function Procedure({
   procedure,
-}: {
+}: Readonly<{
   procedure: PatientConditionRes;
-}) {
+}>) {
   return (
     <div className="flex gap-8 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-all duration-150">
       <div className="flex flex-col text-muted-foreground text-xs font-light p-2 py-3">

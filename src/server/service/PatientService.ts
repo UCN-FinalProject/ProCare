@@ -114,7 +114,7 @@ export default {
       ...res,
       ssn: decryptText(res.ssn),
       conditions,
-      procedures: procedures.reverse(),
+      procedures: procedures.toReversed(),
     };
   },
 
