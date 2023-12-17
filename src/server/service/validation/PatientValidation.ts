@@ -83,6 +83,14 @@ export const addPatientConditionInput = z.object({
 });
 export type AddPatientConditionInput = z.infer<typeof addPatientConditionInput>;
 
+export const removePatientConditionInput = z.object({
+  patientConditionID: z.number(),
+  userID: z.string(),
+});
+export type RemovePatientConditionInput = z.infer<
+  typeof removePatientConditionInput
+>;
+
 export const setStatusPatientInput = z.object({
   id: z.string(),
   isActive: z.boolean(),

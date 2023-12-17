@@ -1,5 +1,12 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
-import { patient, healthCondition } from "../export";
+import {
+  boolean,
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
+import { patient, healthCondition, users } from "../export";
 import { relations } from "drizzle-orm";
 
 export const patientConditions = pgTable("patientConditions", {
@@ -10,8 +17,15 @@ export const patientConditions = pgTable("patientConditions", {
   conditionID: integer("conditionID")
     .notNull()
     .references(() => healthCondition.id),
-  assignedAt: timestamp("created").$defaultFn(() => new Date()),
-  assignedBy: text("assignedBy").notNull(),
+  assignedAt: timestamp("created")
+    .notNull()
+    .$defaultFn(() => new Date()),
+  assignedBy: text("assignedBy")
+    .notNull()
+    .references(() => users.id),
+  removed: boolean("removed").default(false),
+  removedAt: timestamp("removedAt"),
+  removedBy: text("removedBy").references(() => users.id),
 });
 export const patientConditionsRelations = relations(
   patientConditions,

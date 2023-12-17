@@ -1,7 +1,6 @@
 import { type TRPCContext } from "../api/trpc";
 import { TRPCError } from "@trpc/server";
 import {
-  type HealthCondition,
   patient,
   patientAddress,
   patientConditions,
@@ -15,10 +14,25 @@ import type {
   AddPatientConditionInput,
   GetPatientsInput,
   AddPatientProcedureInput,
+  RemovePatientConditionInput,
 } from "./validation/PatientValidation";
 import { patientProcedures } from "../db/schema/patientProcedures";
 import type { ReturnMany } from "./validation/util";
 import HealthConditionService from "./HealthConditionService";
+
+type PatientCondition = {
+  id: number;
+  conditionId: number;
+  name: string;
+  description: string;
+  assignedAt: Date;
+  assignedBy:
+    | {
+        id: string;
+        name: string;
+      }
+    | undefined;
+};
 
 export default {
   async getByPatientID({ id, ctx }: { id: string; ctx: TRPCContext }) {
@@ -33,38 +47,35 @@ export default {
 
     if (!res) throw new Error("No patient was found.");
 
-    const conditions: HealthCondition[] = [];
+    const conditions: PatientCondition[] = [];
     if (res.conditions) {
       for (const condition of res.conditions) {
-        const res = await HealthConditionService.getByID({
+        // skip removed/deleted conditions
+        if (condition.removed) continue;
+
+        const details = await HealthConditionService.getByID({
           id: condition.conditionID,
           ctx,
         });
-        if (res) conditions.push(res);
+        const userRes = await ctx.db.query.users.findFirst({
+          where: (user, { eq }) => eq(user.id, condition.assignedBy),
+          columns: { id: true, name: true },
+        });
+
+        conditions.push({
+          id: condition.id,
+          conditionId: condition.conditionID,
+          name: details.name,
+          description: details.description,
+          assignedAt: condition.assignedAt,
+          assignedBy: userRes,
+        } satisfies PatientCondition);
       }
     }
 
-    const patientConditions = await Promise.all(
-      res.conditions.map(async (condition) => {
-        const details = conditions.find(
-          (condition) => condition.id === condition.id,
-        )!;
-        const user = await ctx.db.query.users.findFirst({
-          where: (user, { eq }) => eq(user.id, condition.assignedBy),
-          columns: { id: true, name: true, doctorID: true },
-        });
-
-        return {
-          ...details,
-          assignedAt: condition.assignedAt,
-          assignedBy: user,
-        };
-      }),
-    );
-
     return {
       ...res,
-      conditions: patientConditions,
+      conditions,
     };
   },
 
@@ -98,11 +109,11 @@ export default {
 
   async createPatient({
     input,
-    inputConditions,
+    // inputConditions,
     ctx,
   }: {
     input: CreatePatientInput;
-    inputConditions?: AddPatientConditionInput[];
+    // inputConditions?: AddPatientConditionInput[];
     ctx: TRPCContext;
   }) {
     const transaction = await ctx.db.transaction(async (tx) => {
@@ -309,7 +320,7 @@ export default {
     const patient = await this.getByPatientID({ id: input.patientID, ctx });
     if (!patient) throw new Error("Patient was not found.");
 
-    if (patient.conditions.find((c) => c.id === input.conditionID))
+    if (patient.conditions.find((c) => c.conditionId === input.conditionID))
       throw new Error("Patient already has this condition.");
 
     const insert = await ctx.db
@@ -324,6 +335,35 @@ export default {
 
     if (insert && !!insert[0]) return insert[0];
     throw new Error("Condition could not be added.");
+  },
+
+  async removePatientCondition({
+    input,
+    ctx,
+  }: {
+    input: RemovePatientConditionInput;
+    ctx: TRPCContext;
+  }) {
+    const findCondition = await ctx.db.query.patientConditions.findFirst({
+      where: (patientConditions, { eq }) =>
+        eq(patientConditions.id, input.patientConditionID),
+      columns: { conditionID: true },
+    });
+    if (!findCondition)
+      throw new Error("Condition is not assigned to a patient.");
+
+    const update = await ctx.db
+      .update(patientConditions)
+      .set({
+        removed: true,
+        removedAt: new Date(),
+        removedBy: input.userID,
+      })
+      .where(eq(patientConditions.id, input.patientConditionID))
+      .returning();
+
+    if (update) return update;
+    throw new Error("Condition could not be removed.");
   },
 
   async addPatientProcedure({
