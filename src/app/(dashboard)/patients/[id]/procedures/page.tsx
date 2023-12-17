@@ -4,6 +4,11 @@ import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import PageHeader from "~/components/Headers/PageHeader";
 import NewProcedure from "./NewProcedureDialog";
+import Procedure from "./Procedure";
+
+export type PatientConditionRes = Awaited<
+  ReturnType<typeof api.patient.getByID.query>
+>["procedures"][number];
 
 export default async function Page({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -25,11 +30,11 @@ export default async function Page({ params }: { params: { id: string } }) {
         <NewProcedure patientID={id} />
       </div>
 
-      {patient.procedures.map((procedure) => (
-        <div key={procedure.id} className="flex flex-col gap-2">
-          {JSON.stringify(procedure)}
-        </div>
-      ))}
+      <div className="flex flex-col">
+        {patient.procedures.map((procedure) => (
+          <Procedure key={procedure.id} procedure={procedure} />
+        ))}
+      </div>
     </div>
   );
 }

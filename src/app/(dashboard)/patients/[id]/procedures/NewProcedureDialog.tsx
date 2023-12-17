@@ -7,8 +7,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "~/components/ui/sheet";
-// import NewConditionForm from "./NewConditionForm";
 import { api } from "~/trpc/server";
+import NewProcedureForm from "./NewProcedureForm";
 
 export default async function NewProcedure({
   patientID,
@@ -33,10 +33,10 @@ export default async function NewProcedure({
             Assign a procedure to a patient. Click save when you&apos;re done.
           </SheetDescription>
         </SheetHeader>
-        {/* <NewConditionForm
+        <NewProcedureForm
           patientID={patientID}
-          conditions={conditions.result}
-        /> */}
+          procedures={procedures.result}
+        />
       </SheetContent>
     </Sheet>
   );

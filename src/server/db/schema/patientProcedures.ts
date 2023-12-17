@@ -10,6 +10,7 @@ export const patientProcedures = pgTable("patient_procedures", {
   procedureID: integer("procedureID")
     .notNull()
     .references(() => procedures.id),
+  note: text("note"),
   createdAt: timestamp("createdAt")
     .notNull()
     .$defaultFn(() => new Date()),

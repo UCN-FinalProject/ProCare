@@ -39,6 +39,7 @@ type PatientProcedure = {
   id: number;
   procedureID: number;
   name: string | undefined;
+  note: string | null;
   createdAt: Date;
   createdBy:
     | {
@@ -102,6 +103,7 @@ export default {
           id: patientProcedure.id,
           procedureID: patientProcedure.procedureID,
           name: details?.name,
+          note: patientProcedure.note,
           createdAt: patientProcedure.createdAt,
           createdBy: userDetails,
         } satisfies PatientProcedure);
@@ -112,6 +114,7 @@ export default {
       ...res,
       ssn: decryptText(res.ssn),
       conditions,
+      procedures: procedures.reverse(),
     };
   },
 
@@ -399,6 +402,7 @@ export default {
       .values({
         patientID: input.patientID,
         procedureID: input.procedureID,
+        note: input.note ?? null,
         createdBy: input.userID,
         createdAt: new Date(),
       })
