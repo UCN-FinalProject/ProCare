@@ -10,6 +10,7 @@ import { getSession } from "next-auth/react";
 import ClientSessionProvider from "~/providers/SessionProvider";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { env } from "~/env.mjs";
 
 export const metadata = {
   title: "ProCare",
@@ -32,8 +33,12 @@ export default function RootLayout({
             <Toaster closeButton />
             <TRPCReactProvider headers={headers()}>
               {children}
-              <Analytics />
-              <SpeedInsights />
+              {env.NODE_ENV === "production" && (
+                <>
+                  <Analytics />
+                  <SpeedInsights />
+                </>
+              )}
             </TRPCReactProvider>
           </ClientSessionProvider>
         </ThemeProvider>
