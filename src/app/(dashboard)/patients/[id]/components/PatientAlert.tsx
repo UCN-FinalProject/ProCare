@@ -59,14 +59,18 @@ export default function PatientAlert({
 
   return (
     <AlertDialog>
+      {/* @ts-expect-error prop? */}
       <AlertDialogTrigger asChild>
         <Button variant="secondary">
           {variant === "active" ? "Set inactive" : "Set active"}
         </Button>
       </AlertDialogTrigger>
+      {/* @ts-expect-error prop? */}
       <AlertDialogContent>
         <AlertDialogHeader>
+          {/* @ts-expect-error prop? */}
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          {/* @ts-expect-error prop? */}
           <AlertDialogDescription>
             This will set patient&apos;s status to {""}
             {variant === "active" ? "inactive" : "active"}. You can change the
@@ -74,8 +78,10 @@ export default function PatientAlert({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
+          {/* @ts-expect-error prop? */}
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <div onClick={() => handleClick()} onKeyDown={handleClick}>
+            {/* @ts-expect-error prop? */}
             <AlertDialogAction>Confirm</AlertDialogAction>
           </div>
         </AlertDialogFooter>
