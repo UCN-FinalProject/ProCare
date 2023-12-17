@@ -1,5 +1,4 @@
 import { type TRPCContext } from "../api/trpc";
-import { TRPCError } from "@trpc/server";
 import {
   patient,
   patientAddress,
@@ -114,7 +113,7 @@ export default {
       ...res,
       ssn: decryptText(res.ssn),
       conditions,
-      procedures: procedures.toReversed(),
+      procedures: procedures.reverse(),
     };
   },
 
@@ -143,10 +142,7 @@ export default {
         limit: input.limit,
         total: total.length,
       } satisfies ReturnMany<typeof res>;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "No patients were found.",
-    });
+    throw new Error("No patients were found.");
   },
 
   async createPatient({
@@ -183,11 +179,7 @@ export default {
           throw err;
         });
 
-      if (!patientInsert[0])
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Patient could not be created.",
-        });
+      if (!patientInsert[0]) throw new Error("Patient could not be created.");
 
       const newUserID = patientInsert[0].id;
 
@@ -229,10 +221,7 @@ export default {
     });
 
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be created.",
-    });
+    throw new Error("Patient could not be created.");
   },
 
   async updatePatient({
@@ -301,10 +290,7 @@ export default {
     });
 
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be updated.",
-    });
+    throw new Error("Patient could not be updated.");
   },
 
   async setStatus({
@@ -320,18 +306,10 @@ export default {
         isActive: input.isActive,
       })
       .where(eq(patient.id, input.id))
-      .returning()
-      .catch((error) => {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: error instanceof Error ? error.message : String(error),
-        });
-      });
+      .returning();
+
     if (update) return update;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be updated",
-    });
+    throw new Error("Patient could not be updated.");
   },
 
   async addPatientCondition({
@@ -409,10 +387,7 @@ export default {
       .returning();
 
     if (insert && !!insert[0]) return insert[0];
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Procedure could not be added.",
-    });
+    throw new Error("Procedure could not be added.");
   },
 } as const;
 
