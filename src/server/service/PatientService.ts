@@ -35,12 +35,26 @@ type PatientCondition = {
     | undefined;
 };
 
+type PatientProcedure = {
+  id: number;
+  procedureID: number;
+  name: string | undefined;
+  createdAt: Date;
+  createdBy:
+    | {
+        id: string;
+        name: string;
+      }
+    | undefined;
+};
+
 export default {
   async getByPatientID({ id, ctx }: { id: string; ctx: TRPCContext }) {
     const res = await ctx.db.query.patient.findFirst({
       where: (patient, { eq }) => eq(patient.id, id),
       with: {
         conditions: true,
+        procedures: true,
         address: true,
         healthcareInfo: true,
       },
@@ -71,6 +85,26 @@ export default {
           assignedAt: condition.assignedAt,
           assignedBy: userRes,
         } satisfies PatientCondition);
+      }
+    }
+
+    const procedures: PatientProcedure[] = [];
+    if (res.procedures) {
+      for (const patientProcedure of res.procedures) {
+        const details = await ctx.db.query.procedures.findFirst({
+          where: (procedure, { eq }) => eq(procedure.id, patientProcedure.id),
+        });
+        const userDetails = await ctx.db.query.users.findFirst({
+          where: (user, { eq }) => eq(user.id, patientProcedure.createdBy),
+          columns: { id: true, name: true },
+        });
+        procedures.push({
+          id: patientProcedure.id,
+          procedureID: patientProcedure.procedureID,
+          name: details?.name,
+          createdAt: patientProcedure.createdAt,
+          createdBy: userDetails,
+        } satisfies PatientProcedure);
       }
     }
 
@@ -365,6 +399,8 @@ export default {
       .values({
         patientID: input.patientID,
         procedureID: input.procedureID,
+        createdBy: input.userID,
+        createdAt: new Date(),
       })
       .returning();
 

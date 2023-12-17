@@ -91,5 +91,6 @@ export type SetStatusPatientInput = z.infer<typeof setStatusPatientInput>;
 export const addPatientProcedureInput = z.object({
   patientID: z.string(),
   procedureID: z.number(),
+  userID: z.string(),
 });
 export type AddPatientProcedureInput = z.infer<typeof addPatientProcedureInput>;

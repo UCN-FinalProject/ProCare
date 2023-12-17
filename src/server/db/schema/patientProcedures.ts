@@ -1,5 +1,5 @@
-import { integer, pgTable, serial, text } from "drizzle-orm/pg-core";
-import { patient, procedures } from "../export";
+import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { patient, procedures, users } from "../export";
 import { relations } from "drizzle-orm";
 
 export const patientProcedures = pgTable("patient_procedures", {
@@ -10,6 +10,12 @@ export const patientProcedures = pgTable("patient_procedures", {
   procedureID: integer("procedureID")
     .notNull()
     .references(() => procedures.id),
+  createdAt: timestamp("createdAt")
+    .notNull()
+    .$defaultFn(() => new Date()),
+  createdBy: text("createdBy")
+    .notNull()
+    .references(() => users.id),
 });
 export const patientProceduresRelations = relations(
   patientProcedures,
