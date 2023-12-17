@@ -11,6 +11,7 @@ export const getPatientsInput = z.object({
   limit: z.number(),
   offset: z.number(),
   isActive: z.boolean().optional(),
+  name: z.string().optional(),
 });
 export type GetPatientsInput = z.infer<typeof getPatientsInput>;
 
@@ -81,6 +82,11 @@ export const addPatientConditionInput = z.object({
 });
 export type AddPatientConditionInput = z.infer<typeof addPatientConditionInput>;
 
+export const setStatusPatientInput = z.object({
+  id: z.string(),
+  isActive: z.boolean(),
+});
+export type SetStatusPatientInput = z.infer<typeof setStatusPatientInput>;
 export const addPatientProcedureInput = z.object({
   patientID: z.string(),
   procedureID: z.number(),

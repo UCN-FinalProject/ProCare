@@ -24,3 +24,4 @@ export const patientConditionsRelations = relations(
     }),
   }),
 );
+export type PatientConditions = typeof patientConditions.$inferInsert;

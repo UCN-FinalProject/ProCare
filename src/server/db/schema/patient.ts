@@ -17,15 +17,20 @@ import {
   doctor,
   healthInsurance,
   patientProcedures,
+  type PatientConditions,
 } from "../export";
 
 export const biologicalSex = pgEnum("biological_sex", ["male", "female"]);
+export const biologicalSexValues = biologicalSex.enumValues;
+export type BiologicalSex = (typeof biologicalSex.enumValues)[number];
 export const disability = pgEnum("disability", [
   "limited_physical",
   "physical",
   "mental",
   "none",
 ]);
+export const disabilities = disability.enumValues;
+export type Disability = (typeof disability.enumValues)[number];
 
 export const patient = pgTable("patient", {
   id: text("id")
@@ -63,7 +68,12 @@ export const patientRelations = relations(patient, ({ many, one }) => ({
     references: [patientAddress.patientID],
   }),
 }));
-export type Patient = typeof patient.$inferInsert;
+export type Patient = typeof patient.$inferInsert & {
+  conditions: PatientConditions[];
+  address: typeof patientAddress.$inferInsert;
+  healthcareInfo: typeof patientHealthcareInfo.$inferInsert;
+};
+export type PatientWithoutCondition = Omit<Patient, "conditions">;
 
 // patient healthcare info
 export const patientHealthcareInfo = pgTable(
