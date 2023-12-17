@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import PatientAlert from "./PatientAlert";
 import { Separator } from "~/components/ui/separator";
 
-type Tabs = "details" | "conditions" | "procedures";
+type Tabs = "details" | "conditions" | "procedures" | "documents";
 export default function PatientHeader({
   id,
   fullName,
@@ -19,7 +19,12 @@ export default function PatientHeader({
   isActive: boolean;
   isAdmin: boolean;
 }>) {
-  const segments = ["details", "conditions", "procedures"] as const;
+  const segments = [
+    "details",
+    "conditions",
+    "procedures",
+    "documents",
+  ] as const;
   const router = useRouter();
   const path = usePathname();
 
@@ -27,6 +32,7 @@ export default function PatientHeader({
     if (path.includes("details")) return "details";
     if (path.includes("conditions")) return "conditions";
     if (path.includes("procedures")) return "procedures";
+    if (path.includes("documents")) return "documents";
     return "details";
   };
 
@@ -76,6 +82,15 @@ export default function PatientHeader({
             }}
           >
             Procedures
+          </TabsTrigger>
+          <TabsTrigger
+            value="documents"
+            onClick={() => {
+              setActiveTab("documents");
+              router.push(`/patients/${id}/documents`);
+            }}
+          >
+            Documents
           </TabsTrigger>
         </TabsList>
       </Tabs>

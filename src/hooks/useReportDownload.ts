@@ -1,7 +1,8 @@
 "use client";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-type ReportFile =
+export type ReportFile =
   | "ProcedureReport"
   | "TreatmentEndReport"
   | "TreatmentLog"
@@ -10,7 +11,7 @@ type ReportFile =
 
 async function handleDownload(report: ReportFile) {
   // Trigger the API endpoint to download the file
-  const response = await fetch(`api/reports/${report}`);
+  const response = await fetch(`/api/reports?document=${report}`);
   const data = await response.blob();
 
   // Create a Blob URL and initiate the download
@@ -27,7 +28,10 @@ async function handleDownload(report: ReportFile) {
 }
 
 export default function useReportDownload(report: ReportFile) {
-  const download = useMutation(async () => await handleDownload(report));
+  const download = useMutation(async () => await handleDownload(report), {
+    onSuccess: () => toast.success("Report downloaded successfully."),
+    onError: () => toast.error("Could not download report."),
+  });
 
   return { ...download };
 }
