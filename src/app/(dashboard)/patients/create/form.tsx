@@ -42,66 +42,21 @@ import type {
   HealthcareProvider,
 } from "~/server/db/export";
 import { Separator } from "~/components/ui/separator";
-
-const disabilities = [
-  "limited_physical",
-  "physical",
-  "mental",
-  "none",
-] as const; //will add into Patient schema/validation later
+import { patientFormSchema } from "../PatientFormSchema";
 
 const formSchema = z.object({
-  fullName: z.string().min(1, {
-    message: "Full name cannot be empty.",
-  }),
-  biologicalSex: z.enum(["male", "female"]),
-  dateOfBirth: z.date(),
-  ssn: z.string(),
-  recommendationDate: z.date(),
-  acceptanceDate: z.date().optional(),
-  startDate: z.date(),
-  expectedEndOfTreatment: z.date(),
-  endDate: z.date().optional(),
-  insuredID: z.string().min(1, {
-    message: "Patient's insured id is required..",
-  }),
-  email: z.string().optional(),
-  phone: z.string().optional(),
-  disability: z.enum(disabilities),
-  alergies: z.string().optional(),
-  note: z.string().optional(),
-  // address
-  address1: z.string().min(1, {
-    message: "Patient must have main address.",
-  }),
-  address2: z.string().optional(),
-  city: z.string().min(1, {
-    message: "Patient must contain city.",
-  }),
-  zip: z.string().min(1, {
-    message: "Zip code is required.",
-  }),
-  // healthcare info
-  healthInsuranceID: z.coerce.number().min(1, {
-    message: "Patient's health insurance id is required",
-  }),
-  doctorID: z.coerce.number().min(1, {
-    message: "Patient's personal doctor's id is required.",
-  }),
-  healthcareProviderID: z.coerce.number().min(1, {
-    message: "ID of the health insurance provider is required.",
-  }),
+  ...patientFormSchema.shape,
 });
 
 export default function CreatePatientForm({
   doctors,
   healthcareProviders,
   healthInsurances,
-}: {
+}: Readonly<{
   doctors: Doctor[];
   healthcareProviders: HealthcareProvider[];
   healthInsurances: HealthInsuranceList[];
-}) {
+}>) {
   const [patientID, setPatientID] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -330,10 +285,7 @@ export default function CreatePatientForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Health insurance</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                // defaultValue={field.value.toString()}
-              >
+              <Select onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a health insurance" />
@@ -379,10 +331,7 @@ export default function CreatePatientForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Healthcare provider</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                // defaultValue={field.value.toString()}
-              >
+              <Select onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select healthcare Provider" />
@@ -409,10 +358,7 @@ export default function CreatePatientForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Doctor</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                // defaultValue={field.value.toString()}
-              >
+              <Select onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a doctor" />
@@ -438,7 +384,7 @@ export default function CreatePatientForm({
           name="recommendationDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Recommendation Date</FormLabel>
+              <FormLabel>Recommendation date</FormLabel>
               <FormControl>
                 <div>
                   <Popover>
@@ -489,7 +435,7 @@ export default function CreatePatientForm({
           name="startDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Start Date</FormLabel>
+              <FormLabel>Start date</FormLabel>
               <FormControl>
                 <div>
                   <Popover>
@@ -540,7 +486,7 @@ export default function CreatePatientForm({
           name="acceptanceDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Acceptance Date</FormLabel>
+              <FormLabel>Acceptance date</FormLabel>
               <FormControl>
                 <div>
                   <Popover>
@@ -702,7 +648,6 @@ export default function CreatePatientForm({
               <FormControl>
                 <Input placeholder="Alergies" {...field} />
               </FormControl>
-              <FormDescription>Any alergies the patient has.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

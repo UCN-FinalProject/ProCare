@@ -21,12 +21,16 @@ import {
 } from "../export";
 
 export const biologicalSex = pgEnum("biological_sex", ["male", "female"]);
+export const biologicalSexValues = biologicalSex.enumValues;
+export type BiologicalSex = (typeof biologicalSex.enumValues)[number];
 export const disability = pgEnum("disability", [
   "limited_physical",
   "physical",
   "mental",
   "none",
 ]);
+export const disabilities = disability.enumValues;
+export type Disability = (typeof disability.enumValues)[number];
 
 export const patient = pgTable("patient", {
   id: text("id")
