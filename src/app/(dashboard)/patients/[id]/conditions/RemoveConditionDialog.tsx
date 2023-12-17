@@ -42,26 +42,32 @@ export default function RemoveConditionDialog({
 
   return (
     <AlertDialog>
+      {/* @ts-expect-error props */}
       <AlertDialogTrigger asChild>
         <Button variant="destructive" size="xs">
           Remove
         </Button>
       </AlertDialogTrigger>
+      {/* @ts-expect-error props */}
       <AlertDialogContent>
         <AlertDialogHeader>
+          {/* @ts-expect-error props */}
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          {/* @ts-expect-error props */}
           <AlertDialogDescription>
             This will permanently delete the condition from the patient&apos;s
             record. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
+          {/* @ts-expect-error props */}
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <Button
             variant="destructive"
             onClick={() => handleClick()}
             onKeyDown={handleClick}
           >
+            {/* @ts-expect-error props */}
             <AlertDialogAction className="bg-transparent hover:bg-transparent">
               Remove
             </AlertDialogAction>
