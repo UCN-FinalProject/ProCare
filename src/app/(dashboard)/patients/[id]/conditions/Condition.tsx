@@ -8,10 +8,10 @@ import type { Session } from "next-auth";
 export default function Condition({
   condition,
   session,
-}: {
+}: Readonly<{
   condition: PatientConditionRes;
   session: Session;
-}) {
+}>) {
   const isAdmin = session.user.role === "admin";
   return (
     <div className="flex flex-col p-2 hover:bg-slate-50 rounded-lg transition-all duration-150">

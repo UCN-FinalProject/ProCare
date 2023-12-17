@@ -19,10 +19,10 @@ import type { Session } from "next-auth";
 export default function RemoveConditionDialog({
   id,
   session,
-}: {
+}: Readonly<{
   id: number;
   session: Session;
-}) {
+}>) {
   const removeCondition = api.patient.removeCondition.useMutation();
   const router = useRouter();
 

@@ -13,12 +13,12 @@ export default function PatientHeader({
   fullName,
   isActive,
   isAdmin,
-}: {
+}: Readonly<{
   id: string;
   fullName: string;
   isActive: boolean;
   isAdmin: boolean;
-}) {
+}>) {
   const segments = ["details", "conditions", "procedures"] as const;
   const router = useRouter();
   const path = usePathname();

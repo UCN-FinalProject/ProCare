@@ -36,10 +36,10 @@ const formSchema = z.object({
 export default function NewConditionForm({
   patientID,
   conditions,
-}: {
+}: Readonly<{
   patientID: string;
   conditions: HealthCondition[];
-}) {
+}>) {
   const router = useRouter();
   const session = useSession();
   // 1. Define your form.

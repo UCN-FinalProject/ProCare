@@ -12,9 +12,9 @@ import { api } from "~/trpc/server";
 
 export default async function NewCondition({
   patientID,
-}: {
+}: Readonly<{
   patientID: string;
-}) {
+}>) {
   const conditions = await api.healthCondition.getMany.query({
     limit: 100,
     offset: 0,
@@ -25,6 +25,7 @@ export default async function NewCondition({
       <SheetTrigger asChild>
         <Button variant="secondary">Add condition</Button>
       </SheetTrigger>
+      {/* @ts-expect-error props? */}
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Add condition to a patient</SheetTitle>
