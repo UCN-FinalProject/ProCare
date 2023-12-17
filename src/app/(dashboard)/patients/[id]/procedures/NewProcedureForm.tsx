@@ -81,12 +81,12 @@ export default function NewProcedureForm({
           name="procedureID"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Condition</FormLabel>
+              <FormLabel>Procedure</FormLabel>
               <FormControl>
                 <Select onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a condition" />
+                      <SelectValue placeholder="Select a procedure" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
