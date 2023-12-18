@@ -24,21 +24,23 @@ import {
 } from "~/components/ui/select";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
-import type { HealthCondition } from "~/server/db/export";
+import type { Procedure } from "~/server/db/export";
 import { useRouter } from "next/navigation";
+import { Textarea } from "~/components/ui/textarea";
 
 const formSchema = z.object({
   patientID: z.string(),
-  conditionID: z.coerce.number(),
+  procedureID: z.coerce.number(),
   assignedByID: z.string(),
+  note: z.string().optional(),
 });
 
-export default function NewConditionForm({
+export default function NewProcedureForm({
   patientID,
-  conditions,
+  procedures,
 }: Readonly<{
   patientID: string;
-  conditions: HealthCondition[];
+  procedures: Procedure[];
 }>) {
   const router = useRouter();
   const session = useSession();
@@ -48,20 +50,22 @@ export default function NewConditionForm({
     defaultValues: {
       patientID: patientID,
       assignedByID: session.data!.user.id,
+      note: "",
     },
   });
 
-  const addCondition = api.patient.addCondition.useMutation();
+  const addProcedure = api.patient.addProcedure.useMutation();
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await addCondition.mutateAsync(
+    await addProcedure.mutateAsync(
       {
         patientID: values.patientID,
-        assignedByID: values.assignedByID,
-        conditionID: values.conditionID,
+        userID: values.assignedByID,
+        procedureID: values.procedureID,
+        note: values.note ? values.note.trim() : undefined,
       },
       {
         onSuccess: () => {
-          toast.success("Condition assigned successfully.");
+          toast.success("Procedure was logged successfully.");
           router.refresh();
         },
         onError: (err) => toast.error(err.message),
@@ -74,30 +78,44 @@ export default function NewConditionForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="conditionID"
+          name="procedureID"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Condition</FormLabel>
+              <FormLabel>Procedure</FormLabel>
               <FormControl>
                 <Select onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a condition" />
+                      <SelectValue placeholder="Select a procedure" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {conditions.map((condition) => (
+                    {procedures.map((procedure) => (
                       <SelectItem
-                        key={condition.id}
-                        value={String(condition.id)}
+                        key={procedure.id}
+                        value={String(procedure.id)}
                       >
-                        {condition.name}
+                        {procedure.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </FormControl>
-              <FormDescription>The name of the condition.</FormDescription>
+              <FormDescription>The name of the procedure</FormDescription>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="note"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Note</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Note" {...field} />
+              </FormControl>
 
               <FormMessage />
             </FormItem>
@@ -106,7 +124,7 @@ export default function NewConditionForm({
 
         <SheetFooter>
           <SheetClose asChild>
-            <Button type="submit" isLoading={addCondition.isLoading}>
+            <Button type="submit" isLoading={addProcedure.isLoading}>
               Save
             </Button>
           </SheetClose>

@@ -14,7 +14,7 @@ export default function Condition({
 }>) {
   const isAdmin = session.user.role === "admin";
   return (
-    <div className="flex flex-col p-2 hover:bg-slate-50 rounded-lg transition-all duration-150">
+    <div className="flex flex-col p-2 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-all duration-150">
       <div className="w-full flex justify-between items-center">
         <div className="scroll-m-20 text-xl font-semibold tracking-tight w-fit">
           <Link href={`/diagnoses/${condition.id}`}>{condition.name}</Link>
@@ -40,7 +40,6 @@ export default function Condition({
           <NullOrUndefined>Unknown</NullOrUndefined>
         )}
       </div>
-      {/* <p>{condition.removed ? "true" : "false"}</p> */}
     </div>
   );
 }

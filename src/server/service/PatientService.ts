@@ -1,5 +1,4 @@
 import { type TRPCContext } from "../api/trpc";
-import { TRPCError } from "@trpc/server";
 import {
   patient,
   patientAddress,
@@ -35,12 +34,27 @@ type PatientCondition = {
     | undefined;
 };
 
+type PatientProcedure = {
+  id: number;
+  procedureID: number;
+  name: string | undefined;
+  note: string | null;
+  createdAt: Date;
+  createdBy:
+    | {
+        id: string;
+        name: string;
+      }
+    | undefined;
+};
+
 export default {
   async getByPatientID({ id, ctx }: { id: string; ctx: TRPCContext }) {
     const res = await ctx.db.query.patient.findFirst({
       where: (patient, { eq }) => eq(patient.id, id),
       with: {
         conditions: true,
+        procedures: true,
         address: true,
         healthcareInfo: true,
       },
@@ -74,10 +88,32 @@ export default {
       }
     }
 
+    const procedures: PatientProcedure[] = [];
+    if (res.procedures) {
+      for (const patientProcedure of res.procedures) {
+        const details = await ctx.db.query.procedures.findFirst({
+          where: (procedure, { eq }) => eq(procedure.id, patientProcedure.id),
+        });
+        const userDetails = await ctx.db.query.users.findFirst({
+          where: (user, { eq }) => eq(user.id, patientProcedure.createdBy),
+          columns: { id: true, name: true },
+        });
+        procedures.push({
+          id: patientProcedure.id,
+          procedureID: patientProcedure.procedureID,
+          name: details?.name,
+          note: patientProcedure.note,
+          createdAt: patientProcedure.createdAt,
+          createdBy: userDetails,
+        } satisfies PatientProcedure);
+      }
+    }
+
     return {
       ...res,
       ssn: decryptText(res.ssn),
       conditions,
+      procedures: procedures.reverse(),
     };
   },
 
@@ -106,10 +142,7 @@ export default {
         limit: input.limit,
         total: total.length,
       } satisfies ReturnMany<typeof res>;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "No patients were found.",
-    });
+    throw new Error("No patients were found.");
   },
 
   async createPatient({
@@ -146,11 +179,7 @@ export default {
           throw err;
         });
 
-      if (!patientInsert[0])
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Patient could not be created.",
-        });
+      if (!patientInsert[0]) throw new Error("Patient could not be created.");
 
       const newUserID = patientInsert[0].id;
 
@@ -192,10 +221,7 @@ export default {
     });
 
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be created.",
-    });
+    throw new Error("Patient could not be created.");
   },
 
   async updatePatient({
@@ -264,10 +290,7 @@ export default {
     });
 
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be updated.",
-    });
+    throw new Error("Patient could not be updated.");
   },
 
   async setStatus({
@@ -283,18 +306,10 @@ export default {
         isActive: input.isActive,
       })
       .where(eq(patient.id, input.id))
-      .returning()
-      .catch((error) => {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: error instanceof Error ? error.message : String(error),
-        });
-      });
+      .returning();
+
     if (update) return update;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be updated",
-    });
+    throw new Error("Patient could not be updated.");
   },
 
   async addPatientCondition({
@@ -365,14 +380,14 @@ export default {
       .values({
         patientID: input.patientID,
         procedureID: input.procedureID,
+        note: input.note ?? null,
+        createdBy: input.userID,
+        createdAt: new Date(),
       })
       .returning();
 
     if (insert && !!insert[0]) return insert[0];
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Procedure could not be added.",
-    });
+    throw new Error("Procedure could not be added.");
   },
 } as const;
 
