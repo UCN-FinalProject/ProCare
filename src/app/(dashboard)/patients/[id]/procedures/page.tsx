@@ -1,18 +1,19 @@
 import React from "react";
-import { api } from "~/trpc/server";
 import PageHeader from "~/components/Headers/PageHeader";
 import NewProcedure from "./NewProcedureDialog";
 import Procedure from "./Procedure";
+import { GetPatient } from "../layout";
+import { notFound } from "next/navigation";
 
 export type PatientConditionRes = Awaited<
-  ReturnType<typeof api.patient.getByID.query>
+  ReturnType<typeof GetPatient>
 >["procedures"][number];
 
 export default async function Page({
   params,
 }: Readonly<{ params: { id: string } }>) {
   const { id } = params;
-  const patient = await api.patient.getByID.query({ id });
+  const patient = await GetPatient(id).catch(() => notFound());
 
   return (
     <>
