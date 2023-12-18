@@ -7,6 +7,8 @@ import {
   getPatientsInput,
   updatePatientInput,
   addPatientConditionInput,
+  removePatientConditionInput,
+  addPatientProcedureInput,
 } from "~/server/service/validation/PatientValidation";
 import { parseErrorMessage } from "~/lib/parseError";
 
@@ -123,6 +125,38 @@ export const patientRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       try {
         return await PatientService.addPatientCondition({ input, ctx });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Bad Request",
+          }),
+        });
+      }
+    }),
+
+  removeCondition: protectedProcedure
+    .input(removePatientConditionInput)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await PatientService.removePatientCondition({ input, ctx });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Bad Request",
+          }),
+        });
+      }
+    }),
+
+  addProcedure: protectedProcedure
+    .input(addPatientProcedureInput)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await PatientService.addPatientProcedure({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

@@ -41,14 +41,6 @@ export const createPatientInput = z.object({
   healthInsuranceID: z.number(),
   doctorID: z.number(),
   healthcareProviderID: z.number(),
-  // conditions
-  conditions: z
-    .array(
-      z.object({
-        conditionID: z.number(),
-      }),
-    )
-    .optional(),
 });
 export type CreatePatientInput = z.infer<typeof createPatientInput>;
 
@@ -79,8 +71,17 @@ export type UpdatePatientInput = z.infer<typeof updatePatientInput>;
 export const addPatientConditionInput = z.object({
   patientID: z.string(),
   conditionID: z.number(),
+  assignedByID: z.string(),
 });
 export type AddPatientConditionInput = z.infer<typeof addPatientConditionInput>;
+
+export const removePatientConditionInput = z.object({
+  patientConditionID: z.number(),
+  userID: z.string(),
+});
+export type RemovePatientConditionInput = z.infer<
+  typeof removePatientConditionInput
+>;
 
 export const setStatusPatientInput = z.object({
   id: z.string(),
@@ -90,5 +91,7 @@ export type SetStatusPatientInput = z.infer<typeof setStatusPatientInput>;
 export const addPatientProcedureInput = z.object({
   patientID: z.string(),
   procedureID: z.number(),
+  userID: z.string(),
+  note: z.string().optional(),
 });
 export type AddPatientProcedureInput = z.infer<typeof addPatientProcedureInput>;

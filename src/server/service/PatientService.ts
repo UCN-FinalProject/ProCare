@@ -1,5 +1,4 @@
 import { type TRPCContext } from "../api/trpc";
-import { TRPCError } from "@trpc/server";
 import {
   patient,
   patientAddress,
@@ -14,9 +13,40 @@ import type {
   AddPatientConditionInput,
   GetPatientsInput,
   AddPatientProcedureInput,
+  RemovePatientConditionInput,
 } from "./validation/PatientValidation";
 import { patientProcedures } from "../db/schema/patientProcedures";
 import type { ReturnMany } from "./validation/util";
+import { decryptText, encryptText } from "../encrypt";
+import HealthConditionService from "./HealthConditionService";
+
+type PatientCondition = {
+  id: number;
+  conditionId: number;
+  name: string;
+  description: string;
+  assignedAt: Date;
+  assignedBy:
+    | {
+        id: string;
+        name: string;
+      }
+    | undefined;
+};
+
+type PatientProcedure = {
+  id: number;
+  procedureID: number;
+  name: string | undefined;
+  note: string | null;
+  createdAt: Date;
+  createdBy:
+    | {
+        id: string;
+        name: string;
+      }
+    | undefined;
+};
 
 export default {
   async getByPatientID({ id, ctx }: { id: string; ctx: TRPCContext }) {
@@ -24,16 +54,67 @@ export default {
       where: (patient, { eq }) => eq(patient.id, id),
       with: {
         conditions: true,
+        procedures: true,
         address: true,
         healthcareInfo: true,
       },
     });
 
-    if (res) return res;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "No patient was found.",
-    });
+    if (!res) throw new Error("No patient was found.");
+
+    const conditions: PatientCondition[] = [];
+    if (res.conditions) {
+      for (const condition of res.conditions) {
+        // skip removed/deleted conditions
+        if (condition.removed) continue;
+
+        const details = await HealthConditionService.getByID({
+          id: condition.conditionID,
+          ctx,
+        });
+        const userRes = await ctx.db.query.users.findFirst({
+          where: (user, { eq }) => eq(user.id, condition.assignedBy),
+          columns: { id: true, name: true },
+        });
+
+        conditions.push({
+          id: condition.id,
+          conditionId: condition.conditionID,
+          name: details.name,
+          description: details.description,
+          assignedAt: condition.assignedAt,
+          assignedBy: userRes,
+        } satisfies PatientCondition);
+      }
+    }
+
+    const procedures: PatientProcedure[] = [];
+    if (res.procedures) {
+      for (const patientProcedure of res.procedures) {
+        const details = await ctx.db.query.procedures.findFirst({
+          where: (procedure, { eq }) => eq(procedure.id, patientProcedure.id),
+        });
+        const userDetails = await ctx.db.query.users.findFirst({
+          where: (user, { eq }) => eq(user.id, patientProcedure.createdBy),
+          columns: { id: true, name: true },
+        });
+        procedures.push({
+          id: patientProcedure.id,
+          procedureID: patientProcedure.procedureID,
+          name: details?.name,
+          note: patientProcedure.note,
+          createdAt: patientProcedure.createdAt,
+          createdBy: userDetails,
+        } satisfies PatientProcedure);
+      }
+    }
+
+    return {
+      ...res,
+      ssn: decryptText(res.ssn),
+      conditions,
+      procedures: procedures.reverse(),
+    };
   },
 
   async getMany({ input, ctx }: { input: GetPatientsInput; ctx: TRPCContext }) {
@@ -51,6 +132,9 @@ export default {
       columns: { id: true },
       where: findManyWhere(input),
     });
+    res.forEach((patient) => {
+      patient.ssn = decryptText(patient.ssn);
+    });
     if (res)
       return {
         result: res,
@@ -58,19 +142,14 @@ export default {
         limit: input.limit,
         total: total.length,
       } satisfies ReturnMany<typeof res>;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "No patients were found.",
-    });
+    throw new Error("No patients were found.");
   },
 
   async createPatient({
     input,
-    inputConditions,
     ctx,
   }: {
     input: CreatePatientInput;
-    inputConditions?: AddPatientConditionInput[];
     ctx: TRPCContext;
   }) {
     const transaction = await ctx.db.transaction(async (tx) => {
@@ -81,7 +160,7 @@ export default {
           isActive: input.isActive,
           biologicalSex: input.biologicalSex,
           dateOfBirth: input.dateOfBirth,
-          ssn: input.ssn,
+          ssn: encryptText(input.ssn),
           recommendationDate: input.recommendationDate ?? null,
           acceptanceDate: input.acceptanceDate ?? null,
           startDate: input.startDate,
@@ -100,11 +179,7 @@ export default {
           throw err;
         });
 
-      if (!patientInsert[0])
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Patient could not be created.",
-        });
+      if (!patientInsert[0]) throw new Error("Patient could not be created.");
 
       const newUserID = patientInsert[0].id;
 
@@ -135,22 +210,6 @@ export default {
           throw err;
         });
 
-      // create patient conditions
-      if (inputConditions) {
-        for (const condition of inputConditions) {
-          await tx
-            .insert(patientConditions)
-            .values({
-              patientID: newUserID,
-              conditionID: condition.conditionID,
-            })
-            .catch((err) => {
-              tx.rollback();
-              throw err;
-            });
-        }
-      }
-
       return await tx.query.patient.findFirst({
         where: (patient, { eq }) => eq(patient.id, patientInsert.at(0)!.id),
         with: {
@@ -162,10 +221,7 @@ export default {
     });
 
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be created.",
-    });
+    throw new Error("Patient could not be created.");
   },
 
   async updatePatient({
@@ -234,10 +290,7 @@ export default {
     });
 
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be updated.",
-    });
+    throw new Error("Patient could not be updated.");
   },
 
   async setStatus({
@@ -253,18 +306,10 @@ export default {
         isActive: input.isActive,
       })
       .where(eq(patient.id, input.id))
-      .returning()
-      .catch((error) => {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: error instanceof Error ? error.message : String(error),
-        });
-      });
+      .returning();
+
     if (update) return update;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Patient could not be updated",
-    });
+    throw new Error("Patient could not be updated.");
   },
 
   async addPatientCondition({
@@ -274,19 +319,53 @@ export default {
     input: AddPatientConditionInput;
     ctx: TRPCContext;
   }) {
+    const patient = await this.getByPatientID({ id: input.patientID, ctx });
+    if (!patient) throw new Error("Patient was not found.");
+
+    if (patient.conditions.find((c) => c.conditionId === input.conditionID))
+      throw new Error("Patient already has this condition.");
+
     const insert = await ctx.db
       .insert(patientConditions)
       .values({
         patientID: input.patientID,
         conditionID: input.conditionID,
+        assignedBy: input.assignedByID,
+        assignedAt: new Date(),
       })
       .returning();
 
     if (insert && !!insert[0]) return insert[0];
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Condition could not be added.",
+    throw new Error("Condition could not be added.");
+  },
+
+  async removePatientCondition({
+    input,
+    ctx,
+  }: {
+    input: RemovePatientConditionInput;
+    ctx: TRPCContext;
+  }) {
+    const findCondition = await ctx.db.query.patientConditions.findFirst({
+      where: (patientConditions, { eq }) =>
+        eq(patientConditions.id, input.patientConditionID),
+      columns: { conditionID: true },
     });
+    if (!findCondition)
+      throw new Error("Condition is not assigned to a patient.");
+
+    const update = await ctx.db
+      .update(patientConditions)
+      .set({
+        removed: true,
+        removedAt: new Date(),
+        removedBy: input.userID,
+      })
+      .where(eq(patientConditions.id, input.patientConditionID))
+      .returning();
+
+    if (update) return update;
+    throw new Error("Condition could not be removed.");
   },
 
   async addPatientProcedure({
@@ -301,14 +380,14 @@ export default {
       .values({
         patientID: input.patientID,
         procedureID: input.procedureID,
+        note: input.note ?? null,
+        createdBy: input.userID,
+        createdAt: new Date(),
       })
       .returning();
 
     if (insert && !!insert[0]) return insert[0];
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Procedure could not be added.",
-    });
+    throw new Error("Procedure could not be added.");
   },
 } as const;
 
