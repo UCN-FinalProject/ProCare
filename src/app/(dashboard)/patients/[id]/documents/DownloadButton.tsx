@@ -6,8 +6,12 @@ import { DownloadIcon } from "lucide-react";
 
 export default function DownloadButton({
   report,
-}: Readonly<{ report: ReportFile }>) {
-  const download = useReportDownload(report);
+  patientId,
+}: Readonly<{ report: ReportFile; patientId: string }>) {
+  const download = useReportDownload({
+    report,
+    patientId,
+  });
 
   return (
     <Button

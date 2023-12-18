@@ -46,8 +46,10 @@ const variant = [
 
 export default function ReportCard({
   report,
+  patientId,
 }: Readonly<{
   report: (typeof variant)[number]["document"];
+  patientId: string;
 }>) {
   const { title, description, content } =
     variant.find((item) => item.document === report) ?? variant[0];
@@ -61,7 +63,7 @@ export default function ReportCard({
         <p className="text-sm relaxed">{content}</p>
       </CardContent>
       <CardFooter>
-        <DownloadButton report={report} />
+        <DownloadButton report={report} patientId={patientId} />
       </CardFooter>
     </Card>
   );
