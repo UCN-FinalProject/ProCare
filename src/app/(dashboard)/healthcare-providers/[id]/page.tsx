@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import React from "react";
-// import { api } from "~/trpc/server";
 import Form from "./components/form";
 import { getServerAuthSession } from "~/server/auth";
 import { GetHealthCareProvider } from "./layout";

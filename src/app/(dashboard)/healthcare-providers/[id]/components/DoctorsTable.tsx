@@ -16,10 +16,10 @@ import RemoveDoctorDialog from "./RemoveDoctor";
 export default async function DoctorsTable({
   session,
   providerID,
-}: {
+}: Readonly<{
   session: Session;
   providerID: number;
-}) {
+}>) {
   const isAdmin = session?.user.role === "admin";
   const doctors = await api.healthcareProvider.getDoctors.query({
     id: providerID,
