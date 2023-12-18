@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import {
   healthInsurance,
   healthInsuranceAddress,
@@ -24,10 +23,7 @@ export default {
       where: (healthInsurance, { eq }) => eq(healthInsurance.id, id),
     });
     if (res) return res;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Health insurance not found",
-    });
+    throw new Error("Health insurance not found.");
   },
 
   async getMany({
@@ -53,12 +49,14 @@ export default {
           ? eq(healthInsurance.isActive, input.isActive)
           : undefined,
     });
-    return {
-      result: res,
-      limit: input.limit,
-      offset: input.offset,
-      total: total.length,
-    } satisfies ReturnMany<typeof res>;
+    if (res)
+      return {
+        result: res,
+        limit: input.limit,
+        offset: input.offset,
+        total: total.length,
+      } satisfies ReturnMany<typeof res>;
+    throw new Error("Health insurances not found.");
   },
 
   // POST (create)
@@ -80,77 +78,39 @@ export default {
           pricePerCredit: input.pricePerCredit,
           isActive: true,
         })
-        .returning({ id: healthInsurance.id })
-        .catch((err) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
-        });
+        .returning();
 
-      if (insert.length !== 1 && !insert.at(0)?.id)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Health insurance could not created",
-        });
+      if (insert && insert.length !== 1)
+        throw new Error("Health insurance could not created");
+      const id = insert.at(0)!.id!;
 
-      await tx
-        .insert(healthInsuranceAddress)
-        .values({
-          insuranceID: insert.at(0)!.id!,
-          address1: input.address.address1,
-          address2: input.address.address2,
-          city: input.address.city,
-          zip: input.address.zip,
-          phoneNumber: input.address.phoneNumber,
-          email: input.address.email,
-        })
-        .catch((err) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
-        });
-      await tx
-        .insert(healthInsuranceVAT)
-        .values({
-          insuranceID: insert.at(0)!.id!,
-          vat1: input.vat.VAT1,
-          vat2: input.vat.VAT2,
-          vat3: input.vat.VAT3 ?? undefined,
-        })
-        .catch((err) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
-        });
+      await tx.insert(healthInsuranceAddress).values({
+        insuranceID: id,
+        address1: input.address.address1,
+        address2: input.address.address2,
+        city: input.address.city,
+        zip: input.address.zip,
+        phoneNumber: input.address.phoneNumber,
+        email: input.address.email,
+      });
+      await tx.insert(healthInsuranceVAT).values({
+        insuranceID: id,
+        vat1: input.vat.VAT1,
+        vat2: input.vat.VAT2,
+        vat3: input.vat.VAT3 ?? undefined,
+      });
 
-      return await tx.query.healthInsurance
-        .findFirst({
-          with: {
-            healthInsuranceAddress: true,
-            healthInsuranceVAT: true,
-          },
-          where: (healthInsurance, { eq }) =>
-            eq(healthInsurance.insuranceID, input.insuranceID),
-        })
-        .catch((err) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
-        });
+      return await tx.query.healthInsurance.findFirst({
+        with: {
+          healthInsuranceAddress: true,
+          healthInsuranceVAT: true,
+        },
+        where: (healthInsurance, { eq }) =>
+          eq(healthInsurance.insuranceID, input.insuranceID),
+      });
     });
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Health insurance could not created",
-    });
+    throw new Error("Health insurance could not be created.");
   },
 
   // POST (update)
@@ -161,21 +121,6 @@ export default {
     input: UpdateHealthInsuranceInput;
     ctx: TRPCContext;
   }) {
-    const initialHealthInsurance = await ctx.db.query.healthInsurance.findFirst(
-      {
-        with: {
-          healthInsuranceAddress: true,
-          healthInsuranceVAT: true,
-        },
-        where: (healthInsurance, { eq }) => eq(healthInsurance.id, input.id),
-      },
-    );
-    if (!initialHealthInsurance)
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Health insurance not found",
-      });
-
     const transaction = await ctx.db.transaction(async (tx) => {
       await tx
         .update(healthInsurance)
@@ -185,14 +130,7 @@ export default {
           name: input.name,
           pricePerCredit: String(input.pricePerCredit),
         })
-        .where(eq(healthInsurance.id, initialHealthInsurance.id))
-        .catch((err) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
-        });
+        .where(eq(healthInsurance.id, input.id));
       await tx
         .update(healthInsuranceAddress)
         .set({
@@ -203,19 +141,7 @@ export default {
           phoneNumber: input.address.phoneNumber,
           email: input.address.email,
         })
-        .where(
-          eq(
-            healthInsuranceAddress.insuranceID,
-            initialHealthInsurance.healthInsuranceAddress?.insuranceID,
-          ),
-        )
-        .catch((err) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
-        });
+        .where(eq(healthInsuranceAddress.insuranceID, input.insuranceID));
 
       await tx
         .update(healthInsuranceVAT)
@@ -224,39 +150,18 @@ export default {
           vat2: input.vat.VAT2,
           vat3: input.vat.VAT3 ?? undefined,
         })
-        .where(
-          eq(
-            healthInsuranceVAT.insuranceID,
-            initialHealthInsurance.healthInsuranceVAT?.insuranceID,
-          ),
-        )
-        .catch((err) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: String(err),
-          });
-        });
+        .where(eq(healthInsuranceVAT.insuranceID, input.insuranceID));
 
-      return await tx.query.healthInsurance
-        .findFirst({
-          with: {
-            healthInsuranceAddress: true,
-            healthInsuranceVAT: true,
-          },
-          where: (healthInsurance, { eq }) => eq(healthInsurance.id, input.id),
-        })
-        .catch((err) => {
-          tx.rollback();
-          throw new Error(String(err));
-        });
+      return await tx.query.healthInsurance.findFirst({
+        with: {
+          healthInsuranceAddress: true,
+          healthInsuranceVAT: true,
+        },
+        where: (healthInsurance, { eq }) => eq(healthInsurance.id, input.id),
+      });
     });
     if (transaction) return transaction;
-    else
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Health insurance could not updated",
-      });
+    throw new Error("Health insurance could not updated");
   },
 
   // POST (set inactive)
@@ -267,29 +172,15 @@ export default {
     input: SetHealthInsuranceStatus;
     ctx: TRPCContext;
   }) {
-    const initialHealthInsurance = await ctx.db.query.healthInsurance.findFirst(
-      {
-        where: (healthInsurance, { eq }) => eq(healthInsurance.id, input.id),
-      },
-    );
-    if (!initialHealthInsurance)
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Health insurance not found",
-      });
-
     const setStatus = await ctx.db
       .update(healthInsurance)
       .set({
         isActive: input.isActive,
       })
-      .where(eq(healthInsurance.id, initialHealthInsurance.id))
+      .where(eq(healthInsurance.id, input.id))
       .returning();
 
     if (setStatus) return setStatus;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Health insurance status could not updated",
-    });
+    throw new Error("Health insurance status could not updated");
   },
 } as const;

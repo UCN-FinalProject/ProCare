@@ -7,9 +7,7 @@ import {
   tennantVAT,
 } from "../db/export";
 import { type TennantInput } from "./validation/TennantValidation";
-import { TRPCError } from "@trpc/server";
 import { type TRPCContext } from "../api/trpc";
-import { parseErrorMessage } from "~/lib/parseError";
 import { db } from "~/server/db";
 
 export default {
@@ -23,10 +21,7 @@ export default {
       },
     });
     if (res) return res;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Tennant was not found.",
-    });
+    throw new Error("Tennant not found.");
   },
 
   async update({ input, ctx }: { input: TennantInput; ctx: TRPCContext }) {
@@ -43,17 +38,7 @@ export default {
           name: input.name,
           regionalAuthority: input.regionalAuthority,
         })
-        .where(eq(tennant.id, currentTennant.id))
-        .catch((error: unknown) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: parseErrorMessage({
-              error,
-              defaultMessage: "Could not update the tennant.",
-            }),
-          });
-        });
+        .where(eq(tennant.id, currentTennant.id));
       // update headDoctor
       await tx
         .update(headDoctor)
@@ -61,17 +46,7 @@ export default {
           headDoctor: input.headDoctor.headDoctor,
           headDoctorID: input.headDoctor.headDoctorID,
         })
-        .where(eq(headDoctor.id, currentTennant.headDoctor.id))
-        .catch((error: unknown) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: parseErrorMessage({
-              error,
-              defaultMessage: "Could not update the tennant.",
-            }),
-          });
-        });
+        .where(eq(headDoctor.id, currentTennant.headDoctor.id));
       // update healthCareProvider
       await tx
         .update(healthCareProvider)
@@ -82,17 +57,7 @@ export default {
           city: input.healthCareProvider.city,
           zip: input.healthCareProvider.zip,
         })
-        .where(eq(healthCareProvider.id, currentTennant.healthCareProvider.id))
-        .catch((error: unknown) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: parseErrorMessage({
-              error,
-              defaultMessage: "Could not update the tennant.",
-            }),
-          });
-        });
+        .where(eq(healthCareProvider.id, currentTennant.healthCareProvider.id));
       // update tennantVAT
       await tx
         .update(tennantVAT)
@@ -101,17 +66,7 @@ export default {
           VAT2: input.tennantVAT.VAT2,
           VAT3: input.tennantVAT.VAT3,
         })
-        .where(eq(tennantVAT.id, currentTennant.tennantVAT.id))
-        .catch((error: unknown) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: parseErrorMessage({
-              error,
-              defaultMessage: "Could not update the tennant.",
-            }),
-          });
-        });
+        .where(eq(tennantVAT.id, currentTennant.tennantVAT.id));
       // update tennantBankDetails
       await tx
         .update(tennantBankDetails)
@@ -120,33 +75,16 @@ export default {
           IBAN: input.tennantBankDetails.IBAN,
           SWIFT: input.tennantBankDetails.SWIFT,
         })
-        .where(eq(tennantBankDetails.id, currentTennant.tennantBankDetails.id))
-        .catch((error: unknown) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: parseErrorMessage({
-              error,
-              defaultMessage: "Could not update the tennant.",
-            }),
-          });
-        });
+        .where(eq(tennantBankDetails.id, currentTennant.tennantBankDetails.id));
       return await this.getTennant({ ctx });
     });
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Could not update the tennant.",
-    });
+    throw new Error("Tennant could not be updated.");
   },
 
   async create({ input }: { input: TennantInput }) {
-    const currentTennant = await db.select().from(tennant).limit(1);
-    if (currentTennant.length > 0)
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Tennant already exists.",
-      });
+    const currentTennant = await db.query.tennant.findFirst();
+    if (currentTennant) throw new Error("Tennant already exists.");
 
     // TRANSACTION
     const transaction = await db.transaction(async (tx) => {
@@ -158,107 +96,52 @@ export default {
           name: input.name,
           regionalAuthority: input.regionalAuthority,
         })
-        .returning({ id: tennant.id })
-        .catch((error: unknown) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: parseErrorMessage({
-              error,
-              defaultMessage: "Tennant could not created",
-            }),
-          });
-        });
-
+        .returning();
       if (createTennant.length !== 1 && !createTennant.at(0)?.id)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Tennant could not created",
-        });
+        throw new Error("Tennant could not created");
+
+      const id = createTennant.at(0)!.id;
 
       // create headDoctor
-      await tx
-        .insert(headDoctor)
-        .values({
-          headDoctor: input.headDoctor.headDoctor,
-          headDoctorID: input.headDoctor.headDoctorID,
-          tennantID: createTennant.at(0)!.id,
-        })
-        .catch((error: unknown) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: parseErrorMessage({
-              error,
-              defaultMessage: "Tennant could not created",
-            }),
-          });
-        });
+      await tx.insert(headDoctor).values({
+        headDoctor: input.headDoctor.headDoctor,
+        headDoctorID: input.headDoctor.headDoctorID,
+        tennantID: id,
+      });
       // create healthCareProvider
-      await tx
-        .insert(healthCareProvider)
-        .values({
-          name: input.healthCareProvider.name,
-          address1: input.healthCareProvider.address1,
-          address2: input.healthCareProvider.address2,
-          city: input.healthCareProvider.city,
-          zip: input.healthCareProvider.zip,
-          tennantID: createTennant.at(0)!.id,
-        })
-        .catch((error: unknown) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: parseErrorMessage({
-              error,
-              defaultMessage: "Tennant could not created",
-            }),
-          });
-        });
+      await tx.insert(healthCareProvider).values({
+        name: input.healthCareProvider.name,
+        address1: input.healthCareProvider.address1,
+        address2: input.healthCareProvider.address2,
+        city: input.healthCareProvider.city,
+        zip: input.healthCareProvider.zip,
+        tennantID: id,
+      });
       // create tennantVAT
-      await tx
-        .insert(tennantVAT)
-        .values({
-          VAT1: input.tennantVAT.VAT1,
-          VAT2: input.tennantVAT.VAT2,
-          VAT3: input.tennantVAT.VAT3,
-          tennantID: createTennant.at(0)!.id,
-        })
-        .catch((error: unknown) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: parseErrorMessage({
-              error,
-              defaultMessage: "Tennant could not be created.",
-            }),
-          });
-        });
+      await tx.insert(tennantVAT).values({
+        VAT1: input.tennantVAT.VAT1,
+        VAT2: input.tennantVAT.VAT2,
+        VAT3: input.tennantVAT.VAT3,
+        tennantID: id,
+      });
       // create tennantBankDetails
-      await tx
-        .insert(tennantBankDetails)
-        .values({
-          bankName: input.tennantBankDetails.bankName,
-          IBAN: input.tennantBankDetails.IBAN,
-          SWIFT: input.tennantBankDetails.SWIFT,
-          tennantID: createTennant.at(0)!.id,
-        })
-        .catch((error: unknown) => {
-          tx.rollback();
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: parseErrorMessage({
-              error,
-              defaultMessage: "Tennant could not be created.",
-            }),
-          });
-        });
-      return true;
+      await tx.insert(tennantBankDetails).values({
+        bankName: input.tennantBankDetails.bankName,
+        IBAN: input.tennantBankDetails.IBAN,
+        SWIFT: input.tennantBankDetails.SWIFT,
+        tennantID: id,
+      });
+
+      return await tx.query.tennant.findFirst({
+        with: {
+          headDoctor: true,
+          healthCareProvider: true,
+          tennantBankDetails: true,
+          tennantVAT: true,
+        },
+      });
     });
     if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Tennant could not be created.",
-    });
+    throw new Error("Tennant could not be created.");
   },
 } as const;

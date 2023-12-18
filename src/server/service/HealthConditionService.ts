@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import {
   type GetManyHealthConditionsInput,
   type CreateHealthConditionInput,
@@ -15,10 +14,7 @@ export default {
       where: (healthCondition, { eq }) => eq(healthCondition.id, id),
     });
     if (res) return res;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Health condition not found",
-    });
+    throw new Error("Health condition not found.");
   },
 
   async getMany({
@@ -51,10 +47,7 @@ export default {
         limit: input.limit,
         total: total.length,
       } satisfies ReturnMany<typeof res>;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Health conditions not found",
-    });
+    throw new Error("Health conditions not found.");
   },
 
   async create({
@@ -64,37 +57,16 @@ export default {
     input: CreateHealthConditionInput;
     ctx: TRPCContext;
   }) {
-    const transaction = await ctx.db.transaction(async (tx) => {
-      const insert = await tx
-        .insert(healthCondition)
-        .values({
-          name: input.name,
-          description: input.description,
-        })
-        .returning({ id: healthCondition.id })
-        .catch((error) => {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: error instanceof Error ? error.message : String(error),
-          });
-        });
+    const create = await ctx.db
+      .insert(healthCondition)
+      .values({
+        name: input.name,
+        description: input.description,
+      })
+      .returning();
 
-      if (insert.length !== 1 && !insert.at(0)?.id)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Health insurance could not created",
-        });
-
-      return await tx.query.healthCondition.findFirst({
-        where: (healthCondition, { eq }) =>
-          eq(healthCondition.id, insert.at(0)!.id!),
-      });
-    });
-    if (transaction) return transaction;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Health condition not created",
-    });
+    if (create && create.length === 1) return create[0];
+    throw new Error("Health condition could not be created.");
   },
 
   async update({
@@ -104,30 +76,16 @@ export default {
     input: UpdateHealthConditionInput;
     ctx: TRPCContext;
   }) {
-    const transaction = await ctx.db.transaction(async (tx) => {
-      await tx
-        .update(healthCondition)
-        .set({
-          description: input.description,
-          name: input.name,
-        })
-        .where(eq(healthCondition.id, input.id))
-        .catch((error) => {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: error instanceof Error ? error.message : String(error),
-          });
-        });
+    const update = await ctx.db
+      .update(healthCondition)
+      .set({
+        description: input.description,
+        name: input.name,
+      })
+      .where(eq(healthCondition.id, input.id))
+      .returning();
 
-      return await tx.query.healthCondition.findFirst({
-        where: (healthCondition, { eq }) => eq(healthCondition.id, input.id),
-      });
-    });
-
-    if (transaction) return transaction;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Health condition not updated",
-    });
+    if (update && update.length === 1) return update[0];
+    throw new Error("Health condition could not be updated.");
   },
 } as const;

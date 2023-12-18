@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import {
   type GetManyDoctorsInput,
   type CreateDoctorInput,
@@ -18,10 +17,7 @@ export default {
       where: (doctor, { eq }) => eq(doctor.id, id),
     });
     if (res) return res;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Doctor not found",
-    });
+    throw new Error("Doctor not found.");
   },
 
   async getMany({
@@ -52,72 +48,36 @@ export default {
         limit: input.limit,
         total: total.length,
       } satisfies ReturnMany<typeof res>;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Doctors not found",
-    });
+    throw new Error("Doctors not found.");
   },
 
   async create({ input, ctx }: { input: CreateDoctorInput; ctx: TRPCContext }) {
-    const transaction = await ctx.db.transaction(async (tx) => {
-      const insert = await tx
-        .insert(doctor)
-        .values({
-          fullName: input.fullName,
-          doctorID: input.doctorID,
-          note: input.note,
-        })
-        .returning({ id: doctor.id })
-        .catch((error) => {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: error instanceof Error ? error.message : String(error),
-          });
-        });
+    const create = await ctx.db
+      .insert(doctor)
+      .values({
+        fullName: input.fullName,
+        doctorID: input.doctorID,
+        note: input.note,
+      })
+      .returning();
 
-      if (insert.length !== 1 && !insert.at(0)?.id)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Health insurance could not created",
-        });
-
-      return await tx.query.doctor.findFirst({
-        where: (doctor, { eq }) => eq(doctor.id, insert.at(0)!.id!),
-      });
-    });
-    if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Doctor could not created",
-    });
+    if (create && create.length === 1) return create[0];
+    throw new Error("Doctor could not be created.");
   },
 
   async update({ input, ctx }: { input: UpdateDoctorInput; ctx: TRPCContext }) {
-    const transaction = await ctx.db.transaction(async (tx) => {
-      await tx
-        .update(doctor)
-        .set({
-          fullName: input.fullName,
-          doctorID: input.doctorID,
-          note: input.note,
-        })
-        .where(eq(doctor.id, input.id))
-        .catch((error) => {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: error instanceof Error ? error.message : String(error),
-          });
-        });
+    const update = await ctx.db
+      .update(doctor)
+      .set({
+        fullName: input.fullName,
+        doctorID: input.doctorID,
+        note: input.note,
+      })
+      .where(eq(doctor.id, input.id))
+      .returning();
 
-      return await tx.query.doctor.findFirst({
-        where: (doctor, { eq }) => eq(doctor.id, input.id),
-      });
-    });
-    if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Doctor could not updated",
-    });
+    if (update && update.length === 1) return update[0];
+    throw new Error("Doctor could not be updated.");
   },
 
   async setStatus({
@@ -127,29 +87,16 @@ export default {
     input: SetStatusDoctorInput;
     ctx: TRPCContext;
   }) {
-    const transaction = await ctx.db.transaction(async (tx) => {
-      await tx
-        .update(doctor)
-        .set({
-          isActive: input.isActive,
-        })
-        .where(eq(doctor.id, input.id))
-        .catch((error) => {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: error instanceof Error ? error.message : String(error),
-          });
-        });
+    const update = await ctx.db
+      .update(doctor)
+      .set({
+        isActive: input.isActive,
+      })
+      .where(eq(doctor.id, input.id))
+      .returning();
 
-      return await tx.query.doctor.findFirst({
-        where: (doctor, { eq }) => eq(doctor.id, input.id),
-      });
-    });
-    if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Doctor could not updated",
-    });
+    if (update && update.length === 1) return update[0];
+    throw new Error("Doctor could not be updated.");
   },
 
   // TODO: test and improve return structure
@@ -163,10 +110,7 @@ export default {
       },
     });
     if (res) return res;
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Healthcare providers not found",
-    });
+    throw new Error("Healthcare providers not found.");
   },
 
   async addHealthCareProvider({
@@ -176,41 +120,26 @@ export default {
     input: AddDoctorInput;
     ctx: TRPCContext;
   }) {
-    const transaction = await ctx.db.transaction(async (tx) => {
-      const checkIfAlreadyAdded =
-        await tx.query.healthcareProviderDoctors.findFirst({
-          where: (healthcareProviderDoctors, { eq }) =>
-            eq(
-              healthcareProviderDoctors.healthcareProviderID,
-              input.healthcareProviderID,
-            ) && eq(healthcareProviderDoctors.doctorID, input.doctorID),
-        });
-      if (checkIfAlreadyAdded)
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Healthcare provider already added",
-        });
-
-      await tx
-        .insert(healthcareProviderDoctors)
-        .values({
-          healthcareProviderID: input.healthcareProviderID,
-          doctorID: input.doctorID,
-        })
-        .catch((error) => {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: error instanceof Error ? error.message : String(error),
-          });
-        });
-
-      return "Healthcare provider added" as const;
+    const provider = await ctx.db.query.healthcareProviderDoctors.findFirst({
+      where: (healthcareProviderDoctors, { eq }) =>
+        eq(
+          healthcareProviderDoctors.healthcareProviderID,
+          input.healthcareProviderID,
+        ) && eq(healthcareProviderDoctors.doctorID, input.doctorID),
     });
-    if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Healthcare provider could not created",
-    });
+    if (provider) throw new Error("Healthcare provider already added");
+
+    const create = await ctx.db
+      .insert(healthcareProviderDoctors)
+      .values({
+        healthcareProviderID: input.healthcareProviderID,
+        doctorID: input.doctorID,
+        createdBy: ctx.session!.user.id,
+      })
+      .returning();
+
+    if (create && create.length === 1) return create[0];
+    throw new Error("Healthcare provider could not be created.");
   },
 
   async removeHealthCareProvider({
@@ -220,30 +149,19 @@ export default {
     input: RemoveDoctorInput;
     ctx: TRPCContext;
   }) {
-    const transaction = await ctx.db.transaction(async (tx) => {
-      await tx
-        .delete(healthcareProviderDoctors)
-        .where(
-          eq(healthcareProviderDoctors.doctorID, input.doctorID) &&
-            eq(
-              healthcareProviderDoctors.healthcareProviderID,
-              input.healthcareProviderID,
-            ),
-        )
-        .catch((error) => {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: error instanceof Error ? error.message : String(error),
-          });
-        });
+    const removed = await ctx.db
+      .delete(healthcareProviderDoctors)
+      .where(
+        eq(healthcareProviderDoctors.doctorID, input.doctorID) &&
+          eq(
+            healthcareProviderDoctors.healthcareProviderID,
+            input.healthcareProviderID,
+          ),
+      )
+      .returning();
 
-      return "Healthcare provider removed" as const;
-    });
-    if (transaction) return transaction;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Healthcare provider could not removed",
-    });
+    if (removed && removed.length === 1) return removed[0];
+    throw new Error("Healthcare provider could not be removed.");
   },
 } as const;
 
