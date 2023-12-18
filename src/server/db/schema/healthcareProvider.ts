@@ -4,9 +4,10 @@ import {
   boolean,
   serial,
   integer,
+  text,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { doctor, patientHealthcareInfo } from "../export";
+import { doctor, patientHealthcareInfo, users } from "../export";
 
 export const externalHealthcareProvider = pgTable(
   "external_healthcare_provider",
@@ -20,7 +21,7 @@ export const externalHealthcareProvider = pgTable(
     city: varchar("city").notNull(),
     zip: varchar("zip").notNull(),
     note: varchar("note"),
-    isActive: boolean("isActive").default(true),
+    isActive: boolean("isActive").notNull().default(true),
   },
 );
 export const healthCareProviderRelation = relations(
@@ -42,6 +43,9 @@ export const healthcareProviderDoctors = pgTable(
     doctorID: integer("doctor_id")
       .notNull()
       .references(() => doctor.id),
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => users.id),
   },
 );
 export const externalHealthcareProviderDoctorRelation = relations(
