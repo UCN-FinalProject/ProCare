@@ -4,11 +4,11 @@ import { getServerAuthSession } from "~/server/auth";
 import Condition from "./Condition";
 import PageHeader from "~/components/Headers/PageHeader";
 import NewCondition from "./NewConditionDialog";
-import { GetPatient } from "../layout";
+import { api } from "~/trpc/server";
 
 export type PatientConditionRes = Awaited<
-  ReturnType<typeof GetPatient>
->["conditions"][number];
+  ReturnType<typeof api.patient.getConditions.query>
+>[number];
 
 export default async function Page({
   params,
@@ -16,7 +16,9 @@ export default async function Page({
   const session = await getServerAuthSession();
 
   const { id } = params;
-  const patient = await GetPatient(id).catch(() => notFound());
+  const conditions = await api.patient.getConditions
+    .query({ id })
+    .catch(() => notFound());
 
   return (
     <>
@@ -25,7 +27,7 @@ export default async function Page({
         <NewCondition patientID={id} />
       </div>
 
-      {patient.conditions.map((condition) => (
+      {conditions.map((condition) => (
         <Condition
           condition={condition}
           session={session!}
