@@ -1,11 +1,11 @@
-import { exampleRouter } from "~/server/api/routers/example";
+import { exampleRouter } from "~/server/api/routers/exampleRouter";
 import { authRouter } from "~/server/api/routers/authRouter";
 import { createTRPCRouter } from "~/server/api/trpc";
 import { healthcareProviderRouter } from "~/server/api/routers/healthcareProviderRouter";
 
-import { tennantRouter } from "./routers/tennant";
+import { tennantRouter } from "./routers/tennantRouter";
 import { healthInsuranceRouter } from "./routers/healthInsuranceRouter";
-import { healthConditionRouter } from "./routers/healthCondition";
+import { healthConditionRouter } from "./routers/healthConditionRouter";
 import { doctorRouter } from "./routers/doctorRouter";
 import { userRouter } from "./routers/userRouter";
 import { patientRouter } from "./routers/PatientRouter";

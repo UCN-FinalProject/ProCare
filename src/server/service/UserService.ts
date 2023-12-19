@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { eq, like } from "drizzle-orm";
 import { users } from "../db/export";
 import type {
@@ -16,11 +15,7 @@ export default {
     });
 
     if (res) return res;
-
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "User not found",
-    });
+    throw new Error("User not Found.");
   },
 
   async getCredentialsByUserID({ id, ctx }: { id: string; ctx: TRPCContext }) {
@@ -29,11 +24,7 @@ export default {
     });
 
     if (res) return res;
-
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Credentials not found",
-    });
+    throw new Error("Credentials not found.");
   },
 
   async getMany({
@@ -63,10 +54,7 @@ export default {
         result: res,
         total: total.length,
       } satisfies ReturnMany<typeof res>;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Users not found.",
-    });
+    throw new Error("Users not found.");
   },
 
   async create({ input, ctx }: { input: CreateUserInput; ctx: TRPCContext }) {
@@ -74,11 +62,7 @@ export default {
       where: (user, { eq }) => eq(user.email, input.email),
     });
 
-    if (checkIfExist)
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "User with this email already exists.",
-      });
+    if (checkIfExist) throw new Error("User with this email already exists.");
 
     const user = await ctx.db
       .insert(users)
@@ -91,17 +75,8 @@ export default {
       })
       .returning();
 
-    if (user.length !== 1 && !user.at(0)?.id)
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "User could not be created",
-      });
-
-    if (user) return user.at(0)?.id;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "User could not be created",
-    });
+    if (user && user.length === 1) return user.at(0)!.id;
+    throw new Error("User could not be created.");
   },
 
   async update({ input, ctx }: { input: UpdateUserInput; ctx: TRPCContext }) {
@@ -116,10 +91,7 @@ export default {
       .returning();
 
     if (user) return user;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "User could not be updated.",
-    });
+    throw new Error("User could not be updated.");
   },
 } as const;
 

@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import {
   type GetManyHealthCareProvidersInput,
   type CreateHealthCareProviderInput,
@@ -46,11 +45,7 @@ export default {
       orderBy: (healthcareProviderDoctors, { asc }) =>
         asc(healthcareProviderDoctors.id),
     });
-    if (!res)
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Healthcare providers not found",
-      });
+    if (!res) throw new Error("Healthcare providers not found.");
     return {
       result: res,
       offset: input.offset,
