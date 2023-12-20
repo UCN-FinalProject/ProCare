@@ -29,6 +29,44 @@ export const patientRouter = createTRPCRouter({
       }
     }),
 
+  getConditions: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      try {
+        return await PatientService.getConditionsByPatientID({
+          id: input.id,
+          ctx,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Not found",
+          }),
+        });
+      }
+    }),
+
+  getProcedures: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      try {
+        return await PatientService.getProceduresByPatientID({
+          id: input.id,
+          ctx,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Not found",
+          }),
+        });
+      }
+    }),
+
   getMany: protectedProcedure
     .input(getPatientsInput)
     .query(async ({ input, ctx }) => {

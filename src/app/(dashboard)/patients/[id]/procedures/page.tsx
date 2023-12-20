@@ -2,18 +2,20 @@ import React from "react";
 import PageHeader from "~/components/Headers/PageHeader";
 import NewProcedure from "./NewProcedureDialog";
 import Procedure from "./Procedure";
-import { GetPatient } from "../layout";
 import { notFound } from "next/navigation";
+import { api } from "~/trpc/server";
 
 export type PatientConditionRes = Awaited<
-  ReturnType<typeof GetPatient>
->["procedures"][number];
+  ReturnType<typeof api.patient.getProcedures.query>
+>[number];
 
 export default async function Page({
   params,
 }: Readonly<{ params: { id: string } }>) {
   const { id } = params;
-  const patient = await GetPatient(id).catch(() => notFound());
+  const procedures = await api.patient.getProcedures
+    .query({ id })
+    .catch(() => notFound());
 
   return (
     <>
@@ -23,7 +25,7 @@ export default async function Page({
       </div>
 
       <div className="flex flex-col">
-        {patient.procedures.map((procedure) => (
+        {procedures.map((procedure) => (
           <Procedure key={procedure.id} procedure={procedure} />
         ))}
       </div>

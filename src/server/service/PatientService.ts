@@ -18,43 +18,12 @@ import type {
 import { patientProcedures } from "../db/schema/patientProcedures";
 import type { ReturnMany } from "./validation/util";
 import { decryptText, encryptText } from "../encrypt";
-import HealthConditionService from "./HealthConditionService";
-
-type PatientCondition = {
-  id: number;
-  conditionId: number;
-  name: string;
-  description: string;
-  assignedAt: Date;
-  assignedBy:
-    | {
-        id: string;
-        name: string;
-      }
-    | undefined;
-};
-
-type PatientProcedure = {
-  id: number;
-  procedureID: number;
-  name: string | undefined;
-  note: string | null;
-  createdAt: Date;
-  createdBy:
-    | {
-        id: string;
-        name: string;
-      }
-    | undefined;
-};
 
 export default {
   async getByPatientID({ id, ctx }: { id: string; ctx: TRPCContext }) {
     const res = await ctx.db.query.patient.findFirst({
       where: (patient, { eq }) => eq(patient.id, id),
       with: {
-        conditions: true,
-        procedures: true,
         address: true,
         healthcareInfo: true,
       },
@@ -62,16 +31,34 @@ export default {
 
     if (!res) throw new Error("No patient was found.");
 
+    return {
+      ...res,
+      ssn: decryptText(res.ssn),
+    };
+  },
+
+  async getConditionsByPatientID({
+    id,
+    ctx,
+  }: {
+    id: string;
+    ctx: TRPCContext;
+  }) {
+    const res = await ctx.db.query.patientConditions.findMany({
+      where: (patientConditions, { eq }) =>
+        eq(patientConditions.patientID, id) &&
+        eq(patientConditions.removed, false),
+      with: {
+        condition: true,
+      },
+    });
+
     const conditions: PatientCondition[] = [];
-    if (res.conditions) {
-      for (const condition of res.conditions) {
+    if (res) {
+      for (const condition of res) {
         // skip removed/deleted conditions
         if (condition.removed) continue;
 
-        const details = await HealthConditionService.getByID({
-          id: condition.conditionID,
-          ctx,
-        });
         const userRes = await ctx.db.query.users.findFirst({
           where: (user, { eq }) => eq(user.id, condition.assignedBy),
           columns: { id: true, name: true },
@@ -80,41 +67,48 @@ export default {
         conditions.push({
           id: condition.id,
           conditionId: condition.conditionID,
-          name: details.name,
-          description: details.description,
+          name: condition.condition.name,
+          description: condition.condition.description,
           assignedAt: condition.assignedAt,
           assignedBy: userRes,
         } satisfies PatientCondition);
       }
     }
+    if (conditions) return conditions;
+    throw new Error("Patient conditions not found");
+  },
+
+  async getProceduresByPatientID({
+    id,
+    ctx,
+  }: {
+    id: string;
+    ctx: TRPCContext;
+  }) {
+    const res = await ctx.db.query.patientProcedures.findMany({
+      where: (patientProcedures, { eq }) => eq(patientProcedures.patientID, id),
+      with: { procedures: true },
+    });
 
     const procedures: PatientProcedure[] = [];
-    if (res.procedures) {
-      for (const patientProcedure of res.procedures) {
-        const details = await ctx.db.query.procedures.findFirst({
-          where: (procedure, { eq }) => eq(procedure.id, patientProcedure.id),
-        });
+    if (res) {
+      for (const procedure of res) {
         const userDetails = await ctx.db.query.users.findFirst({
-          where: (user, { eq }) => eq(user.id, patientProcedure.createdBy),
+          where: (user, { eq }) => eq(user.id, procedure.createdBy),
           columns: { id: true, name: true },
         });
         procedures.push({
-          id: patientProcedure.id,
-          procedureID: patientProcedure.procedureID,
-          name: details?.name,
-          note: patientProcedure.note,
-          createdAt: patientProcedure.createdAt,
+          id: procedure.id,
+          procedureID: procedure.procedureID,
+          name: procedure.procedures.name,
+          note: procedure.note,
+          createdAt: procedure.createdAt,
           createdBy: userDetails,
         } satisfies PatientProcedure);
       }
     }
-
-    return {
-      ...res,
-      ssn: decryptText(res.ssn),
-      conditions,
-      procedures: procedures.reverse(),
-    };
+    if (procedures) return procedures.reverse();
+    throw new Error("Patient procedures not found");
   },
 
   async getMany({ input, ctx }: { input: GetPatientsInput; ctx: TRPCContext }) {
@@ -319,10 +313,13 @@ export default {
     input: AddPatientConditionInput;
     ctx: TRPCContext;
   }) {
-    const patient = await this.getByPatientID({ id: input.patientID, ctx });
+    const conditions = await this.getConditionsByPatientID({
+      id: input.patientID,
+      ctx,
+    });
     if (!patient) throw new Error("Patient was not found.");
 
-    if (patient.conditions.find((c) => c.conditionId === input.conditionID))
+    if (conditions.find((c) => c.conditionId === input.conditionID))
       throw new Error("Patient already has this condition.");
 
     const insert = await ctx.db
@@ -398,4 +395,32 @@ const findManyWhere = (input: GetPatientsInput) => {
   if (input.name !== undefined)
     where = like(patient.fullName, `%${input.name}%`);
   return where;
+};
+
+type PatientCondition = {
+  id: number;
+  conditionId: number;
+  name: string;
+  description: string;
+  assignedAt: Date;
+  assignedBy:
+    | {
+        id: string;
+        name: string;
+      }
+    | undefined;
+};
+
+type PatientProcedure = {
+  id: number;
+  procedureID: number;
+  name: string | undefined;
+  note: string | null;
+  createdAt: Date;
+  createdBy:
+    | {
+        id: string;
+        name: string;
+      }
+    | undefined;
 };
