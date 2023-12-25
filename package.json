@@ -46,7 +46,7 @@
     "docxtemplater": "^3.42.4",
     "drizzle-orm": "^0.29.1",
     "geist": "^1.2.0",
-    "lucide-react": "^0.299.0",
+    "lucide-react": "^0.302.0",
     "next": "^14.0.4",
     "next-auth": "^4.24.5",
     "next-themes": "^0.2.1",
