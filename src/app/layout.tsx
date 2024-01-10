@@ -1,10 +1,10 @@
 import "~/styles/globals.css";
 
 import { headers } from "next/headers";
+import { Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "~/providers/ThemeProvider";
-import { GeistSans } from "geist/font/sans";
 import { Toaster } from "sonner";
 import { getSession } from "next-auth/react";
 import ClientSessionProvider from "~/providers/SessionProvider";
@@ -18,6 +18,8 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
+const inter = Inter({ subsets: ["latin"] });
+
 const session = await getSession();
 
 export default function RootLayout({
@@ -27,7 +29,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={GeistSans.className}>
+      <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ClientSessionProvider session={session!}>
             <Toaster closeButton />
