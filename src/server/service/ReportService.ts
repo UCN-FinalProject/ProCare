@@ -2,9 +2,16 @@ import Docxtemplater from "docxtemplater";
 import { NextResponse } from "next/server";
 import PizZip from "pizzip";
 import { parseErrorMessage } from "~/lib/parseError";
+import DocumentService from "./DocumentService";
 
 export default {
-  async generateReport(reportType: (typeof reports)[number]["document"]) {
+  async generateReport({
+    reportType,
+    patientId,
+  }: {
+    reportType: (typeof reports)[number]["document"];
+    patientId: string;
+  }) {
     // Find the report by the document name
     const report = reports.find((r) => r.document === reportType)!;
     // use fetch to get a response
@@ -27,14 +34,19 @@ export default {
       linebreaks: true,
     });
 
-    // Render the document (Replace {first_name} by John, {last_name} by Doe, ...)
-    doc.render({
-      first_name: "John",
-      last_name: "Doe",
-      ssn: "123456789",
-      insurance: "24 - Dôvera",
-      address: "Nižná trieda 24, Kosice, Slovakia",
-    });
+    if (reportType === "ProcedureReport") {
+      const templateData = await DocumentService.generateProcedureReport({
+        patientId,
+      });
+      doc.render(templateData);
+    }
+
+    if (reportType === "TreatmentEndReport") {
+      const templateData = await DocumentService.generateTreatmentEndReport({
+        patientId,
+      });
+      doc.render(templateData);
+    }
 
     // Get the zip document and generate it as a nodebuffer
     const buf = doc.getZip().generate({
@@ -57,7 +69,7 @@ export default {
 const reports = [
   {
     document: "ProcedureReport",
-    url: "https://uploadthing.com/f/799f6ff4-c448-4bb3-9cac-7e6f2445a6e3-cd7dnr.docx",
+    url: "https://uploadthing.com/f/906020a5-4802-42b7-b912-bd74f6eab089-miqczd.docx",
   },
   {
     document: "TreatmentPlan",
@@ -73,6 +85,6 @@ const reports = [
   },
   {
     document: "TreatmentEndReport",
-    url: "https://uploadthing.com/f/70795389-807c-4f90-9127-5b514e6ce75c-1nr0sq.docx",
+    url: "https://uploadthing.com/f/f625209e-ec91-40f5-b57a-1e0d2abcd961-7899c9.docx",
   },
 ] as const;

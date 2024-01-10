@@ -12,10 +12,12 @@ export const reportFiles = [
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const document = searchParams.get("document");
+  const patientId = searchParams.get("patientId");
 
   if (
     !document ||
-    !reportFiles.includes(document as (typeof reportFiles)[number])
+    !reportFiles.includes(document as (typeof reportFiles)[number]) ||
+    !patientId
   ) {
     return NextResponse.json(
       { message: "Invalid document type." },
@@ -24,9 +26,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    return await ReportService.generateReport(
-      document as (typeof reportFiles)[number],
-    );
+    return await ReportService.generateReport({
+      reportType: document as (typeof reportFiles)[number],
+      patientId: patientId,
+    });
   } catch (e) {
     return NextResponse.json(
       { message: "Could not generate a report." },
