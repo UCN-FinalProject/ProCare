@@ -1,13 +1,13 @@
 import redis from "~/server/redis";
 import { decryptText, encryptText } from "./encrypt";
 
-if (!process.env.NEXTAUTH_URL && !process.env.VERCEL_URL) {
+if (!process.env.NEXTAUTH_URL && !process.env.URL) {
   throw new Error("NEXTAUTH_URL is not set");
 }
 
-export const rpID = process.env.VERCEL_URL ?? "localhost";
+export const rpID = process.env.URL ?? "localhost";
 
-export const domain = process.env.VERCEL_URL
+export const domain = process.env.URL
   ? `https://${rpID}`
   : `http://${rpID}:3000`;
 
