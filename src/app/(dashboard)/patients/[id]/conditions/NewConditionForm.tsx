@@ -23,7 +23,6 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { toast } from "sonner";
-import { useSession } from "next-auth/react";
 import type { HealthCondition } from "~/server/db/export";
 import { useRouter } from "next/navigation";
 
@@ -41,13 +40,11 @@ export default function NewConditionForm({
   conditions: HealthCondition[];
 }>) {
   const router = useRouter();
-  const session = useSession();
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       patientID: patientID,
-      assignedByID: session.data!.user.id,
     },
   });
 
@@ -56,7 +53,6 @@ export default function NewConditionForm({
     await addCondition.mutateAsync(
       {
         patientID: values.patientID,
-        assignedByID: values.assignedByID,
         conditionID: values.conditionID,
       },
       {

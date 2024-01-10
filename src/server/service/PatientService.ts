@@ -327,7 +327,7 @@ export default {
       .values({
         patientID: input.patientID,
         conditionID: input.conditionID,
-        assignedBy: input.assignedByID,
+        assignedBy: ctx.session!.user.id,
         assignedAt: new Date(),
       })
       .returning();
@@ -378,7 +378,7 @@ export default {
         patientID: input.patientID,
         procedureID: input.procedureID,
         note: input.note ?? null,
-        createdBy: input.userID,
+        createdBy: ctx.session!.user.id,
         createdAt: new Date(),
       })
       .returning();

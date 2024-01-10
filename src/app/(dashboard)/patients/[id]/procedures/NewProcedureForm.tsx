@@ -23,7 +23,6 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { toast } from "sonner";
-import { useSession } from "next-auth/react";
 import type { Procedure } from "~/server/db/export";
 import { useRouter } from "next/navigation";
 import { Textarea } from "~/components/ui/textarea";
@@ -31,7 +30,6 @@ import { Textarea } from "~/components/ui/textarea";
 const formSchema = z.object({
   patientID: z.string(),
   procedureID: z.coerce.number(),
-  assignedByID: z.string(),
   note: z.string().optional(),
 });
 
@@ -43,13 +41,11 @@ export default function NewProcedureForm({
   procedures: Procedure[];
 }>) {
   const router = useRouter();
-  const session = useSession();
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       patientID: patientID,
-      assignedByID: session.data!.user.id,
       note: "",
     },
   });
@@ -59,7 +55,6 @@ export default function NewProcedureForm({
     await addProcedure.mutateAsync(
       {
         patientID: values.patientID,
-        userID: values.assignedByID,
         procedureID: values.procedureID,
         note: values.note ? values.note.trim() : undefined,
       },
