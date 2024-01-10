@@ -72,6 +72,7 @@ export const userRouter = createTRPCRouter({
           await EmailService.sendEmail({
             to: input.email,
             subject: "Welcome to ProCare!",
+            fullName: input.name,
           });
         } catch (error) {
           throw new TRPCError({
