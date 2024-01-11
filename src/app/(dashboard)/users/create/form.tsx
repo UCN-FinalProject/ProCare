@@ -60,7 +60,7 @@ export default function CreateUserForm() {
     await createUser.mutateAsync(
       {
         name: values.name,
-        email: values.email,
+        email: values.email.toLowerCase(),
         role: values.role,
         doctorID: values.doctorID ?? undefined,
       },

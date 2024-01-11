@@ -42,12 +42,12 @@ export default function SignInForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (values.method === "email") {
-      await signInWithEmail({ email: values.email });
+      await signInWithEmail({ email: values.email.toLowerCase() });
       return;
     }
 
     try {
-      await signInWithWebauthn({ email: values.email });
+      await signInWithWebauthn({ email: values.email.toLowerCase() });
     } catch (error) {
       toast.error("Error signing in with biometric authentication.");
     }
