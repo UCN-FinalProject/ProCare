@@ -10,15 +10,25 @@ export type PatientConditionRes = Awaited<
   ReturnType<typeof api.patient.getConditions.query>
 >[number];
 
+async function getSession() {
+  return getServerAuthSession();
+}
+
+async function getConditions(
+  id: string,
+): Promise<Awaited<ReturnType<typeof api.patient.getConditions.query>>> {
+  return api.patient.getConditions.query({ id });
+}
+
 export default async function Page({
   params,
 }: Readonly<{ params: { id: string } }>) {
-  const session = await getServerAuthSession();
-
   const { id } = params;
-  const conditions = await api.patient.getConditions
-    .query({ id })
-    .catch(() => notFound());
+
+  const [session, conditions] = await Promise.all([
+    getSession(),
+    getConditions(id),
+  ]);
 
   return (
     <>
