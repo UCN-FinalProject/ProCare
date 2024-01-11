@@ -17,13 +17,8 @@ const config = {
       ignoreDuringBuilds: true,
     }),
   },
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "avatar.vercel.sh",
-      },
-    ],
+  experimental: {
+    instrumentationHook: true,
   },
 };
 

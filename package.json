@@ -70,6 +70,7 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@baselime/node-opentelemetry": "^0.3.0",
     "@simplewebauthn/typescript-types": "^8.3.4",
     "@types/eslint": "^8.44.8",
     "@types/node": "^20.10.4",
