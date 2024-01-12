@@ -17,7 +17,6 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { Textarea } from "~/components/ui/textarea";
 import { trimOrNull } from "~/lib/trimOrNull";
 import { useRouter } from "next/navigation";
@@ -86,10 +85,8 @@ export default function UpdateHealthcareProviderForm({
         note: trimOrNull(values.note) ?? undefined,
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
+        onSuccess: () => {
           toast.success("Healthcare provider successfully updated");
-          await revalidatePathClient();
           router.refresh();
         },
         onError: (err) => toast.error(err.message),

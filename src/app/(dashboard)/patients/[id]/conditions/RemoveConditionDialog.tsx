@@ -30,8 +30,7 @@ export default function RemoveConditionDialog({
     removeCondition.mutate(
       { patientConditionID: id, userID: session.user.id },
       {
-        // eslint-disable-next-line
-        onSuccess: async () => {
+        onSuccess: () => {
           toast.success("Condition was successfully removed.");
           router.refresh();
         },

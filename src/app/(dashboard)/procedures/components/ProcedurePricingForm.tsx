@@ -17,7 +17,6 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { type ProcedurePricing } from "~/server/db/export";
 import { type CreateProcedurePricingWithoutProcedureID } from "~/server/service/validation/ProcedureValidation";
 import { useProcedurePricing } from "../hooks/useProcedurePricing";
@@ -61,7 +60,6 @@ export default function ProcedurePricingForm(props: Props) {
         price: form.getValues("price"),
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -72,7 +70,6 @@ export default function ProcedurePricingForm(props: Props) {
         price: form.getValues("price"),
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.variant === "create", form.watch("credits"), form.watch("price")]);
 
   const addPricing = api.procedure.addPricing.useMutation();
@@ -87,9 +84,8 @@ export default function ProcedurePricingForm(props: Props) {
         },
         {
           // eslint-disable-next-line
-          onSuccess: async (res) => {
+          onSuccess: () => {
             toast.success("Procedure pricing updated.");
-            await revalidatePathClient();
             router.refresh();
           },
           onError: (err) => toast.error(err.message),

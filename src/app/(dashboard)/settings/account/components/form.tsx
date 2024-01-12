@@ -24,7 +24,6 @@ import {
 } from "~/components/ui/select";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { type User } from "~/server/db/export";
 import { useRouter } from "next/navigation";
 import { trimOrNull } from "~/lib/trimOrNull";
@@ -71,12 +70,10 @@ export default function AccountForm({ data }: { data: User }) {
         doctorID: trimOrNull(values.doctorId) ?? undefined,
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
+        onSuccess: () => {
           toast.success(
             "Account updated. Please log out and log in again to see changes.",
           );
-          await revalidatePathClient();
           router.refresh();
         },
         onError: (err) => toast.error(err.message),

@@ -17,7 +17,6 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { Textarea } from "~/components/ui/textarea";
 import { type Doctor } from "~/server/db/export";
 import { type Session } from "next-auth";
@@ -62,10 +61,8 @@ export default function UpdateDoctorForm({
         note: values.note,
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
+        onSuccess: () => {
           toast.success("Doctor info successfully updated");
-          await revalidatePathClient();
           router.refresh();
         },
         onError: (err) => toast.error(err.message),

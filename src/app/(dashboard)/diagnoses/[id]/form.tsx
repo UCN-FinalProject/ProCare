@@ -18,7 +18,6 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { type HealthCondition } from "~/server/db/export";
 
 const formSchema = z.object({
@@ -55,10 +54,8 @@ export default function UpdateHealthConditionForm({
         description: values.description,
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
+        onSuccess: (res) => {
           toast.success("Health condition updated");
-          await revalidatePathClient();
           router.refresh();
         },
         onError: (err) => toast.error(err.message),

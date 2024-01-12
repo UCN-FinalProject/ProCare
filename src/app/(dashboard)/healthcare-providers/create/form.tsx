@@ -17,11 +17,11 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { useState } from "react";
 import Link from "next/link";
 import { Textarea } from "~/components/ui/textarea";
 import { trimOrNull } from "~/lib/trimOrNull";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -50,6 +50,8 @@ export default function CreateHealthcareProviderForm() {
   const [healthcareProvider, sethealthcareProvider] = useState<number | null>(
     null,
   );
+
+  const router = useRouter();
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -79,11 +81,10 @@ export default function CreateHealthcareProviderForm() {
         note: trimOrNull(values.note) ?? undefined,
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
+        onSuccess: (res) => {
           sethealthcareProvider(res.id);
           toast.success("Healthcare provider successfully created");
-          await revalidatePathClient();
+          router.refresh();
         },
         onError: (err) => toast.error(err.message),
       },

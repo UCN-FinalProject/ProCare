@@ -13,7 +13,6 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
-import { revalidatePathClient } from "~/app/revalidate";
 import { useRouter } from "next/navigation";
 
 type Variant = "active" | "inactive";
@@ -35,10 +34,9 @@ export default function HealthcareProviderAlert({
       await setActive.mutateAsync(
         { id },
         {
-          // eslint-disable-next-line
-          onSuccess: async () => {
+          onSuccess: () => {
             toast.success("Healthcare provider's status was set to active");
-            await revalidatePathClient().then(() => router.refresh());
+            router.refresh();
           },
           onError: (err) => toast.error(err.message),
         },
@@ -47,10 +45,9 @@ export default function HealthcareProviderAlert({
       await setInactive.mutateAsync(
         { id },
         {
-          // eslint-disable-next-line
-          onSuccess: async () => {
+          onSuccess: () => {
             toast.success("Healthcare provider's status was set to inactive");
-            await revalidatePathClient().then(() => router.refresh());
+            router.refresh();
           },
           onError: (err) => toast.error(err.message),
         },

@@ -17,7 +17,6 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { useRouter } from "next/navigation";
 import { type Procedure } from "~/server/db/export";
 import { type Session } from "next-auth";
@@ -55,10 +54,8 @@ export default function UpdateProcedureForm({
         },
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
+        onSuccess: () => {
           toast.success("Procedure successfully updated.");
-          await revalidatePathClient();
           router.refresh();
         },
         onError: (err) => toast.error(err.message),

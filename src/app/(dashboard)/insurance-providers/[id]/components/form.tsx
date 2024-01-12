@@ -19,7 +19,6 @@ import {
 import { type HealthInsurance } from "~/server/db/export";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { type Session } from "next-auth/core/types";
 import { useRouter } from "next/navigation";
 
@@ -113,10 +112,8 @@ export default function UpdateInsuranceProviderForm({
         },
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async () => {
+        onSuccess: () => {
           toast.success("Health insurance updated");
-          await revalidatePathClient();
           router.refresh();
         },
         onError: (err) => toast.error(err.message),

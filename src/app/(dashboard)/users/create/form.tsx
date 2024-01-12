@@ -24,9 +24,9 @@ import {
 } from "~/components/ui/select";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -44,6 +44,8 @@ const formSchema = z.object({
 
 export default function CreateUserForm() {
   const [userID, setuserID] = useState<string | null>(null);
+
+  const router = useRouter();
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,11 +67,10 @@ export default function CreateUserForm() {
         doctorID: values.doctorID ?? undefined,
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
+        onSuccess: (res) => {
           setuserID(res!);
           toast.success("User was created successfully created");
-          await revalidatePathClient();
+          router.refresh();
         },
         onError: (err) => toast.error(err.message),
       },

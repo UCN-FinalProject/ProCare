@@ -17,9 +17,9 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -34,6 +34,8 @@ export default function CreateHealthConditionForm() {
   const [healthConditionID, setHealthConditionID] = useState<number | null>(
     null,
   );
+
+  const router = useRouter();
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,11 +53,10 @@ export default function CreateHealthConditionForm() {
         description: values.description,
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
+        onSuccess: (res) => {
           setHealthConditionID(res.id);
           toast.success("Health condition created");
-          await revalidatePathClient();
+          router.refresh();
         },
         onError: (err) => toast.error(err.message),
       },

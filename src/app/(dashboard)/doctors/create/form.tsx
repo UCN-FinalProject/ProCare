@@ -17,7 +17,6 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { useState } from "react";
 import Link from "next/link";
 import { Textarea } from "~/components/ui/textarea";
@@ -52,11 +51,9 @@ export default function CreateDoctorForm() {
         note: values.note,
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
+        onSuccess: (res) => {
           setdoctorID(res.id);
           toast.success("Doctor successfully created");
-          await revalidatePathClient();
         },
         onError: (err) => toast.error(err.message),
       },

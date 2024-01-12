@@ -31,7 +31,6 @@ import { format } from "date-fns";
 import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { Textarea } from "~/components/ui/textarea";
 import type {
   Doctor,
@@ -119,10 +118,8 @@ export default function UpdatePatientForm({
         healthcareProviderID: values.healthcareProviderID,
       },
       {
-        //eslint-disable-next-line
-        onSuccess: async () => {
+        onSuccess: () => {
           toast.success("Patient updated");
-          await revalidatePathClient();
           router.refresh();
         },
         onError: (err) => toast.error(err.message),

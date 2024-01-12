@@ -24,7 +24,6 @@ import {
 } from "~/components/ui/select";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { revalidatePathClient } from "~/app/revalidate";
 import { type User } from "~/server/db/export";
 import { useRouter } from "next/navigation";
 import { type Session } from "next-auth";
@@ -74,10 +73,8 @@ export default function UpdateUserForm({
         doctorID: values.doctorID ?? undefined,
       },
       {
-        // eslint-disable-next-line
-        onSuccess: async (res) => {
-          toast.success("User was updated successfully created");
-          await revalidatePathClient();
+        onSuccess: () => {
+          toast.success("User was updated successfully updated");
           router.refresh();
         },
         onError: (err) => toast.error(err.message),
