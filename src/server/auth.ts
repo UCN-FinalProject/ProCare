@@ -57,15 +57,23 @@ export const authOptions: NextAuthOptions = {
             id: token.id,
             role: token.role as User["role"],
           },
-        };
+        } satisfies Session;
       }
       return session;
     },
-    jwt: ({ token, user }) => {
+    jwt: async ({ token, user: propUser }) => {
+      const user = propUser as User;
+      if (user && (!user.role || typeof user.role !== "string")) {
+        const findUser = await db.query.users.findFirst({
+          where: (users, { eq }) => eq(users.id, user.id),
+        });
+        if (findUser) user.role = findUser.role;
+      }
+
       if (user) {
         token.id = user.id;
         token.email = user.email;
-        token.role = (user as User).role;
+        token.role = user.role;
       }
       return token;
     },
@@ -136,18 +144,16 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     EmailProvider({
-      // disable sign in by email in development
-      ...(env.NODE_ENV !== "development" && {
-        server: {
-          host: env.RESEND_EMAIL_HOST,
-          port: env.RESEND_EMAIL_PORT,
-          auth: {
-            user: env.RESEND_EMAIL_USER,
-            pass: env.RESEND_API_KEY,
-          },
+      server: {
+        host: env.RESEND_EMAIL_HOST,
+        port: env.RESEND_EMAIL_PORT,
+        auth: {
+          user: env.RESEND_EMAIL_USER,
+          pass: env.RESEND_API_KEY,
         },
-        from: env.RESEND_EMAIL_FROM,
-      }),
+      },
+      from: env.RESEND_EMAIL_FROM,
+      normalizeIdentifier: (email) => email.toLowerCase(),
     }),
   ],
   pages: {
