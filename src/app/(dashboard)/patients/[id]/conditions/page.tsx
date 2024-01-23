@@ -14,9 +14,7 @@ async function getSession() {
   return getServerAuthSession();
 }
 
-async function getConditions(
-  id: string,
-): Promise<Awaited<ReturnType<typeof api.patient.getConditions.query>>> {
+async function getConditions(id: string) {
   return api.patient.getConditions.query({ id });
 }
 

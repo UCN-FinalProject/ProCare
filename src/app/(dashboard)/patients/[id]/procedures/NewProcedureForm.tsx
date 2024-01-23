@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import type { Procedure } from "~/server/db/export";
 import { useRouter } from "next/navigation";
 import { Textarea } from "~/components/ui/textarea";
+import { useRef } from "react";
 
 const formSchema = z.object({
   patientID: z.string(),
@@ -41,6 +42,7 @@ export default function NewProcedureForm({
   procedures: Procedure[];
 }>) {
   const router = useRouter();
+  const sheetClose = useRef<HTMLButtonElement>(null);
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,6 +64,7 @@ export default function NewProcedureForm({
         onSuccess: () => {
           toast.success("Procedure was logged successfully.");
           router.refresh();
+          sheetClose.current?.click();
         },
         onError: (err) => toast.error(err.message),
       },
@@ -118,11 +121,10 @@ export default function NewProcedureForm({
         />
 
         <SheetFooter>
-          <SheetClose asChild>
-            <Button type="submit" isLoading={addProcedure.isLoading}>
-              Save
-            </Button>
-          </SheetClose>
+          <Button type="submit" isLoading={addProcedure.isLoading}>
+            Save
+          </Button>
+          <SheetClose hidden ref={sheetClose} />
         </SheetFooter>
       </form>
     </Form>

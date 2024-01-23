@@ -5,23 +5,38 @@ import { getServerAuthSession } from "~/server/auth";
 import { notFound } from "next/navigation";
 import { api } from "~/trpc/server";
 
+async function getHealthInsurances() {
+  return api.healthInsurance.getMany.query({
+    limit: 100,
+    offset: 0,
+    isActive: true,
+  });
+}
+
+async function getHealthcareProviders() {
+  return api.healthcareProvider.getMany.query({
+    limit: 100,
+    offset: 0,
+    isActive: true,
+  });
+}
+
+async function getDoctors() {
+  return api.doctor.getMany.query({
+    limit: 100,
+    offset: 0,
+    isActive: true,
+  });
+}
+
 export default async function Page() {
-  const healthInsurances = await api.healthInsurance.getMany.query({
-    limit: 100,
-    offset: 0,
-    isActive: true,
-  });
-  const healthcareProviders = await api.healthcareProvider.getMany.query({
-    limit: 100,
-    offset: 0,
-    isActive: true,
-  });
-  const doctors = await api.doctor.getMany.query({
-    limit: 100,
-    offset: 0,
-    isActive: true,
-  });
-  const session = await getServerAuthSession();
+  const [healthInsurances, healthcareProviders, doctors, session] =
+    await Promise.all([
+      getHealthInsurances(),
+      getHealthcareProviders(),
+      getDoctors(),
+      getServerAuthSession(),
+    ]);
   if (session?.user.role !== "admin") return notFound();
 
   return (

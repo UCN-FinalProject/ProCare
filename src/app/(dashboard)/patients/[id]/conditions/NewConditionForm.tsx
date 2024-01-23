@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import type { HealthCondition } from "~/server/db/export";
 import { useRouter } from "next/navigation";
+import { useRef } from "react";
 
 const formSchema = z.object({
   patientID: z.string(),
@@ -40,6 +41,7 @@ export default function NewConditionForm({
   conditions: HealthCondition[];
 }>) {
   const router = useRouter();
+  const sheetClose = useRef<HTMLButtonElement>(null);
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -59,6 +61,7 @@ export default function NewConditionForm({
         onSuccess: () => {
           toast.success("Condition assigned successfully.");
           router.refresh();
+          sheetClose.current?.click();
         },
         onError: (err) => toast.error(err.message),
       },
@@ -101,11 +104,10 @@ export default function NewConditionForm({
         />
 
         <SheetFooter>
-          <SheetClose asChild>
-            <Button type="submit" isLoading={addCondition.isLoading}>
-              Save
-            </Button>
-          </SheetClose>
+          <Button type="submit" isLoading={addCondition.isLoading}>
+            Save
+          </Button>
+          <SheetClose asChild hidden ref={sheetClose} />
         </SheetFooter>
       </form>
     </Form>
