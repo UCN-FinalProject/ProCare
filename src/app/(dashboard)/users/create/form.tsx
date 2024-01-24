@@ -158,12 +158,12 @@ export default function CreateUserForm() {
         />
 
         <div className="flex gap-1">
-          <Button type="submit" isLoading={createUser.isLoading}>
+          <Button type="submit" isLoading={createUser.isPending}>
             Submit
           </Button>
           {createUser.isSuccess && (
             <Button variant="outline">
-              <Link href={"/users/" + userID}>View user</Link>
+              <Link href={`/users/${userID}`}>View user</Link>
             </Button>
           )}
         </div>

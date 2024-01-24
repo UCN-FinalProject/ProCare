@@ -29,7 +29,7 @@ export default async function TableDoctors({
   page: number;
   session: Session;
 }>) {
-  const doctors = await api.doctor.getMany.query({
+  const doctors = await api.doctor.getMany({
     limit: 15,
     offset: (page - 1) * 15,
     name,

@@ -104,7 +104,7 @@ export default function NewConditionForm({
         />
 
         <SheetFooter>
-          <Button type="submit" isLoading={addCondition.isLoading}>
+          <Button type="submit" isLoading={addCondition.isPending}>
             Save
           </Button>
           <SheetClose asChild hidden ref={sheetClose} />

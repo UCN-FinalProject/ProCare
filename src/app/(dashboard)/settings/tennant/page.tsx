@@ -5,14 +5,14 @@ import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import { notFound, redirect } from "next/navigation";
 
-export type Tennant = Awaited<ReturnType<typeof api.tennant.getTennant.query>>;
+export type Tennant = Awaited<ReturnType<typeof api.tennant.getTennant>>;
 export default async function page() {
   const session = await getServerAuthSession();
 
   if (!session?.user) return notFound();
   if (session.user.role !== "admin") redirect("/settings/account");
 
-  const tennant = await api.tennant.getTennant.query();
+  const tennant = await api.tennant.getTennant();
   return (
     <div className="flex flex-col gap-4">
       <PageHeader>Tennant settings</PageHeader>

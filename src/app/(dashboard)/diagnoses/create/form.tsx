@@ -54,7 +54,7 @@ export default function CreateHealthConditionForm() {
       },
       {
         onSuccess: (res) => {
-          setHealthConditionID(res.id);
+          setHealthConditionID(res!.id);
           toast.success("Health condition created");
           router.refresh();
         },
@@ -100,12 +100,12 @@ export default function CreateHealthConditionForm() {
         />
 
         <div className="flex gap-1">
-          <Button type="submit" isLoading={createHealthCondition.isLoading}>
+          <Button type="submit" isLoading={createHealthCondition.isPending}>
             Submit
           </Button>
           {createHealthCondition.isSuccess && (
             <Button variant="outline">
-              <Link href={"/diagnoses/" + healthConditionID}>
+              <Link href={`/diagnoses/${healthConditionID}`}>
                 View health condition
               </Link>
             </Button>

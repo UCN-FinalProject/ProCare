@@ -311,12 +311,12 @@ export default function CreateInsuranceProviderForm() {
         />
 
         <div className="flex gap-1">
-          <Button type="submit" isLoading={createHealthInsurance.isLoading}>
+          <Button type="submit" isLoading={createHealthInsurance.isPending}>
             Submit
           </Button>
           {createHealthInsurance.isSuccess && (
             <Button variant="outline">
-              <Link href={"/insurance-providers/" + insuranceID}>
+              <Link href={`/insurance-providers/"${insuranceID}`}>
                 View health insurance
               </Link>
             </Button>

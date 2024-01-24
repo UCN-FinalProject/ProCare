@@ -222,7 +222,7 @@ export default function UpdateHealthcareProviderForm({
         />
 
         {isAdmin && (
-          <Button type="submit" isLoading={updateHealthcareProvider.isLoading}>
+          <Button type="submit" isLoading={updateHealthcareProvider.isPending}>
             Submit
           </Button>
         )}

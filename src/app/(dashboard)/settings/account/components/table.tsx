@@ -13,7 +13,7 @@ import { api } from "~/trpc/server";
 import NullOrUndefined from "~/components/util/NullOrUndefined";
 
 export default async function PassKeysTable({ userID }: { userID: string }) {
-  const credentials = await api.user.getCredentialsByUserID.query({
+  const credentials = await api.user.getCredentialsByUserID({
     id: userID,
   });
 

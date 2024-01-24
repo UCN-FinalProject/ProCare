@@ -10,9 +10,7 @@ import ProcedurePricing from "../components/ProcedurePricing";
 export default async function page({ params }: { params: { id: string } }) {
   const id = Number(params.id);
   const session = await getServerAuthSession();
-  const procedure = await api.procedure.getByID
-    .query({ id })
-    .catch(() => notFound());
+  const procedure = await api.procedure.getByID({ id }).catch(() => notFound());
 
   return (
     <div className="flex flex-col gap-4">

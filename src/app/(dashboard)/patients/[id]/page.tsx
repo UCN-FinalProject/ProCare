@@ -5,10 +5,10 @@ import { getServerAuthSession } from "~/server/auth";
 import Form from "./components/Form";
 import { GetPatient } from "./layout";
 
-export type PatientRes = Awaited<ReturnType<typeof api.patient.getByID.query>>;
+export type PatientRes = Awaited<ReturnType<typeof api.patient.getByID>>;
 
 function getHealthcareProviders() {
-  return api.healthcareProvider.getMany.query({
+  return api.healthcareProvider.getMany({
     limit: 100,
     offset: 0,
     isActive: true,
@@ -16,7 +16,7 @@ function getHealthcareProviders() {
 }
 
 function getDoctors() {
-  return api.doctor.getMany.query({
+  return api.doctor.getMany({
     limit: 100,
     offset: 0,
     isActive: true,
@@ -24,7 +24,7 @@ function getDoctors() {
 }
 
 function getHealthInsurances() {
-  return api.healthInsurance.getMany.query({
+  return api.healthInsurance.getMany({
     limit: 100,
     offset: 0,
     isActive: true,

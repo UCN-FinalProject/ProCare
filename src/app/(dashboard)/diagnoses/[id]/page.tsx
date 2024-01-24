@@ -7,8 +7,8 @@ import Form from "./form";
 
 export default async function page({ params }: { params: { id: string } }) {
   const id = Number(params.id);
-  const healthCondition = await api.healthCondition.getByID
-    .query({ id })
+  const healthCondition = await api.healthCondition
+    .getByID({ id })
     .catch(() => notFound());
   return (
     <div className="flex flex-col gap-4">

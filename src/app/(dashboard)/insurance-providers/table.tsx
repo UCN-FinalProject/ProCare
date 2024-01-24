@@ -29,7 +29,7 @@ export default async function TableDemo({
   page: number;
   session: Session;
 }>) {
-  const insuranceProviders = await api.healthInsurance.getMany.query({
+  const insuranceProviders = await api.healthInsurance.getMany({
     limit: 15,
     offset: (page - 1) * 15,
     name,

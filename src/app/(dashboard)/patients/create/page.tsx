@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { api } from "~/trpc/server";
 
 async function getHealthInsurances() {
-  return api.healthInsurance.getMany.query({
+  return api.healthInsurance.getMany({
     limit: 100,
     offset: 0,
     isActive: true,
@@ -14,7 +14,7 @@ async function getHealthInsurances() {
 }
 
 async function getHealthcareProviders() {
-  return api.healthcareProvider.getMany.query({
+  return api.healthcareProvider.getMany({
     limit: 100,
     offset: 0,
     isActive: true,
@@ -22,7 +22,7 @@ async function getHealthcareProviders() {
 }
 
 async function getDoctors() {
-  return api.doctor.getMany.query({
+  return api.doctor.getMany({
     limit: 100,
     offset: 0,
     isActive: true,

@@ -100,7 +100,7 @@ export default function NewDoctorForm({
 
         <SheetFooter>
           <SheetClose asChild>
-            <Button type="submit" isLoading={addDoctor.isLoading}>
+            <Button type="submit" isLoading={addDoctor.isPending}>
               Save
             </Button>
           </SheetClose>

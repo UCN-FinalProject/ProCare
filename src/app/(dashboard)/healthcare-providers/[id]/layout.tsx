@@ -5,7 +5,7 @@ import { getServerAuthSession } from "~/server/auth";
 import HealthCareProviderHeader from "./components/HealthcareProviderHeader";
 
 async function getHealthCareProvider(id: number) {
-  return await api.healthcareProvider.getByID.query({ id });
+  return await api.healthcareProvider.getByID({ id });
 }
 
 export const GetHealthCareProvider = React.cache(getHealthCareProvider);

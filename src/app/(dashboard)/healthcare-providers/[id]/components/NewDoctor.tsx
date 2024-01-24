@@ -16,7 +16,7 @@ export default async function NewDoctor({
 }: Readonly<{
   healthCareProviderID: number;
 }>) {
-  const doctors = await api.doctor.getMany.query({
+  const doctors = await api.doctor.getMany({
     limit: 100,
     offset: 0,
     isActive: true,

@@ -54,7 +54,7 @@ export default function UpdateHealthConditionForm({
         description: values.description,
       },
       {
-        onSuccess: (res) => {
+        onSuccess: () => {
           toast.success("Health condition updated");
           router.refresh();
         },
@@ -99,7 +99,7 @@ export default function UpdateHealthConditionForm({
           )}
         />
 
-        <Button type="submit" isLoading={updateHealthCondition.isLoading}>
+        <Button type="submit" isLoading={updateHealthCondition.isPending}>
           Submit
         </Button>
       </form>

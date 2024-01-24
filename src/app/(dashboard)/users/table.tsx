@@ -27,7 +27,7 @@ export default async function UsersTable({
   role?: Role;
   page: number;
 }>) {
-  const users = await api.user.getMany.query({
+  const users = await api.user.getMany({
     limit: 15,
     offset: (page - 1) * 15,
     name,
