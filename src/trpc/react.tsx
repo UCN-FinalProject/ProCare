@@ -9,7 +9,9 @@ import { type AppRouter } from "~/server/api/root";
 
 export const api = createTRPCReact<AppRouter>();
 
-export function TRPCReactProvider(props: { children: React.ReactNode }) {
+export function TRPCReactProvider(
+  props: Readonly<{ children: React.ReactNode }>,
+) {
   const [queryClient] = useState(() => new QueryClient());
 
   const [trpcClient] = useState(() =>

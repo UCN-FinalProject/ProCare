@@ -116,10 +116,9 @@ export const createTRPCRouter = t.router;
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
-export const publicProcedure = t.procedure;
-// .use(
-//   trpcTracingMiddleware({ collectInput: true }),
-// );
+export const publicProcedure = t.procedure.use(
+  trpcTracingMiddleware({ collectInput: true }),
+);
 
 /** Reusable middleware that enforces users are logged in before running the procedure. */
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
@@ -142,8 +141,9 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  *
  * @see https://trpc.io/docs/procedures
  */
-export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
-// .use(trpcTracingMiddleware({ collectInput: true }));
+export const protectedProcedure = t.procedure
+  .use(enforceUserIsAuthed)
+  .use(trpcTracingMiddleware({ collectInput: true }));
 
 /**
  * Admin procedure
@@ -162,5 +162,6 @@ const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
   });
 });
 
-export const adminProcedure = t.procedure.use(enforceUserIsAdmin);
-// .use(trpcTracingMiddleware({ collectInput: true }));
+export const adminProcedure = t.procedure
+  .use(enforceUserIsAdmin)
+  .use(trpcTracingMiddleware({ collectInput: true }));
