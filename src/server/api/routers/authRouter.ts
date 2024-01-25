@@ -14,7 +14,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { credentials } from "~/server/db/export";
-import { type AuthenticatorTransportFuture } from "@simplewebauthn/typescript-types";
+import { type AuthenticatorTransportFuture } from "@simplewebauthn/types";
 
 export const authRouter = createTRPCRouter({
   startPassKeyRegistration: protectedProcedure.query(async ({ ctx }) => {
