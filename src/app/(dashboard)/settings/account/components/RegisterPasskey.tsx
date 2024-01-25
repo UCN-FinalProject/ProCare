@@ -1,6 +1,6 @@
 "use client";
 
-import { type PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/typescript-types";
+import { type PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/types";
 import { api } from "~/trpc/react";
 import { startRegistration } from "@simplewebauthn/browser";
 import { useRouter } from "next/navigation";

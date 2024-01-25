@@ -18,7 +18,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { domain, getChallenge, rpID } from "~/server/webauthn";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 import { type DefaultJWT, type JWT } from "next-auth/jwt";
-import { type AuthenticationResponseJSON } from "@simplewebauthn/typescript-types";
+import { type AuthenticationResponseJSON } from "@simplewebauthn/types";
 import { type User } from "~/server/db/export";
 
 /**
