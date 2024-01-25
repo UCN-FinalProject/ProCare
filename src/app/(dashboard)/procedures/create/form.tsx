@@ -77,12 +77,11 @@ export default function CreateProcedureForm() {
         />
 
         <div className="flex gap-1">
-          <Button type="submit" isLoading={createProcedure.isLoading}>
+          <Button type="submit" isLoading={createProcedure.isPending}>
             Submit
           </Button>
           {createProcedure.isSuccess && (
             <Button variant="outline">
-              {/* @ts-expect-error type defs a bit broken  */}
               <Link href={`/procedures/${procedureID}`}>View procedure</Link>
             </Button>
           )}

@@ -28,7 +28,7 @@ export default async function TablePatients({
   session: Session;
 }>) {
   const isAdmin = session.user.role === "admin";
-  const patients = await api.patient.getMany.query({
+  const patients = await api.patient.getMany({
     limit: 15,
     offset: (page - 1) * 15,
     name,

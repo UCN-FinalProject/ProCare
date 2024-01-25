@@ -171,7 +171,7 @@ export default function AccountForm({ data }: { data: User }) {
           )}
         />
 
-        <Button type="submit" isLoading={updateAccount.isLoading}>
+        <Button type="submit" isLoading={updateAccount.isPending}>
           Submit
         </Button>
       </form>

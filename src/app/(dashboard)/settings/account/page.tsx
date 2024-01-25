@@ -9,7 +9,7 @@ import LoadingPassKeys from "./components/LoadingPasskeys";
 
 export default async function page() {
   const session = await getServerAuthSession();
-  const user = await api.user.getByID.query({ id: session!.user.id });
+  const user = await api.user.getByID({ id: session!.user.id });
   return (
     <div className="flex flex-col gap-8 overflow-hidden">
       <div className="flex flex-col gap-4">

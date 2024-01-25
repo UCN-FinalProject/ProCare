@@ -83,7 +83,7 @@ export default function UpdateProcedureForm({
         />
 
         {isAdmin && (
-          <Button type="submit" isLoading={updateProcedure.isLoading}>
+          <Button type="submit" isLoading={updateProcedure.isPending}>
             Submit
           </Button>
         )}

@@ -126,7 +126,7 @@ export default function ProcedurePricingForm(props: Props) {
         />
 
         {props.variant === "update" && (
-          <Button type="submit" isLoading={addPricing.isLoading}>
+          <Button type="submit" isLoading={addPricing.isPending}>
             Update
           </Button>
         )}

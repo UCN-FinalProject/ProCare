@@ -7,8 +7,8 @@ import { getServerAuthSession } from "~/server/auth";
 
 export default async function page({ params }: { params: { id: string } }) {
   const session = await getServerAuthSession();
-  const user = await api.user.getByID
-    .query({ id: params.id })
+  const user = await api.user
+    .getByID({ id: params.id })
     .catch(() => notFound());
   return (
     <div className="flex flex-col gap-4">

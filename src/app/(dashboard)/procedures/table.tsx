@@ -20,7 +20,7 @@ export default async function ProceduresTable({
   name?: string;
   page: number;
 }>) {
-  const procedures = await api.procedure.getMany.query({
+  const procedures = await api.procedure.getMany({
     limit: 15,
     offset: (page - 1) * 15,
     name,

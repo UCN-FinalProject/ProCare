@@ -10,7 +10,7 @@ export default async function Page() {
   const session = await getServerAuthSession();
   if (session?.user.role !== "admin") return notFound();
 
-  const healthInsurances = await api.healthInsurance.getMany.query({
+  const healthInsurances = await api.healthInsurance.getMany({
     limit: 100,
     offset: 0,
     isActive: true,

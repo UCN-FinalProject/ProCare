@@ -11,7 +11,7 @@ import DoctorAlert from "./components/DoctorAlert";
 export default async function page({ params }: { params: { id: string } }) {
   const session = await getServerAuthSession();
   const id = Number(params.id);
-  const doctor = await api.doctor.getByID.query({ id }).catch(() => notFound());
+  const doctor = await api.doctor.getByID({ id }).catch(() => notFound());
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-start">

@@ -128,7 +128,7 @@ export default function UpdateDoctorForm({
 
         <Button
           type="submit"
-          isLoading={updateDoctor.isLoading}
+          isLoading={updateDoctor.isPending}
           disabled={!isAdmin}
         >
           Submit

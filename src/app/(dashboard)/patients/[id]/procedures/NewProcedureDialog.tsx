@@ -15,7 +15,7 @@ export default async function NewProcedure({
 }: Readonly<{
   patientID: string;
 }>) {
-  const procedures = await api.procedure.getMany.query({
+  const procedures = await api.procedure.getMany({
     limit: 100,
     offset: 0,
   });

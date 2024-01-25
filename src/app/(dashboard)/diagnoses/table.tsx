@@ -20,7 +20,7 @@ export default async function TableHealthConditions({
   name?: string;
   page: number;
 }>) {
-  const healthConditions = await api.healthCondition.getMany.query({
+  const healthConditions = await api.healthCondition.getMany({
     limit: 15,
     offset: (page - 1) * 15,
     name,

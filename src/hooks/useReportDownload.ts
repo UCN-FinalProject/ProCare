@@ -44,13 +44,11 @@ export default function useReportDownload({
   report: ReportFile;
   patientId: string;
 }) {
-  const download = useMutation(
-    async () => await handleDownload({ report, patientId }),
-    {
-      onSuccess: () => toast.success("Report downloaded successfully."),
-      onError: () => toast.error("Could not download report."),
-    },
-  );
+  const download = useMutation({
+    mutationFn: async () => await handleDownload({ report, patientId }),
+    onSuccess: () => toast.success("Report downloaded successfully."),
+    onError: () => toast.error("Could not download report."),
+  });
 
   return { ...download };
 }

@@ -52,7 +52,7 @@ export default function CreateDoctorForm() {
       },
       {
         onSuccess: (res) => {
-          setdoctorID(res.id);
+          setdoctorID(res!.id);
           toast.success("Doctor successfully created");
         },
         onError: (err) => toast.error(err.message),
@@ -113,12 +113,12 @@ export default function CreateDoctorForm() {
         />
 
         <div className="flex gap-1">
-          <Button type="submit" isLoading={createDoctor.isLoading}>
+          <Button type="submit" isLoading={createDoctor.isPending}>
             Submit
           </Button>
           {createDoctor.isSuccess && (
             <Button variant="outline">
-              <Link href={"/doctors/" + doctorID}>View doctor</Link>
+              <Link href={`/doctors/"${doctorID}`}>View doctor</Link>
             </Button>
           )}
         </div>

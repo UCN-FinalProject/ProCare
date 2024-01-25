@@ -89,6 +89,13 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 });
 
 /**
+ * Create a server-side caller.
+ *
+ * @see https://trpc.io/docs/server/server-side-calls
+ */
+export const createCallerFactory = t.createCallerFactory;
+
+/**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)
  *
  * These are the pieces you use to build your tRPC API. You should import these a lot in the
@@ -115,7 +122,7 @@ export const publicProcedure = t.procedure.use(
 
 /** Reusable middleware that enforces users are logged in before running the procedure. */
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
+  if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({

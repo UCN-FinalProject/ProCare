@@ -333,7 +333,7 @@ export default function UpdateInsuranceProviderForm({
           <Button
             type="submit"
             className="sticky bottom-5 left-0"
-            isLoading={updateHealthInsurance.isLoading}
+            isLoading={updateHealthInsurance.isPending}
           >
             Submit
           </Button>

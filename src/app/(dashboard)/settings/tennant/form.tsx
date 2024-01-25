@@ -364,7 +364,7 @@ export default function TennantForm({ tennant }: { tennant: Tennant }) {
         <Button
           type="submit"
           className="sticky bottom-5 left-0"
-          isLoading={updateTennant.isLoading}
+          isLoading={updateTennant.isPending}
         >
           Submit
         </Button>

@@ -14,7 +14,7 @@ export default function RegisterPasskey({
 }: {
   webauthnData: PublicKeyCredentialCreationOptionsJSON;
 }) {
-  const { mutate, isLoading: registrationLoading } =
+  const { mutate, isPending: registrationLoading } =
     api.auth.registerPassKey.useMutation();
 
   const router = useRouter();

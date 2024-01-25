@@ -6,15 +6,15 @@ import { notFound } from "next/navigation";
 import { api } from "~/trpc/server";
 
 export type PatientConditionRes = Awaited<
-  ReturnType<typeof api.patient.getProcedures.query>
+  ReturnType<typeof api.patient.getProcedures>
 >[number];
 
 export default async function Page({
   params,
 }: Readonly<{ params: { id: string } }>) {
   const { id } = params;
-  const procedures = await api.patient.getProcedures
-    .query({ id })
+  const procedures = await api.patient
+    .getProcedures({ id })
     .catch(() => notFound());
 
   return (

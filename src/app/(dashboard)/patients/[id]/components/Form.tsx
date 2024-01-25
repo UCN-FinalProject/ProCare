@@ -732,7 +732,7 @@ export default function UpdatePatientForm({
           <ButtonReusable
             type="submit"
             className="sticky bottom-5 left-0"
-            isLoading={updatePatient.isLoading}
+            isLoading={updatePatient.isPending}
           >
             Submit
           </ButtonReusable>

@@ -82,7 +82,7 @@ export default function CreateHealthcareProviderForm() {
       },
       {
         onSuccess: (res) => {
-          sethealthcareProvider(res.id);
+          sethealthcareProvider(res!.id);
           toast.success("Healthcare provider successfully created");
           router.refresh();
         },
@@ -215,7 +215,7 @@ export default function CreateHealthcareProviderForm() {
         />
 
         <div className="flex gap-1">
-          <Button type="submit" isLoading={createHealthcareProvider.isLoading}>
+          <Button type="submit" isLoading={createHealthcareProvider.isPending}>
             Submit
           </Button>
           {createHealthcareProvider.isSuccess && (

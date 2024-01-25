@@ -121,7 +121,7 @@ export default function NewProcedureForm({
         />
 
         <SheetFooter>
-          <Button type="submit" isLoading={addProcedure.isLoading}>
+          <Button type="submit" isLoading={addProcedure.isPending}>
             Save
           </Button>
           <SheetClose hidden ref={sheetClose} />

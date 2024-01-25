@@ -21,7 +21,7 @@ export default async function DoctorsTable({
   providerID: number;
 }>) {
   const isAdmin = session?.user.role === "admin";
-  const doctors = await api.healthcareProvider.getDoctors.query({
+  const doctors = await api.healthcareProvider.getDoctors({
     id: providerID,
   });
 

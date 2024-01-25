@@ -5,7 +5,7 @@ import { api } from "~/trpc/server";
 import { notFound } from "next/navigation";
 
 async function getPatient(id: string) {
-  return await api.patient.getByID.query({ id });
+  return await api.patient.getByID({ id });
 }
 
 export const GetPatient = React.cache(getPatient);

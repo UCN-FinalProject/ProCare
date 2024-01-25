@@ -670,7 +670,7 @@ export default function CreatePatientForm({
         <Separator />
 
         <div className="flex gap-1">
-          <SubmitButton type="submit" isLoading={createPatient.isLoading}>
+          <SubmitButton type="submit" isLoading={createPatient.isPending}>
             Submit
           </SubmitButton>
           {createPatient.isSuccess && (

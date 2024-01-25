@@ -31,7 +31,7 @@ export default async function HealthcareProvidersTable({
   session: Session;
 }) {
   const isAdmin = session?.user.role === "admin";
-  const healthcareProviders = await api.healthcareProvider.getMany.query({
+  const healthcareProviders = await api.healthcareProvider.getMany({
     limit: 15,
     offset: (page - 1) * 15,
     isActive: isAdmin ? parseStatus(status) : true,

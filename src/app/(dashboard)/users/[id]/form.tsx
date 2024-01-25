@@ -167,7 +167,7 @@ export default function UpdateUserForm({
         />
 
         {isAdmin && (
-          <Button type="submit" isLoading={createUser.isLoading}>
+          <Button type="submit" isLoading={createUser.isPending}>
             Submit
           </Button>
         )}

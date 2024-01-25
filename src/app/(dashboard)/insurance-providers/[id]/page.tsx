@@ -11,8 +11,8 @@ import { getServerAuthSession } from "~/server/auth";
 export default async function page({ params }: { params: { id: string } }) {
   const session = await getServerAuthSession();
   const id = Number(params.id);
-  const healthInsuranceProvider = await api.healthInsurance.getByID
-    .query({ id })
+  const healthInsuranceProvider = await api.healthInsurance
+    .getByID({ id })
     .catch(() => notFound());
   return (
     <div className="flex flex-col gap-4">
