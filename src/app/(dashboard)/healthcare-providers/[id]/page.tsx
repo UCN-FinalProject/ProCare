@@ -7,7 +7,6 @@ import { GetHealthCareProvider } from "./layout";
 export default async function page({ params }: { params: { id: string } }) {
   const id = Number(params.id);
   const session = await getServerAuthSession();
-  console.log("await from page");
   const healthcareProvider = await GetHealthCareProvider(id).catch(() =>
     notFound(),
   );
