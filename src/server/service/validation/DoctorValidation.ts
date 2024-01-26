@@ -14,6 +14,15 @@ export const searchDoctorsInput = z.object({
 });
 export type SearchDoctorsInput = z.infer<typeof searchDoctorsInput>;
 
+export const getDoctorhealthCareProvidersInput = z.object({
+  doctorID: z.number(),
+  limit: z.number(),
+  offset: z.number(),
+});
+export type GetDoctorhealthCareProvidersInput = z.infer<
+  typeof getDoctorhealthCareProvidersInput
+>;
+
 export const createDoctorInput = z.object({
   fullName: z.string(),
   doctorID: z.string(),

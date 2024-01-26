@@ -13,36 +13,28 @@ import { Badge } from "~/components/ui/badge";
 import NullOrUndefined from "~/components/util/NullOrUndefined";
 import { api } from "~/trpc/server";
 import type { Session } from "next-auth";
-import Filters from "./Filters";
-import { parseStatus } from "~/lib/parseStatus";
 import Pagination from "~/components/Pagination";
 
-export default async function HealthcareProvidersTable({
+export default async function DoctorHealthCareProvidersTable({
+  doctorId,
   page,
-  name,
-  providerId,
-  status,
   session,
 }: {
+  doctorId: number;
   page: number;
-  name?: string;
-  providerId?: string;
-  status?: string;
   session: Session;
 }) {
   const isAdmin = session?.user.role === "admin";
-  const healthcareProviders = await api.healthcareProvider.getMany({
+  const healthCareProviders = await api.doctor.getHealthCareProviders({
+    doctorID: doctorId,
     limit: 15,
     offset: (page - 1) * 15,
-    isActive: isAdmin ? parseStatus(status) : true,
-    name,
-    providerId,
   });
 
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
-        <Table filters={<Filters session={session} />}>
+        <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-[100px]">ID</TableHead>
@@ -57,7 +49,7 @@ export default async function HealthcareProvidersTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {healthcareProviders.result.length === 0 && (
+            {healthCareProviders.result.length === 0 && (
               <TableRow>
                 <TableCell
                   colSpan={8}
@@ -67,7 +59,7 @@ export default async function HealthcareProvidersTable({
                 </TableCell>
               </TableRow>
             )}
-            {healthcareProviders.result.map((healthcareProvider) => (
+            {healthCareProviders.result.map((healthcareProvider) => (
               <TableRow key={healthcareProvider.id}>
                 <TableCell className="w-fit">
                   <ID>{healthcareProvider.id}</ID>
@@ -116,10 +108,10 @@ export default async function HealthcareProvidersTable({
         </Table>
       </div>
       <Pagination
-        limit={healthcareProviders.limit}
-        offset={healthcareProviders.offset}
-        total={healthcareProviders.total}
-        result={healthcareProviders.result.length}
+        limit={healthCareProviders.limit}
+        offset={healthCareProviders.offset}
+        total={healthCareProviders.total}
+        result={healthCareProviders.result.length}
       />
     </div>
   );

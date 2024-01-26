@@ -10,16 +10,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useSession } from "next-auth/react";
 import { statusArr, type Status } from "~/lib/parseStatus";
+import type { Session } from "next-auth";
 
 export default function Filters({
   isLoading,
+  session,
 }: Readonly<{
   isLoading?: boolean;
+  session?: Session;
 }>) {
-  const session = useSession();
-  const isAdmin = session?.data?.user?.role;
+  const isAdmin = session?.user?.role === "admin";
   const searchParams = useSearchParams();
   const pathname = usePathname();
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -31,7 +32,7 @@ export default function Filters({
 
       params.set("page", "1");
 
-      if (status && statusArr.includes(status as Status) && isAdmin === "admin")
+      if (status && statusArr.includes(status as Status) && isAdmin)
         params.set("status", status);
       else params.delete("status");
 
@@ -55,7 +56,7 @@ export default function Filters({
         }}
         defaultValue={searchParams.get("name")?.toString()}
       />
-      {isAdmin === "admin" && (
+      {isAdmin && (
         <Select
           disabled={isLoading}
           onValueChange={(value) => {
@@ -63,9 +64,7 @@ export default function Filters({
             onSubmit({ name, status: value });
           }}
           defaultValue={
-            searchParams.get("status")?.toString() ?? isAdmin === "admin"
-              ? "all"
-              : "active"
+            searchParams.get("status")?.toString() ?? isAdmin ? "all" : "active"
           }
         >
           <SelectTrigger className="w-[200px] h-[27.5px] text-muted-foreground">

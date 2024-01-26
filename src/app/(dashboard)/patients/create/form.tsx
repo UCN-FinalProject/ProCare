@@ -37,7 +37,6 @@ import { Textarea } from "~/components/ui/textarea";
 import { cn } from "~/lib/utils";
 import { format } from "date-fns";
 import type {
-  Doctor,
   HealthInsuranceList,
   HealthcareProvider,
 } from "~/server/db/export";
@@ -54,7 +53,7 @@ export default function CreatePatientForm({
   healthcareProviders,
   healthInsurances,
 }: Readonly<{
-  doctors: Doctor[];
+  doctors: { id: number; fullName: string }[];
   healthcareProviders: HealthcareProvider[];
   healthInsurances: HealthInsuranceList[];
 }>) {

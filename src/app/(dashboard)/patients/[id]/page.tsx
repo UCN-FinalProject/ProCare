@@ -15,14 +15,6 @@ function getHealthcareProviders() {
   });
 }
 
-function getDoctors() {
-  return api.doctor.getMany({
-    limit: 100,
-    offset: 0,
-    isActive: true,
-  });
-}
-
 function getHealthInsurances() {
   return api.healthInsurance.getMany({
     limit: 100,
@@ -33,12 +25,20 @@ function getHealthInsurances() {
 
 export default async function page({
   params,
-}: Readonly<{ params: { id: string } }>) {
+  searchParams,
+}: Readonly<{
+  params: { id: string };
+  searchParams: { healthcareproviderid?: string };
+}>) {
   const id = String(params.id);
   const [healthcareProviders, doctors, healthInsurances, patient, session] =
     await Promise.all([
       getHealthcareProviders(),
-      getDoctors(),
+      api.doctor.searchDoctors({
+        healthCareProviderID: searchParams.healthcareproviderid
+          ? Number(searchParams.healthcareproviderid)
+          : undefined,
+      }),
       getHealthInsurances(),
       GetPatient(id).catch(() => notFound()),
       getServerAuthSession(),

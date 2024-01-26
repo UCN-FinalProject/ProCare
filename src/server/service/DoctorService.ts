@@ -7,6 +7,7 @@ import type {
   RemoveDoctorInput,
   GetDoctorPatientsInput,
   SearchDoctorsInput,
+  GetDoctorhealthCareProvidersInput,
 } from "./validation/DoctorValidation";
 import { doctor, healthcareProviderDoctors } from "../db/export";
 import { type TRPCContext } from "../api/trpc";
@@ -132,17 +133,43 @@ export default {
     throw new Error("Doctor could not be updated.");
   },
 
-  async getHealthCareProviders({ id, ctx }: { id: number; ctx: TRPCContext }) {
+  async getHealthCareProviders({
+    input,
+    ctx,
+  }: {
+    input: GetDoctorhealthCareProvidersInput;
+    ctx: TRPCContext;
+  }) {
     const res = await ctx.db.query.healthcareProviderDoctors.findMany({
       where: (healthcareProviderDoctors, { eq }) =>
-        eq(healthcareProviderDoctors.doctorID, id),
+        eq(healthcareProviderDoctors.doctorID, input.doctorID),
       orderBy: (healthcareProviderDoctors, { asc }) =>
         asc(healthcareProviderDoctors.id),
       with: {
         healthcareProviders: true,
       },
+      limit: input.limit,
+      offset: input.offset,
     });
-    if (res) return res;
+    const total = await ctx.db.query.healthcareProviderDoctors.findMany({
+      columns: { id: true },
+      where: (healthcareProviderDoctors, { eq }) =>
+        eq(healthcareProviderDoctors.doctorID, input.doctorID),
+      orderBy: (healthcareProviderDoctors, { asc }) =>
+        asc(healthcareProviderDoctors.id),
+    });
+
+    const healthcareProviders = res.map(
+      (provider) => provider.healthcareProviders,
+    );
+
+    if (res)
+      return {
+        result: healthcareProviders,
+        limit: input.limit,
+        offset: input.offset,
+        total: total.length,
+      } satisfies ReturnMany<typeof healthcareProviders>;
     throw new Error("Healthcare providers not found.");
   },
 

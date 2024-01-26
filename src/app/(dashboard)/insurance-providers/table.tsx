@@ -40,7 +40,7 @@ export default async function TableDemo({
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
-        <Table filters={<Filters />}>
+        <Table filters={<Filters session={session} />}>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-[100px]">ID</TableHead>

@@ -11,6 +11,7 @@ import {
   removeDoctorInput,
   getDoctorPatientsInput,
   searchDoctorsInput,
+  getDoctorhealthCareProvidersInput,
 } from "~/server/service/validation/DoctorValidation";
 
 export const doctorRouter = createTRPCRouter({
@@ -139,13 +140,10 @@ export const doctorRouter = createTRPCRouter({
     }),
 
   getHealthCareProviders: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(getDoctorhealthCareProvidersInput)
     .query(async ({ input, ctx }) => {
       try {
-        return await DoctorService.getHealthCareProviders({
-          id: input.id,
-          ctx,
-        });
+        return await DoctorService.getHealthCareProviders({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
