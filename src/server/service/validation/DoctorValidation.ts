@@ -9,6 +9,11 @@ export const getManyDoctorsInput = z.object({
 });
 export type GetManyDoctorsInput = z.infer<typeof getManyDoctorsInput>;
 
+export const searchDoctorsInput = z.object({
+  healthCareProviderID: z.number().optional(),
+});
+export type SearchDoctorsInput = z.infer<typeof searchDoctorsInput>;
+
 export const createDoctorInput = z.object({
   fullName: z.string(),
   doctorID: z.string(),
@@ -36,3 +41,12 @@ export type AddDoctorInput = z.infer<typeof addDoctorInput>;
 
 export const removeDoctorInput = addDoctorInput;
 export type RemoveDoctorInput = z.infer<typeof removeDoctorInput>;
+
+export const getDoctorPatientsInput = z.object({
+  doctorID: z.number(),
+  limit: z.number(),
+  offset: z.number(),
+  isActive: z.boolean().optional(),
+  name: z.string().optional(),
+});
+export type GetDoctorPatientsInput = z.infer<typeof getDoctorPatientsInput>;

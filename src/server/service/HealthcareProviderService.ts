@@ -11,7 +11,7 @@ import {
   healthcareProviderDoctors,
 } from "../db/export";
 import { type TRPCContext } from "../api/trpc";
-import { eq, like } from "drizzle-orm";
+import { and, eq, like } from "drizzle-orm";
 import type { ReturnMany } from "./validation/util";
 
 export default {
@@ -163,14 +163,15 @@ export default {
   },
 
   async addDoctor({ input, ctx }: { input: AddDoctorInput; ctx: TRPCContext }) {
-    const doctor = await ctx.db.query.healthcareProviderDoctors.findFirst({
+    const doctors = await ctx.db.query.healthcareProviderDoctors.findMany({
       where: (healthcareProviderDoctors, { eq }) =>
-        eq(
-          healthcareProviderDoctors.healthcareProviderID,
-          input.healthcareProviderID,
-        ) && eq(healthcareProviderDoctors.doctorID, input.doctorID),
+        eq(healthcareProviderDoctors.doctorID, input.doctorID),
     });
-    if (doctor)
+
+    const alreadyAssigned = doctors.find(
+      (doctor) => doctor.healthcareProviderID === input.healthcareProviderID,
+    );
+    if (alreadyAssigned)
       throw new Error("Doctor is already added to this healthcare provider.");
 
     const addedDoctor = await ctx.db
@@ -207,15 +208,18 @@ export default {
 } as const;
 
 const findManyWhere = (input: GetManyHealthCareProvidersInput) => {
-  let where = undefined;
-  if (input.isActive !== undefined)
-    where = eq(externalHealthcareProvider.isActive, input.isActive);
-  if (input.name !== undefined)
-    where = like(externalHealthcareProvider.name, `%${input.name}%`);
-  if (input.providerId !== undefined)
-    where = like(
-      externalHealthcareProvider.healthcareProviderCode,
-      `%${input.providerId}%`,
-    );
-  return where;
+  return and(
+    input.isActive !== undefined
+      ? eq(externalHealthcareProvider.isActive, input.isActive)
+      : undefined,
+    input.name !== undefined
+      ? like(externalHealthcareProvider.name, `%${input.name}%`)
+      : undefined,
+    input.providerId !== undefined
+      ? like(
+          externalHealthcareProvider.healthcareProviderCode,
+          `%${input.providerId}%`,
+        )
+      : undefined,
+  );
 };

@@ -8,7 +8,7 @@ export const doctor = pgTable("doctor", {
   fullName: varchar("full_name").notNull(),
   doctorID: varchar("doctor_id").notNull(),
   note: varchar("note"),
-  isActive: boolean("is_active").default(true),
+  isActive: boolean("is_active").default(true).notNull(),
 });
 export type Doctor = typeof doctor.$inferSelect;
 

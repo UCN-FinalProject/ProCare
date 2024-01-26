@@ -43,6 +43,7 @@ import type {
 } from "~/server/db/export";
 import { Separator } from "~/components/ui/separator";
 import { patientFormSchema } from "../PatientFormSchema";
+import { usePathname, useRouter } from "next/navigation";
 
 const formSchema = z.object({
   ...patientFormSchema.shape,
@@ -58,6 +59,8 @@ export default function CreatePatientForm({
   healthInsurances: HealthInsuranceList[];
 }>) {
   const [patientID, setPatientID] = useState<string | null>(null);
+  const { replace } = useRouter(); // eslint-disable-line @typescript-eslint/unbound-method
+  const pathname = usePathname();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -331,7 +334,14 @@ export default function CreatePatientForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Healthcare provider</FormLabel>
-              <Select onValueChange={field.onChange}>
+              <Select
+                onValueChange={(value) => {
+                  const params = new URLSearchParams();
+                  params.set("healthcareproviderid", value);
+                  replace(`${pathname}?${params.toString()}`);
+                  field.onChange;
+                }}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select healthcare Provider" />

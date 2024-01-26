@@ -9,6 +9,8 @@ import {
   updateDoctorInput,
   addDoctorInput,
   removeDoctorInput,
+  getDoctorPatientsInput,
+  searchDoctorsInput,
 } from "~/server/service/validation/DoctorValidation";
 
 export const doctorRouter = createTRPCRouter({
@@ -33,6 +35,22 @@ export const doctorRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       try {
         return await DoctorService.getMany({ input, ctx });
+      } catch (error) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Not found",
+          }),
+        });
+      }
+    }),
+
+  searchDoctors: protectedProcedure
+    .input(searchDoctorsInput)
+    .query(async ({ input, ctx }) => {
+      try {
+        return await DoctorService.searchDoctors({ input, ctx });
       } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -166,6 +184,22 @@ export const doctorRouter = createTRPCRouter({
           message: parseErrorMessage({
             error,
             defaultMessage: "Bad request",
+          }),
+        });
+      }
+    }),
+
+  getPatients: protectedProcedure
+    .input(getDoctorPatientsInput)
+    .query(async ({ input, ctx }) => {
+      try {
+        return await DoctorService.getPatients({ input, ctx });
+      } catch (error) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: parseErrorMessage({
+            error,
+            defaultMessage: "Patients not found",
           }),
         });
       }

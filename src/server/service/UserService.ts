@@ -1,4 +1,4 @@
-import { eq, like } from "drizzle-orm";
+import { and, eq, like } from "drizzle-orm";
 import { users } from "../db/export";
 import type {
   UpdateUserInput,
@@ -96,9 +96,11 @@ export default {
 } as const;
 
 const findManyWhere = (input: GetManyUsersInput) => {
-  let where = undefined;
-  if (input.role !== undefined) where = eq(users.role, input.role);
-  if (input.name !== undefined) where = like(users.name, `%${input.name}%`);
-  if (input.email !== undefined) where = like(users.email, `%${input.email}%`);
-  return where;
+  return and(
+    input.role !== undefined ? eq(users.role, input.role) : undefined,
+    input.name !== undefined ? like(users.name, `%${input.name}%`) : undefined,
+    input.email !== undefined
+      ? like(users.email, `%${input.email}%`)
+      : undefined,
+  );
 };

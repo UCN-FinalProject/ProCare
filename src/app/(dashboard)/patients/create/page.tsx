@@ -21,20 +21,22 @@ async function getHealthcareProviders() {
   });
 }
 
-async function getDoctors() {
-  return api.doctor.getMany({
-    limit: 100,
-    offset: 0,
-    isActive: true,
-  });
-}
-
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: Readonly<{
+  searchParams: {
+    healthcareproviderid?: string;
+  };
+}>) {
   const [healthInsurances, healthcareProviders, doctors, session] =
     await Promise.all([
       getHealthInsurances(),
       getHealthcareProviders(),
-      getDoctors(),
+      api.doctor.searchDoctors({
+        healthCareProviderID: searchParams.healthcareproviderid
+          ? Number(searchParams.healthcareproviderid)
+          : undefined,
+      }),
       getServerAuthSession(),
     ]);
   if (session?.user.role !== "admin") return notFound();
