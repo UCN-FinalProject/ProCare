@@ -338,7 +338,7 @@ export default function CreatePatientForm({
                   const params = new URLSearchParams();
                   params.set("healthcareproviderid", value);
                   replace(`${pathname}?${params.toString()}`);
-                  field.onChange;
+                  return field.onChange;
                 }}
               >
                 <FormControl>

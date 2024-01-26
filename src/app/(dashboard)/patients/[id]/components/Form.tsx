@@ -383,7 +383,7 @@ export default function UpdatePatientForm({
                   const params = new URLSearchParams();
                   params.set("healthcareproviderid", value);
                   replace(`${pathname}?${params.toString()}`);
-                  field.onChange;
+                  return field.onChange;
                 }}
                 defaultValue={String(field.value)}
                 disabled={!isAdmin}
