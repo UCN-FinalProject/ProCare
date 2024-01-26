@@ -15,6 +15,7 @@ import { ZodError } from "zod";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { trpcTracingMiddleware } from "@baselime/node-opentelemetry";
+import { env } from "~/env.mjs";
 
 /**
  * 1. CONTEXT
@@ -117,7 +118,7 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(
-  trpcTracingMiddleware({ collectInput: true }),
+  trpcTracingMiddleware({ collectInput: env.NODE_ENV !== "development" }),
 );
 
 /** Reusable middleware that enforces users are logged in before running the procedure. */
@@ -143,7 +144,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  */
 export const protectedProcedure = t.procedure
   .use(enforceUserIsAuthed)
-  .use(trpcTracingMiddleware({ collectInput: true }));
+  .use(trpcTracingMiddleware({ collectInput: env.NODE_ENV !== "development" }));
 
 /**
  * Admin procedure
@@ -164,4 +165,4 @@ const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
 
 export const adminProcedure = t.procedure
   .use(enforceUserIsAdmin)
-  .use(trpcTracingMiddleware({ collectInput: true }));
+  .use(trpcTracingMiddleware({ collectInput: env.NODE_ENV !== "development" }));

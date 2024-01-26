@@ -1,4 +1,7 @@
+import { env } from "process";
+
 export async function register() {
+  if (env.NODE_ENV === "development") return;
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const { BaselimeSDK, VercelPlugin, BetterHttpInstrumentation } =
       await import("@baselime/node-opentelemetry");

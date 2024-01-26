@@ -33,12 +33,11 @@ import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
 import { Textarea } from "~/components/ui/textarea";
 import type {
-  Doctor,
   HealthInsuranceList,
   HealthcareProvider,
 } from "~/server/db/export";
 import { type Session } from "next-auth";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Calendar } from "~/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { Separator } from "~/components/ui/separator";
@@ -58,13 +57,15 @@ export default function UpdatePatientForm({
   session,
 }: Readonly<{
   patient: PatientRes;
-  doctors: Doctor[];
+  doctors: { id: number; fullName: string }[];
   healthInsurances: HealthInsuranceList[];
   healthcareProviders: HealthcareProvider[];
   session: Session;
 }>) {
   const isAdmin = session.user.role === "admin";
   const router = useRouter();
+  const { replace } = useRouter(); // eslint-disable-line @typescript-eslint/unbound-method
+  const pathname = usePathname();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -378,7 +379,12 @@ export default function UpdatePatientForm({
             <FormItem>
               <FormLabel>Healthcare provider</FormLabel>
               <Select
-                onValueChange={field.onChange}
+                onValueChange={(value) => {
+                  const params = new URLSearchParams();
+                  params.set("healthcareproviderid", value);
+                  replace(`${pathname}?${params.toString()}`);
+                  return field.onChange;
+                }}
                 defaultValue={String(field.value)}
                 disabled={!isAdmin}
               >

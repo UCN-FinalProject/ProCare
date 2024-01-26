@@ -15,6 +15,7 @@ import { api } from "~/trpc/server";
 import Filters from "./Filters";
 import type { Role } from "~/lib/parseUserRole";
 import Pagination from "~/components/Pagination";
+import { getServerAuthSession } from "~/server/auth";
 
 export default async function UsersTable({
   name,
@@ -27,6 +28,7 @@ export default async function UsersTable({
   role?: Role;
   page: number;
 }>) {
+  const session = await getServerAuthSession();
   const users = await api.user.getMany({
     limit: 15,
     offset: (page - 1) * 15,
@@ -38,7 +40,7 @@ export default async function UsersTable({
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
-        <Table filters={<Filters />}>
+        <Table filters={<Filters session={session!} />}>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-[100px]">ID</TableHead>

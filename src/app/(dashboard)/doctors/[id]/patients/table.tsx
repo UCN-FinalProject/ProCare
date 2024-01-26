@@ -12,41 +12,33 @@ import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import { api } from "~/trpc/server";
 import type { Session } from "next-auth";
-import { parseStatus } from "~/lib/parseStatus";
-import Filters from "./Filters";
 import Pagination from "~/components/Pagination";
 
-export default async function TablePatients({
-  name,
-  status,
+export default async function TableDoctorPatients({
+  doctorId,
   page,
   session,
 }: Readonly<{
-  name?: string;
-  status?: string;
+  doctorId: number;
   page: number;
   session: Session;
 }>) {
   const isAdmin = session.user.role === "admin";
-  const patients = await api.patient.getMany({
+  const patients = await api.doctor.getPatients({
+    doctorID: doctorId,
     limit: 15,
     offset: (page - 1) * 15,
-    name,
-    isActive: isAdmin ? parseStatus(status) : true,
   });
 
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
-        <Table filters={<Filters session={session} />}>
+        <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-[100px]">ID</TableHead>
               <TableHead>Full Name</TableHead>
               <TableHead className="text-center">Biological Sex</TableHead>
-              <TableHead>City</TableHead>
-              <TableHead>ZipCode</TableHead>
-              <TableHead>Address</TableHead>
               {isAdmin && <TableHead className="text-center">Status</TableHead>}
             </TableRow>
           </TableHeader>
@@ -54,7 +46,7 @@ export default async function TablePatients({
             {patients.result.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={isAdmin ? 7 : 6}
+                  colSpan={4}
                   className="text-center h-32 text-muted-foreground"
                 >
                   No patients
@@ -83,21 +75,6 @@ export default async function TablePatients({
                   >
                     {patient.biologicalSex}
                   </Badge>
-                </TableCell>
-                <TableCell className="font-medium">
-                  <CopyToClipboard text={patient.address?.city ?? ""}>
-                    {patient.address?.city}
-                  </CopyToClipboard>
-                </TableCell>
-                <TableCell className="font-medium">
-                  <CopyToClipboard text={patient.address?.zipCode ?? ""}>
-                    {patient.address?.zipCode}
-                  </CopyToClipboard>
-                </TableCell>
-                <TableCell className="font-medium">
-                  <CopyToClipboard text={patient.address?.address1 ?? ""}>
-                    {patient.address?.address1}
-                  </CopyToClipboard>
                 </TableCell>
                 {isAdmin && (
                   <TableCell align="center">

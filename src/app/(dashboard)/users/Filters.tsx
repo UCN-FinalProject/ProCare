@@ -10,20 +10,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useSession } from "next-auth/react";
 import { roleArr, type Role } from "~/lib/parseUserRole";
+import type { Session } from "next-auth";
 
 export default function Filters({
   isLoading,
+  session,
 }: Readonly<{
   isLoading?: boolean;
+  session?: Session;
 }>) {
-  const session = useSession();
-  const isAdmin = session?.data?.user?.role;
+  const isAdmin = session?.user?.role === "admin";
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { replace } = useRouter();
+  const { replace } = useRouter(); // eslint-disable-line @typescript-eslint/unbound-method
 
   const onSubmit = useDebouncedCallback(
     ({
@@ -39,7 +39,7 @@ export default function Filters({
 
       params.set("page", "1");
 
-      if (role && roleArr.includes(role as Role) && isAdmin === "admin")
+      if (role && roleArr.includes(role as Role) && isAdmin)
         params.set("role", role);
       else params.delete("role");
 
@@ -78,7 +78,7 @@ export default function Filters({
         }}
         defaultValue={searchParams.get("email")?.toString()}
       />
-      {isAdmin === "admin" && (
+      {isAdmin && (
         <Select
           disabled={isLoading}
           onValueChange={(value) => {

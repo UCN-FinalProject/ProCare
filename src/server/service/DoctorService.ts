@@ -1,15 +1,18 @@
-import {
-  type GetManyDoctorsInput,
-  type CreateDoctorInput,
-  type UpdateDoctorInput,
-  type SetStatusDoctorInput,
-  type AddDoctorInput,
-  type RemoveDoctorInput,
+import type {
+  GetManyDoctorsInput,
+  CreateDoctorInput,
+  UpdateDoctorInput,
+  SetStatusDoctorInput,
+  AddDoctorInput,
+  RemoveDoctorInput,
+  GetDoctorPatientsInput,
+  SearchDoctorsInput,
+  GetDoctorhealthCareProvidersInput,
 } from "./validation/DoctorValidation";
-import { asc, eq, like } from "drizzle-orm";
 import { doctor, healthcareProviderDoctors } from "../db/export";
 import { type TRPCContext } from "../api/trpc";
 import type { ReturnMany } from "./validation/util";
+import { and, eq, like } from "drizzle-orm";
 
 export default {
   async getByID({ id, ctx }: { id: number; ctx: TRPCContext }) {
@@ -31,15 +34,16 @@ export default {
       limit: input.limit,
       offset: input.offset,
       where: findManyWhere(input),
-      orderBy: [asc(doctor.id)],
+      orderBy: (doctor, { asc }) => asc(doctor.id),
     });
     const total = await ctx.db.query.doctor.findMany({
       columns: { id: true },
       limit: input.limit,
       offset: input.offset,
       where: findManyWhere(input),
-      orderBy: [asc(doctor.id)],
+      orderBy: (doctor, { asc }) => asc(doctor.id),
     });
+    console.log(res);
 
     if (res)
       return {
@@ -48,6 +52,36 @@ export default {
         limit: input.limit,
         total: total.length,
       } satisfies ReturnMany<typeof res>;
+    throw new Error("Doctors not found.");
+  },
+
+  async searchDoctors({
+    input,
+    ctx,
+  }: {
+    input: SearchDoctorsInput;
+    ctx: TRPCContext;
+  }) {
+    const res = await ctx.db.query.healthcareProviderDoctors.findMany({
+      with: {
+        doctors: {
+          columns: {
+            id: true,
+            fullName: true,
+          },
+        },
+      },
+      where: (healthcareProviderDoctors, { eq }) => {
+        if (!input.healthCareProviderID) return;
+        return eq(
+          healthcareProviderDoctors.healthcareProviderID,
+          input.healthCareProviderID,
+        );
+      },
+    });
+    const doctors = res.map((doctor) => doctor.doctors);
+
+    if (res) return { result: doctors };
     throw new Error("Doctors not found.");
   },
 
@@ -99,17 +133,43 @@ export default {
     throw new Error("Doctor could not be updated.");
   },
 
-  // TODO: test and improve return structure
-  async getHealthCareProviders({ id, ctx }: { id: number; ctx: TRPCContext }) {
+  async getHealthCareProviders({
+    input,
+    ctx,
+  }: {
+    input: GetDoctorhealthCareProvidersInput;
+    ctx: TRPCContext;
+  }) {
     const res = await ctx.db.query.healthcareProviderDoctors.findMany({
       where: (healthcareProviderDoctors, { eq }) =>
-        eq(healthcareProviderDoctors.doctorID, id),
-      orderBy: [asc(healthcareProviderDoctors.id)],
+        eq(healthcareProviderDoctors.doctorID, input.doctorID),
+      orderBy: (healthcareProviderDoctors, { asc }) =>
+        asc(healthcareProviderDoctors.id),
       with: {
         healthcareProviders: true,
       },
+      limit: input.limit,
+      offset: input.offset,
     });
-    if (res) return res;
+    const total = await ctx.db.query.healthcareProviderDoctors.findMany({
+      columns: { id: true },
+      where: (healthcareProviderDoctors, { eq }) =>
+        eq(healthcareProviderDoctors.doctorID, input.doctorID),
+      orderBy: (healthcareProviderDoctors, { asc }) =>
+        asc(healthcareProviderDoctors.id),
+    });
+
+    const healthcareProviders = res.map(
+      (provider) => provider.healthcareProviders,
+    );
+
+    if (res)
+      return {
+        result: healthcareProviders,
+        limit: input.limit,
+        offset: input.offset,
+        total: total.length,
+      } satisfies ReturnMany<typeof healthcareProviders>;
     throw new Error("Healthcare providers not found.");
   },
 
@@ -163,14 +223,52 @@ export default {
     if (removed && removed.length === 1) return removed[0];
     throw new Error("Healthcare provider could not be removed.");
   },
+
+  async getPatients({
+    input,
+    ctx,
+  }: {
+    input: GetDoctorPatientsInput;
+    ctx: TRPCContext;
+  }) {
+    const res = await ctx.db.query.patientHealthcareInfo.findMany({
+      where: (patient, { eq }) => eq(patient.doctorID, input.doctorID),
+      orderBy: (patient, { asc }) => asc(patient.id),
+      limit: input.limit,
+      offset: input.offset,
+      with: {
+        patient: true,
+      },
+    });
+    const total = await ctx.db.query.patientHealthcareInfo.findMany({
+      columns: { id: true },
+      where: (patient, { eq }) => eq(patient.doctorID, input.doctorID),
+      orderBy: (patient, { asc }) => asc(patient.id),
+    });
+
+    const patients = res.map((patient) => patient.patient);
+
+    if (res)
+      return {
+        result: patients,
+        offset: input.offset,
+        limit: input.limit,
+        total: total.length,
+      } satisfies ReturnMany<typeof patients>;
+    throw new Error("Patients not found.");
+  },
 } as const;
 
-const findManyWhere = (input: GetManyDoctorsInput) => {
-  let where = undefined;
-  if (input.isActive !== undefined) where = eq(doctor.isActive, input.isActive);
-  if (input.name !== undefined)
-    where = like(doctor.fullName, `%${input.name}%`);
-  if (input.doctorID !== undefined)
-    where = like(doctor.doctorID, `%${input.doctorID}%`);
-  return where;
-};
+function findManyWhere(input: GetManyDoctorsInput) {
+  return and(
+    input.isActive !== undefined
+      ? eq(doctor.isActive, input.isActive)
+      : undefined,
+    input.name !== undefined
+      ? like(doctor.fullName, `%${input.name}%`)
+      : undefined,
+    input.doctorID !== undefined
+      ? like(doctor.doctorID, `%${input.doctorID}%`)
+      : undefined,
+  );
+}

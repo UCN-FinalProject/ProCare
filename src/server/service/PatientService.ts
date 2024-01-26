@@ -5,7 +5,7 @@ import {
   patientConditions,
   patientHealthcareInfo,
 } from "../db/export";
-import { asc, eq, like } from "drizzle-orm";
+import { and, asc, eq, like } from "drizzle-orm";
 import type {
   SetStatusPatientInput,
   CreatePatientInput,
@@ -389,12 +389,14 @@ export default {
 } as const;
 
 const findManyWhere = (input: GetPatientsInput) => {
-  let where = undefined;
-  if (input.isActive !== undefined)
-    where = eq(patient.isActive, input.isActive);
-  if (input.name !== undefined)
-    where = like(patient.fullName, `%${input.name}%`);
-  return where;
+  return and(
+    input.isActive !== undefined
+      ? eq(patient.isActive, input.isActive)
+      : undefined,
+    input.name !== undefined
+      ? like(patient.fullName, `%${input.name}%`)
+      : undefined,
+  );
 };
 
 type PatientCondition = {
