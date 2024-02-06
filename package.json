@@ -17,7 +17,7 @@
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.10",
     "@hookform/resolvers": "^3.3.2",
-    "@neondatabase/serverless": "^0.7.2",
+    "@neondatabase/serverless": "^0.8.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-dialog": "^1.0.5",
