@@ -45,9 +45,11 @@ export default {
     ctx: TRPCContext;
   }) {
     const res = await ctx.db.query.patientConditions.findMany({
-      where: (patientConditions, { eq }) =>
-        eq(patientConditions.patientID, id) &&
-        eq(patientConditions.removed, false),
+      where: (patientConditions, { eq, and }) =>
+        and(
+          eq(patientConditions.patientID, id),
+          eq(patientConditions.removed, false),
+        ),
       with: {
         condition: true,
       },

@@ -43,6 +43,7 @@ import { CalendarIcon } from "lucide-react";
 import { Separator } from "~/components/ui/separator";
 import { patientFormSchema } from "../../PatientFormSchema";
 import type { PatientRes } from "../page";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   id: z.string(),
@@ -95,6 +96,16 @@ export default function UpdatePatientForm({
       note: patient.note ?? "",
     },
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set(
+      "healthcareproviderid",
+      String(form.watch("healthcareProviderID")),
+    );
+    replace(`${pathname}?${params.toString()}`);
+  }, [form, form.watch("healthcareProviderID")]);
+
   const updatePatient = api.patient.update.useMutation();
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await updatePatient.mutateAsync(
@@ -379,12 +390,7 @@ export default function UpdatePatientForm({
             <FormItem>
               <FormLabel>Healthcare provider</FormLabel>
               <Select
-                onValueChange={(value) => {
-                  const params = new URLSearchParams();
-                  params.set("healthcareproviderid", value);
-                  replace(`${pathname}?${params.toString()}`);
-                  return field.onChange;
-                }}
+                onValueChange={field.onChange}
                 defaultValue={String(field.value)}
                 disabled={!isAdmin}
               >

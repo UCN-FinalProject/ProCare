@@ -31,7 +31,7 @@ import {
 } from "~/components/ui/popover";
 import { Input } from "~/components/ui/input";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Textarea } from "~/components/ui/textarea";
 import { cn } from "~/lib/utils";
@@ -81,6 +81,15 @@ export default function CreatePatientForm({
       healthcareProviderID: 0,
     },
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set(
+      "healthcareproviderid",
+      String(form.watch("healthcareProviderID")),
+    );
+    replace(`${pathname}?${params.toString()}`);
+  }, [form, form.watch("healthcareProviderID")]);
 
   const createPatient = api.patient.create.useMutation();
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -333,14 +342,7 @@ export default function CreatePatientForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Healthcare provider</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  const params = new URLSearchParams();
-                  params.set("healthcareproviderid", value);
-                  replace(`${pathname}?${params.toString()}`);
-                  return field.onChange;
-                }}
-              >
+              <Select onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select healthcare Provider" />
