@@ -47,7 +47,7 @@
     "cmdk": "^0.2.0",
     "docxtemplater": "^3.42.4",
     "drizzle-orm": "^0.29.1",
-    "lucide-react": "^0.338.0",
+    "lucide-react": "^0.350.0",
     "next": "^14.1.0",
     "next-auth": "^4.24.5",
     "next-themes": "^0.2.1",
